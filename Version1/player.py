@@ -1,12 +1,12 @@
 class Player():
 
     '''Function __init__'''
-    def __init__(self,name):
+    def __init__(self,name,empire):
         self.name = name
-        self.empire = 'Santiaguense'
+        self.empire = empire
         self.playerDataSaving()
 
-    '''Function playerDataSaving, writes in a txt file the information from the player'''
+    '''Function playerDataSaving, writes in a txt file the information from the player and deletes the old data'''
     def playerDataSaving(self):
         with open('C:/Users/santi/OneDrive/Escritorio/Santiago/Prog. Or. Obj/T-H-E/Civilization/Version1/data/playerdata.txt','r+') as txt:
             txt.truncate(0)
