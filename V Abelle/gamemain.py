@@ -22,22 +22,30 @@ class GameMain():
         self.screenlogo = pygame.image.load('C:/Users/santi/OneDrive/Escritorio/Santiago/Prog. Or. Obj/T-H-E/Civilization/Version1/resources/images/gamelogo.png')
         self.screenlogocoll = self.screenlogo.get_rect(center = (350,360))
         self.menubuttonplay = pygame.image.load('C:/Users/santi/OneDrive/Escritorio/Santiago/Prog. Or. Obj/T-H-E/Civilization/Version1/resources/images/menubuttontexture.jpg')
-        self.menubuttonplaycoll = self.menubuttonplay.get_rect(midleft = (640,360))
+        self.menubuttonplaycoll = self.menubuttonplay.get_rect(midleft = (640,250))
         self.menubuttonplaytext = self.menufont.render('PLAY',True,[0,0,0])
-        self.menubuttonplaytextcoll = self.menubuttonplaytext.get_rect(center = (952,355))
+        self.menubuttonplaytextcoll = self.menubuttonplaytext.get_rect(center = (952,245))
+        self.menubuttoncredits = pygame.image.load('C:/Users/santi/OneDrive/Escritorio/Santiago/Prog. Or. Obj/T-H-E/Civilization/Version1/resources/images/menubuttontexture.jpg')
+        self.menubuttoncreditstext = self.menufont.render('CREDITS',True,[0,0,0])
+        self.menubuttoncreditscoll = self.menubuttoncredits.get_rect(midleft = (640,450))
+        self.menubuttoncreditstextcoll = self.menubuttoncreditstext.get_rect(center = (952,450))
         self.gameLoop()
 
     '''Function gameLoop, is the game loop'''
     def gameLoop(self):
         while True:
+
+            '''Internal Variables'''
+            mousepos = (1279, 29)
+            mousepos = pygame.mouse.get_pos()
+
+            '''Events Manager'''
             for event in pygame.event.get():
                 '''Exit Event'''
                 if event.type == pygame.QUIT:
                     pygame.quit()
                     exit()
                 '''Mouse Events'''
-                if event.type == pygame.MOUSEMOTION:
-                    mousepos = event.pos
                 if event.type == pygame.MOUSEBUTTONDOWN:
                     pygame.quit()
 
@@ -46,15 +54,20 @@ class GameMain():
             self.screen.blit(self.screenlogo,self.screenlogocoll)
             self.screen.blit(self.menubuttonplay,self.menubuttonplaycoll)
             self.screen.blit(self.menubuttonplaytext,self.menubuttonplaytextcoll)
+            self.screen.blit(self.menubuttoncredits,self.menubuttoncreditscoll)
+            self.screen.blit(self.menubuttoncreditstext,self.menubuttoncreditstextcoll)
 
             '''Control'''
-            '''Mouse Passes Over the Button'''
-            if self.menubuttonplaycoll.collidepoint(mousepos):
+            '''Mouse Passes Over the Buttons'''
+            if self.menubuttonplaycoll.collidepoint(mousepos) == True:
                 pygame.draw.rect(self.screen,[0,0,255],(self.menubuttonplaycoll))
+            if self.menubuttoncreditscoll.collidepoint(mousepos) == True:
+                pygame.draw.rect(self.screen,[0,0,255],(self.menubuttoncreditscoll))
 
             '''System'''
+            pygame.mouse.set_visible(True)
             pygame.display.update()
-            self.clock.tick(60)
+            self.clock.tick(30)
 
 '''Main'''
 if __name__ == '__main__':
