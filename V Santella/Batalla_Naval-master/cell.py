@@ -1,3 +1,7 @@
+import pygame
+
+
+import pygame
 import random
 
 class Cell:
@@ -10,7 +14,7 @@ class Cell:
         self.occupant = None
         self.revealed = False
         self.plants = ""
-        self.tile = []
+        self.tile = None
 
     def set_biome(self, biome):
         self.biome = str(biome)
@@ -34,8 +38,10 @@ class Cell:
             return False
 
     def reveal(self):
-        self.tile = pygame.image.load('asets/floor/' + str(self.biome) + '.png').convert()
+        img = pygame.image.load('asets/floor/' + str(self.biome) + '.png').convert()
+        self.tile = img
         self.tile.set_colorkey((0, 0, 0))
+        return img
     
     def hide(self):
         self.tile = []
