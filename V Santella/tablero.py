@@ -37,8 +37,9 @@ class Tablero:
                 
                 #rios
                 if self.cells[Y + 1][x].biome == "Water" and self.cells[Y - 1][x].biome == "Water" or self.cells[Y + 1][x].biome == "Water" and self.cells[Y][x - 1].biome == "Water":
-                    self.cells[Y][x].set_biome("Water")
-                    continue
+                    lake = random.randrange(1,6)
+                    if lake == 1:
+                        self.cells[Y][x].set_biome("Water")
                 
                 #tierra firme
                 if self.cells[Y + 1 ][x].biome == "Dirt" and self.cells[Y][x + 1].biome == "Dirt" and self.cells[Y][x - 1].biome == "Dirt":
@@ -66,13 +67,13 @@ class Tablero:
                 self.cells[y][x].set_biome("")
     
     def plants_random(self):
-        plants = number_to_plants[random.randrange(1,4)]
+        plants = number_to_plants[random.randrange(1,3)]
         return plants
 
 number_to_biomes = {
     1 : "Water",
-    2 : "Mountain",
-    3 : "Dirt"
+    2 : "Dirt",
+    3 : "Dirt" 
     }
     
 number_to_plants = {
