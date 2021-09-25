@@ -24,10 +24,9 @@ biomeTiles = {"X": pygame.image.load("floor/Dirt.png"),
               "Y": pygame.image.load("floor/Mountain.png"),
               "M": pygame.image.load("floor/Water.png")}
 
-def runGame(mapState):
-    mapObj = mapState["mapObj"]
-    mapWidth = mapState["width"]
-    mapHeight = mapState["height"]
+def runGame(mapObj):
+    mapWidth = len(mapObj) * tileWidth
+    mapHeight = len(mapObj[0]) * tileHeight
     mapNeedRedraw = True # verdadero para qe llame a drawMap()
 
     # Registra cuanto se movio la camara de su punto original
@@ -35,8 +34,8 @@ def runGame(mapState):
     cameraSetOffY = 0 
 
     # Establece el limite de hasta donde puede moverse la camara
-    max_cam_move_X = abs(half_winWIdth - int(mapWidth/2)) - tileWidth
-    max_cam_move_Y = abs(half_winHeight - int(mapHeight/2)) - tileHeight
+    max_cam_move_X = abs(half_winWIdth - int(mapWidth/2))
+    max_cam_move_Y = abs(half_winHeight - int(mapHeight/2))
 
     # Rastrea si las teclas para mover la camara estan presionadas 
     cameraUp = False
@@ -75,18 +74,19 @@ def runGame(mapState):
                 if event.key == K_s:
                     cameraDown = False
 
-            # Si mapNeedRedraw entonces se recarga el mapa
+        # Si mapNeedRedraw entonces se recarga el mapa
         if mapNeedRedraw:
-            mapSurf = writeMap(mapState)
+            mapSurf = writeMap(mapObj)
             mapNeedRedraw = False
         
-        if cameraUp and cameraSetOffY < max_cam_move_X:
+        # Cambia la variable del movimiento de la camara si el usuario presiono la tecla y no supera el limite
+        if cameraUp and cameraSetOffY < max_cam_move_Y:
             cameraSetOffY += cameraMove
-        if cameraDown and cameraSetOffY > -max_cam_move_X:
+        if cameraDown and cameraSetOffY > -max_cam_move_Y:
             cameraSetOffY -= cameraMove
-        if cameraLeft and cameraSetOffX < max_cam_move_Y:
+        if cameraLeft and cameraSetOffX < max_cam_move_X:
             cameraSetOffX += cameraMove
-        if cameraRight and cameraSetOffX > -max_cam_move_Y:
+        if cameraRight and cameraSetOffX > -max_cam_move_X:
             cameraSetOffX -= cameraMove
 
         # Ajusta el centro del mapa segun que tanto lo movio el usuario del centro
@@ -101,14 +101,13 @@ def runGame(mapState):
         pygame.display.update()
         FPSCLOCK.tick()
 
-def writeMap(mapState):
+def writeMap(mapObj):
     """Crea una superficie y dibuja sobre ella el mapa ingresado 
        dibujando casillas por casilla para luego devolverlo e
        actualizarlo en la pantalla principal"""
 
-    mapObj = mapState["mapObj"]
-    mapWidth = mapState["width"] * tileWidth
-    mapHeight = mapState["height"] * tileHeight
+    mapWidth = len(mapObj) * tileWidth
+    mapHeight = len(mapObj[0]) * tileHeight
     
     # Crea una superficie donde dibujar el mapa
     mapSurf = pygame.Surface((mapWidth, mapHeight))
@@ -167,16 +166,12 @@ def readMap(file):
                 for x in range (maxWidth):
                     mapObject[x].append(mapTextLines[y][x])
 
-            mapState = {"width": len(mapObject[0]),
-                        "height": len(mapObject),
-                        "mapObj": mapObject}
-
-    return mapState
+    return mapObject
 
 def terminate():
     """Finaliza el programa y cierra todo"""
     pygame.quit()
     sys.exit()
 
-mapState = readMap("maps/map1.txt")
-runGame(mapState)
+mapObj = readMap("maps/map1.txt")
+runGame(mapObj)
