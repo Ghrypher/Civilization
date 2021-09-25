@@ -1,0 +1,2 @@
+No collisions between the cells and the character
+Character movement broken (moves more than necessarily)
