@@ -3,7 +3,7 @@ from gamemain import GameMain
 
 class Empire():
 
-    '''Function __init__'''
+    """Function __init__"""
     def __init__(self):
         self.name : str
         self.ability : str
@@ -11,7 +11,7 @@ class Empire():
         self.empireability = []
         self.chargeDatatoGame()
 
-    '''Function chargeDatatoGame, reads the txt file that has the information from the empire'''
+    """Function chargeDatatoGame, reads the txt file that has the information from the empire"""
     def chargeDatatoGame(self):
         with open('C:/Users/santi/OneDrive/Escritorio/Santiago/Prog. Or. Obj/T-H-E/Civilization/Version1/data/empiresnames.txt') as txt:
             self.empirename = txt.read()
