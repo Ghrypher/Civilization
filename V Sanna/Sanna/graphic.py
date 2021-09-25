@@ -1,5 +1,7 @@
 import random, sys, copy, os, pygame
 from pygame.locals import *
+from board import Board
+from character import Character
 
 winWidth = 800 # Ancho de la ventana en pixeles
 winHeight = 600 # Alto de la ventana
@@ -8,6 +10,8 @@ half_winHeight = int(winHeight/2)
 
 pygame.init()
 FPSCLOCK = pygame.time.Clock()
+
+board = None
 
 # El ancho y el alto de cada casilla en pixeles
 tileWidth = 32
@@ -28,6 +32,13 @@ def runGame(mapObj):
     mapWidth = len(mapObj) * tileWidth
     mapHeight = len(mapObj[0]) * tileHeight
     mapNeedRedraw = True # verdadero para qe llame a drawMap()
+
+    # Crea el tablero en la clase board
+    createBoard(mapObj)
+
+    character = Character()
+    posX, posY = setPositionRandom(len(mapObj), len(mapObj[0]))
+    character.setPosition(posX, posY)
 
     # Registra cuanto se movio la camara de su punto original
     cameraSetOffX = 0
@@ -62,11 +73,32 @@ def runGame(mapObj):
                     cameraDown = True
                 if event.key == K_w:
                     cameraUp = True
-
+                if event.key == K_UP:
+                    posX, posY = character.getPosition()
+                    if movementPosible(posX, posY - 1):
+                        character.setPosition(posX, posY - 1)
+                        mapNeedRedraw = True
+                elif event.key == K_DOWN:
+                    posX, posY = character.getPosition()
+                    if movementPosible(posX, posY + 1):
+                        character.setPosition(posX, posY + 1)
+                        mapNeedRedraw = True
+                if event.key == K_LEFT:
+                    posX, posY = character.getPosition()
+                    if movementPosible(posX - 1, posY):
+                        character.setPosition(posX - 1, posY)
+                        mapNeedRedraw = True
+                elif event.key == K_RIGHT:
+                    posX, posY = character.getPosition()
+                    if movementPosible(posX + 1, posY):
+                        character.setPosition(posX + 1, posY)
+                        mapNeedRedraw = True
+                
             # Maneja las teclas que fueron soltadas
             if event.type == KEYUP:
                 if event.key == K_a:
                     cameraLeft = False
+                    character.setPosition(2, 2)
                 if event.key == K_d:
                     cameraRight = False
                 if event.key == K_w:
@@ -76,7 +108,7 @@ def runGame(mapObj):
 
         # Si mapNeedRedraw entonces se recarga el mapa
         if mapNeedRedraw:
-            mapSurf = writeMap(mapObj)
+            mapSurf = writeMap(mapObj, character)
             mapNeedRedraw = False
         
         # Cambia la variable del movimiento de la camara si el usuario presiono la tecla y no supera el limite
@@ -101,7 +133,16 @@ def runGame(mapObj):
         pygame.display.update()
         FPSCLOCK.tick()
 
-def writeMap(mapObj):
+def createBoard(mapObj):
+    """Crea el tablero de la clase board y le asigna el bioma a cada celda"""
+    global board
+    board = Board()
+    board.assignSize(len(mapObj))
+    for x in range(len(mapObj)):
+        for y in range(len(mapObj[0])):
+            board.addCellAndBiome(x, y, mapObj[x][y])
+
+def writeMap(mapObj, character):
     """Crea una superficie y dibuja sobre ella el mapa ingresado 
        dibujando casillas por casilla para luego devolverlo e
        actualizarlo en la pantalla principal"""
@@ -120,6 +161,12 @@ def writeMap(mapObj):
 
             # Dibuja el la casilla con el bioma en la superficie
             mapSurf.blit(baseTile, spaceRect)
+
+    # Obtiene la posicion del personaje y lo dibuja
+    positionX, positionY = character.getPosition()
+    spaceRect = pygame.Rect(positionX * tileWidth, positionY * tileHeight, tileWidth, tileHeight)
+    baseCharacter = pygame.image.load("characters/Main.png")
+    mapSurf.blit(baseCharacter, spaceRect)
     
     return mapSurf
 
@@ -167,6 +214,31 @@ def readMap(file):
                     mapObject[x].append(mapTextLines[y][x])
 
     return mapObject
+
+def movementPosible(posX, posY):
+    """Obtiene el bioma de la celda y si es posible caminar sobre el devuelve True
+       de lo contrario devuelve False"""
+    global board
+    if posX >= 0 and posY >= 0:
+        try:
+            biome = board.checkBiome(posX, posY)
+            if biome == "X":
+                return True
+            else:
+                return False
+        except:
+            return False
+    else:
+        return False
+
+def setPositionRandom(width, height):
+    # Selecciona de mandera aleatoria 2 posiciones para spawnear
+    while True:
+        positionX = random.randrange(0, width + 1)
+        positionY = random.randrange(0, height + 1)
+        if movementPosible(positionX, positionY) == True:
+            break
+    return positionX, positionY
 
 def terminate():
     """Finaliza el programa y cierra todo"""
