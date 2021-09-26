@@ -18,4 +18,4 @@ class Player():
             txt.close()
 
 if __name__ == '__main__':
-    playertry = Player('Santi')
+    playertry = Player('TeamWork')

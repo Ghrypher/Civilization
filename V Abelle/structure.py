@@ -8,5 +8,5 @@ class Structure():
         self.cell = ()
 
     """Function spriteSelect, establishes the sprite from the structure basing on the type of structure"""
-    def spriteSelect(self,type):
+    def spriteSelect(self):
         pass

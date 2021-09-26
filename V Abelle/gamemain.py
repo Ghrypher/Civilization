@@ -1,8 +1,9 @@
 """Libraries"""
-import pygame
-import sys
-from pygame.constants import QUIT, SRCALPHA
+import random, sys, copy, os, pygame
+from pygame.constants import QUIT
+from pygame.locals import *
 from gameboard import GameBoard
+from character import Character
 
 """Pygame Init"""
 pygame.init()
@@ -11,88 +12,91 @@ class GameMain():
 
     """Function __init__"""
     def __init__(self):
-        self.screensx = 1280
-        self.screensy = 704
-        self.mousepos = (0,0)
-        self.playing = True
-        self.mousedown = False
-        self.keyup = False
-        self.keydown = False
-        self.keyleft = False
-        self.keyright = False
-        self.cameraup = False
-        self.cameradown = False
-        self.cameraleft = False
-        self.cameraright = False
-        self.mouseclicked = False
-        self.screensize = (self.screensx,self.screensy)
-        self.screen = pygame.display.set_mode(self.screensize)
-        self.clock = pygame.time.Clock()
-        self.menufont = pygame.font.Font('resources/fonts/echantedland/Enchanted Land.otf',100)
-        self.menufontlittle = pygame.font.Font('resources/fonts/echantedland/Enchanted Land.otf',70)
-        self.windowname = pygame.display.set_caption('T-H-E')
-        self.windowiconload = pygame.image.load('resources/icons/windowicon.png')
-        self.windowicon = pygame.display.set_icon(self.windowiconload)
-        self.screenlogo = pygame.image.load('resources/icons/gamelogo.png')
-        self.screenlogocoll = self.screenlogo.get_rect(center = (350,360))
-        self.defaultbackground = pygame.image.load('resources/icons/menuback.jpg')
+        self.screensx = 1280 #Is the width from the window
+        self.screensy = 704 #Is the height from the window
+        self.screensize = (self.screensx,self.screensy) #Is the size from the window
+        self.screen = pygame.display.set_mode(self.screensize) #Create the window
+        self.windowiconload = pygame.image.load('resources/icons/windowicon.png') #Loads the icon from the window
+        self.windowicon = pygame.display.set_icon(self.windowiconload) #Establishes icon from the window that appears on the topleft
+        self.windowname = pygame.display.set_caption('T-H-E') #Establishes the name from the window that appears on the topleft on the side from the icon
+        self.clock = pygame.time.Clock() #Creates the clock function from the game
+        self.mousepos = (0,0) #Records the position from the mouse
+        self.playing = True #Establishes if a function is running or not
+        self.keyup = False #Establishes if the up arrow is pressed or not
+        self.keydown = False #Establishes if the down arrow is pressed or not
+        self.keyleft = False #Establishes if the left arrow is pressed or not
+        self.keyright = False #Establishes if the right arrow is pressed or not
+        self.cameraup = False #Establishes if the camera is going up or not
+        self.cameradown = False #Establishes if the camera is going down or not
+        self.cameraleft = False #Establishes if the camera is going to the left or not
+        self.cameraright = False #Establishes if the camera is going to the right or not
+        self.cameraspeed = 0.5 #Establishes the speed from the camera
+        self.mouseclicked = False #Establishes if the mouse is pressed or not
+        self.tilewidth = 32 #Establishes the width from the tiles
+        self.tileheight = 32 #Establishes the height from the tiles
+        self.menufont = pygame.font.Font('resources/fonts/echantedland/Enchanted Land.otf',100) #Loads the font from the game and establishes his size (It's the bigger one)
+        self.menufontlittle = pygame.font.Font('resources/fonts/echantedland/Enchanted Land.otf',90) #Loads the font from the game and establishes his size (It's the middle one)
+        self.menufontlittle2 = pygame.font.Font('resources/fonts/echantedland/Enchanted Land.otf',73) #Loads the font from the game and establishes his size (It's the smaller one)
+        self.screenlogo = pygame.image.load('resources/icons/gamelogo.png') #Loads the logo from the game that will appear on the menu
+        self.screenlogocoll = self.screenlogo.get_rect(center = (350,360)) #Creates the surface from the previous logo
+        self.defaultbackground = pygame.image.load('resources/icons/defaultback.jpg') #Loads the background from the game menues
+        """Work In Progress"""
+        self.workinprogressmessage = self.menufont.render('WORK IN PROGRESS',True,[0,0,0]) #Renders the message on the selected font
+        self.underconstruction = pygame.image.load('resources/icons/underconstruction.png').convert_alpha() #Loads the 'under construction' image
         """Buttons"""
-        self.buttonwoodtexture = pygame.image.load('resources/icons/menubuttontexture.jpg')
-        self.underconstruction = pygame.image.load('resources/icons/underconstruction.png').convert_alpha()
+        self.buttonwoodtexture = pygame.image.load('resources/icons/menubuttontexture.jpg') #Loads the texture from the game buttons
         """Exit"""
-        self.exitbackground = pygame.image.load('resources/icons/exitback.png')
-        self.exitbackground.set_alpha(5)
-        self.exitbackgroundpos = (0,0)
-        self.exittext = self.menufont.render('DO YOU WANT TO EXIT?',True,[255,255,255])
-        self.exittextpos = (215,50)
-        self.exitbuttonyes = self.buttonwoodtexture
-        self.exitbuttonyescoll = self.exitbuttonyes.get_rect(center = (640,275))
-        self.exitbuttonyestext = self.menufont.render('YES',True,[0,0,0])
-        self.exitbuttonyestextcoll = self.exitbuttonyestext.get_rect(midleft = (585,275))
-        self.exitbuttonno = self.buttonwoodtexture
-        self.exitbuttonnocoll = self.exitbuttonno.get_rect(center = (640,425))
-        self.exitbuttonnotext = self.menufont.render('NO',True,[0,0,0])
-        self.exitbuttonnotextcoll = self.exitbuttonnotext.get_rect(midleft = (585,425))
+        self.exitbackground = pygame.image.load('resources/icons/exitback.png') #Loads the background from the exit User Interface
+        self.exitbackground.set_alpha(5) #Makes the previous background more transparent
+        self.exitbackgroundpos = (0,0) #Establishes the position from the previous background
+        self.exittext = self.menufont.render('DO YOU WANT TO EXIT?',True,[255,255,255]) #Renders the message on the selected font
+        self.exittextpos = (215,50) #Establishes the position from the previous message
+        self.exitbuttonyes = self.buttonwoodtexture #Adds the wood button texture to this button
+        self.exitbuttonyescoll = self.exitbuttonyes.get_rect(center = (640,275)) #Creates the collision from the previous button
+        self.exitbuttonyestext = self.menufont.render('YES',True,[0,0,0]) #Renders the message on the selected font
+        self.exitbuttonyestextcoll = self.exitbuttonyestext.get_rect(midleft = (585,275)) #Creates the surface from the previous text
+        self.exitbuttonno = self.buttonwoodtexture #Adds the wood button texture to this button
+        self.exitbuttonnocoll = self.exitbuttonno.get_rect(center = (640,425)) #Creates the collision from the previous button
+        self.exitbuttonnotext = self.menufont.render('NO',True,[0,0,0]) #Renders the message on the selected font
+        self.exitbuttonnotextcoll = self.exitbuttonnotext.get_rect(midleft = (585,425)) #Creates the surface from the previous text
         """Map Selector"""
-        self.mapselectorbutton = self.buttonwoodtexture
-        self.mapselectorbuttoncoll = self.mapselectorbutton.get_rect(midleft = (640,238))
-        self.mapselectorbuttontext = self.menufontlittle.render('MAP SELECTION',True,[0,0,0])
-        self.mapselectorbuttontextcoll = self.mapselectorbuttontext.get_rect(center = (952,230))
+        self.mapselectorbutton = self.buttonwoodtexture #Adds the wood button texture to this button
+        self.mapselectorbuttoncoll = self.mapselectorbutton.get_rect(midleft = (640,238)) #Creates the collision from the previous button
+        self.mapselectorbuttontext = self.menufontlittle.render('MAP SELECTION',True,[0,0,0]) #Renders the message on the selected font
+        self.mapselectorbuttontextcoll = self.mapselectorbuttontext.get_rect(center = (946,230)) #Creates the surface from the previous text
         """Credits"""
-        self.menubuttoncredits = self.buttonwoodtexture
-        self.menubuttoncreditstext = self.menufont.render('CREDITS',True,[0,0,0])
-        self.menubuttoncreditscoll = self.menubuttoncredits.get_rect(midleft = (640,368))
-        self.menubuttoncreditstextcoll = self.menubuttoncreditstext.get_rect(center = (952,368))
-        self.creditstemporaly = self.menufont.render('WORK IN PROGRESS',True,[0,0,0])
+        self.menubuttoncredits = self.buttonwoodtexture #Adds the wood button texture to this button
+        self.menubuttoncreditstext = self.menufont.render('CREDITS',True,[0,0,0]) #Renders the message on the selected font
+        self.menubuttoncreditscoll = self.menubuttoncredits.get_rect(midleft = (640,368)) #Creates the collision from the previous button
+        self.menubuttoncreditstextcoll = self.menubuttoncreditstext.get_rect(center = (952,368)) #Creates the surface from the previous text
         """Instructions"""
-        self.menubuttoninstructions = self.buttonwoodtexture
-        self.menubuttoninstructionstext = self.menufont.render('INSTRUCTIONS',True,[0,0,0])
-        self.menubuttoninstructionscoll = self.menubuttoninstructions.get_rect(midleft = (640,498))
-        self.menubuttoninstructionstextcoll = self.menubuttoninstructionstext.get_rect(center = (940,498))
-        self.instructionstemporaly = self.menufont.render('WORK IN PROGRESS',True,[0,0,0])
+        self.menubuttoninstructions = self.buttonwoodtexture #Adds the wood button texture to this button
+        self.menubuttoninstructionstext = self.menufont.render('INSTRUCTIONS',True,[0,0,0]) #Renders the message on the selected font
+        self.menubuttoninstructionscoll = self.menubuttoninstructions.get_rect(midleft = (640,498)) #Creates the collision from the previous button
+        self.menubuttoninstructionstextcoll = self.menubuttoninstructionstext.get_rect(center = (940,498)) #Creates the surface from the previous text
         """Play Random"""
-        self.randomplaybutton = self.buttonwoodtexture
-        self.randomplaybuttoncoll = self.randomplaybutton.get_rect(midleft = (335,275))
-        self.randomplaybuttontext = self.menufontlittle.render('PLAY RANDOM',True,[0,0,0])
-        self.randomplaybuttontextcoll = self.randomplaybuttontext.get_rect(center = (635,275))
+        self.randomplaybutton = self.buttonwoodtexture #Adds the wood button texture to this button
+        self.randomplaybuttoncoll = self.randomplaybutton.get_rect(midleft = (335,275)) #Creates the collision from the previous button
+        self.randomplaybuttontext = self.menufontlittle.render('PLAY RANDOM',True,[0,0,0]) #Renders the message on the selected font
+        self.randomplaybuttontextcoll = self.randomplaybuttontext.get_rect(center = (635,275)) #Creates the surface from the previous text
         """Play Pre-Created"""
-        self.createdplaybutton = self.buttonwoodtexture
-        self.createdplaybuttoncoll = self.createdplaybutton.get_rect(midleft = (335,425))
-        self.createdplaybuttontext = self.menufontlittle.render('PLAY PRE-CREATED',True,[0,0,0])
-        self.createdplaybuttontextcoll = self.createdplaybuttontext.get_rect(center = (635,425))
+        self.createdplaybutton = self.buttonwoodtexture #Adds the wood button texture to this button
+        self.createdplaybuttoncoll = self.createdplaybutton.get_rect(midleft = (335,425)) #Creates the collision from the previous button
+        self.createdplaybuttontext = self.menufontlittle2.render('PLAY PRE-CREATED',True,[0,0,0]) #Renders the message on the selected font
+        self.createdplaybuttontextcoll = self.createdplaybuttontext.get_rect(center = (635,425)) #Creates the surface from the previous text
         """Game Resources"""
-        self.gamebackground = pygame.image.load('resources/icons/mapsize.jpg')
-        self.gamebackgroundscaled = pygame.transform.scale2x(self.gamebackground)
-        self.defaultcursor = pygame.image.load('resources/icons/defaultcursor.png').convert_alpha()
-        self.swordcursor = pygame.image.load('resources/icons/swordcursor.png').convert_alpha()
-        self.handcursor = pygame.image.load('resources/icons/handcursor.png').convert_alpha()
-        self.foundersprite = pygame.image.load('resources/icons/foundersprite.png')
-        self.founderspritescaled = pygame.transform.scale2x(self.foundersprite)
-        self.founderspriteposx = 515
-        self.founderspriteposy = 325
-        self.founderspritecoll = self.founderspritescaled.get_rect().move(self.founderspriteposx,self.founderspriteposy)
-        self.nonreachables = []
-        self.menuLoop()
+        self.gamebackground = pygame.image.load('resources/icons/map/created/mapsize.jpg') #Loads the temporaly map image
+        self.gamebackgroundscaled = pygame.transform.scale2x(self.gamebackground) #Scales the previous image x2
+        self.defaultcursor = pygame.image.load('resources/icons/defaultcursor.png').convert_alpha() #Loads the default cursor image
+        self.swordcursor = pygame.image.load('resources/icons/swordcursor.png').convert_alpha() #Loads the sword cursor image
+        self.handcursor = pygame.image.load('resources/icons/handcursor.png').convert_alpha() #Loads the hand cursor image
+        self.foundersprite = pygame.image.load('resources/icons/foundersprite.png') #Loads the default character image
+        self.founderspritescaled = pygame.transform.scale2x(self.foundersprite) #Scales the previous image x2
+        self.founderspriteposx = 515 #Establishes the position on 'x' from the default character
+        self.founderspriteposy = 325 #Establishes the position on 'y' from the default character
+        self.founderspritecoll = self.founderspritescaled.get_rect().move(self.founderspriteposx,self.founderspriteposy) #Creates the collision from the default character
+        self.biometiles = {"X": pygame.image.load("resources/icons/map/floor/dirt.png"),"M": pygame.image.load("resources/icons/map/floor/mountain.png"),"Y": pygame.image.load("resources/icons/map/floor/water.png")} #Dictionary that records the different sprites from the leeters that appears on the map txt
+        self.menuLoop() #Starts the program from the menuLoop function
 
     """Function menuLoop, is the menu loop"""
     def menuLoop(self):
@@ -149,25 +153,59 @@ class GameMain():
                 self.screen.blit(self.handcursor,self.mousepos)
                 if self.mouseclicked == True:
                     self.mouseclicked = False
-                    self.creditsOpen(True)
+                    self.workInProgress(True) #creditsOpen(True)
             """Instructions"""
             if self.menubuttoninstructionscoll.collidepoint(self.mousepos) == True:
                 pygame.draw.rect(self.screen,[0,0,255],(self.menubuttoninstructionscoll))
                 self.screen.blit(self.handcursor,self.mousepos)
                 if self.mouseclicked == True:
                     self.mouseclicked = False
-                    self.instructionsOpen(True)
+                    self.workInProgress(True) #instructionsOpen(True)
 
             """System"""
             pygame.display.update()
             self.clock.tick(30)
+
+    """Function workInProgress, is a temporaly function which says that this part of the code is not finished yet"""
+    def workInProgress(self,playing):
+        self.playing = playing
+        while self.playing == True:
+            """Mouse"""
+            self.mousepos = pygame.mouse.get_pos()
+            pygame.mouse.set_visible(False)
+
+            """Events Manager"""
+            for event in pygame.event.get():
+                """Exit Event"""
+                if event.type == pygame.QUIT:
+                    self.exitUI('credits')
+                """Keyboard Events"""
+                """Pressed"""
+                if event.type == pygame.KEYDOWN:
+                    """Escape"""
+                    if event.key == pygame.K_ESCAPE:
+                        self.playing = False
+            
+            """Draw Calls"""
+            """Background"""
+            self.screen.blit(self.defaultbackground,(0,0))
+            """Under Construction"""
+            self.screen.blit(self.workinprogressmessage,(275,300))
+            self.screen.blit(self.underconstruction,(425,75))
+            self.screen.blit(self.defaultcursor,self.mousepos)
+
+            """System"""
+            pygame.display.update()
+            self.clock.tick(30)
+
+        self.menuLoop()
 
     """Function exitUI, ask if you want to exit"""
     def exitUI(self,gamemode):
         while True:
             """Mouse"""
             self.mousepos = pygame.mouse.get_pos()
-            pygame.mouse.set_visible(True)
+            pygame.mouse.set_visible(False)
 
             """Events Manager"""
             for event in pygame.event.get():
@@ -205,6 +243,7 @@ class GameMain():
             """No"""
             if self.exitbuttonnocoll.collidepoint(self.mousepos) == True:
                 pygame.draw.rect(self.screen,[0,0,255],(self.exitbuttonnocoll))
+                self.screen.blit(self.handcursor,self.mousepos)
                 if self.mouseclicked == True:
                     self.mouseclicked = False
                     if gamemode == 'random':
@@ -248,7 +287,7 @@ class GameMain():
             """Background"""
             self.screen.blit(self.defaultbackground,(0,0))
             """Under Construction"""
-            self.screen.blit(self.creditstemporaly,(275,300))
+            self.screen.blit(self.workinprogressmessage,(275,300))
             self.screen.blit(self.underconstruction,(425,75))
             self.screen.blit(self.defaultcursor,self.mousepos)
 
@@ -281,7 +320,7 @@ class GameMain():
             """Background"""
             self.screen.blit(self.defaultbackground,(0,0))
             """Under Construction"""
-            self.screen.blit(self.instructionstemporaly,(275,300))
+            self.screen.blit(self.workinprogressmessage,(275,300))
             self.screen.blit(self.underconstruction,(425,75))
             self.screen.blit(self.defaultcursor,self.mousepos)
 
@@ -341,7 +380,7 @@ class GameMain():
                 self.screen.blit(self.handcursor,self.mousepos)
                 if self.mouseclicked == True:
                     self.mouseclicked = False
-                    self.randomMapMode(True)
+                    self.creditsOpen(True) #randomMapMode(True)
             """Pre-Created Map"""
             if self.createdplaybuttoncoll.collidepoint(self.mousepos) == True:
                 pygame.draw.rect(self.screen,[0,0,255],(self.createdplaybuttoncoll))
@@ -355,8 +394,8 @@ class GameMain():
             self.clock.tick(30)
 
         self.menuLoop()
-    
-    """Function randomMapMode, plays the game on a random map"""
+    """
+    'Function randomMapMode, plays the game on a random map'
     def randomMapMode(self,playing):
         self.playing = playing
         world = GameBoard()
@@ -364,25 +403,25 @@ class GameMain():
         offsetposx = 0
         while self.playing == True:
 
-            """Mouse"""
+            'Mouse'
             self.mousepos = pygame.mouse.get_pos()
             pygame.mouse.set_visible(False)
 
-            """Events Manager"""
+            'Events Manager'
             for event in pygame.event.get():
-                """Exit Event"""
+                'Exit Event'
                 if event.type == pygame.QUIT:
                     self.exitUI('random')
-                """Mouse Events"""
+                'Mouse Events'
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    self.mousedown = True
-                """Keyboard Events"""
-                """Pressed"""
+                    self.mouseclicked = True
+                'Keyboard Events'
+                'Pressed'
                 if event.type == pygame.KEYDOWN:
-                    """Escape"""
+                    'Escape'
                     if event.key == pygame.K_ESCAPE:
                         self.playing = False
-                    """Arrows"""
+                    'Arrows'
                     if event.key == pygame.K_UP and offsetposy <= 0 and offsetposy >= -1408:
                         self.cameraup = True
                     if event.key == pygame.K_DOWN and offsetposy <= 0 and offsetposy >= -1408:
@@ -391,7 +430,7 @@ class GameMain():
                         self.cameraleft = True
                     if event.key == pygame.K_RIGHT and offsetposx <= 0 and offsetposx >= -2432:
                         self.cameraright = True
-                    """Letters"""
+                    'Letters'
                     if event.key == pygame.K_w:
                         self.keyup = True
                     if event.key == pygame.K_s:
@@ -400,9 +439,9 @@ class GameMain():
                         self.keyleft = True
                     if event.key == pygame.K_d:
                         self.keyright = True
-                """Released"""
+                'Released'
                 if event.type == pygame.KEYUP:
-                    """Arrows"""
+                    'Arrows'
                     if event.key == pygame.K_UP and offsetposy <= 0 and offsetposy >= -1408:
                         self.cameraup = False
                     if event.key == pygame.K_DOWN and offsetposy <= 0 and offsetposy >= -1408:
@@ -411,7 +450,7 @@ class GameMain():
                         self.cameraleft = False
                     if event.key == pygame.K_RIGHT and offsetposx <= 0 and offsetposx >= -2432:
                         self.cameraright = False
-                    """Letters"""
+                    'Letters'
                     if event.key == pygame.K_w:
                         self.keyup = False
                     if event.key == pygame.K_s:
@@ -421,7 +460,7 @@ class GameMain():
                     if event.key == pygame.K_s:
                         self.keyright = False
 
-            """Draw Calls"""
+            'Draw Calls'
             self.screen.fill([255,255,255])
             for Y in range(23):
                 for X in range(40):
@@ -454,8 +493,8 @@ class GameMain():
                     if world.getTiles(Y, X) == "mountain" or world.getTiles(Y,X) == "water":
                         self.nonreachables.append(str(x)+ " " +str(y))
 
-            """Control"""
-            """Character"""
+            'Control'
+            'Character'
             prevposx = self.founderspriteposx
             prevposy = self.founderspriteposy
             if self.keyup == True:
@@ -469,7 +508,7 @@ class GameMain():
             if self.keyright == True:
                 self.founderspriteposx += 64
             elif self.keyright == False:
-                pass
+                self.founderspriteposx += 0
             if self.keyleft == True:
                 self.founderspriteposx -= 64
             elif self.keyleft == False:
@@ -483,7 +522,7 @@ class GameMain():
             else:
                 self.founderspriteposx = prevposx
                 self.founderspriteposy = prevposy
-            """Camera"""
+            'Camera'
             if self.cameraup == True:
                 offsetposy += 64
             if self.cameradown == True:
@@ -493,18 +532,18 @@ class GameMain():
             if self.cameraleft == True:
                 offsetposx += 64
 
-            """Cursor Draw Update"""
+            'Cursor Draw Update'
             if self.founderspritecoll.collidepoint(self.mousepos) == True:
                 self.screen.blit(self.swordcursor,self.mousepos)
             else:
                 self.screen.blit(self.defaultcursor,self.mousepos)
 
-            """System"""
+            'System'
             pygame.display.update()
             self.clock.tick(60)
 
         self.gameMapSelector(True)
-
+    """
     """Function preCreatedMapMode, plays the game on pre-created map"""
     def preCreatedMapMode(self,playing):
         self.playing = playing
@@ -523,7 +562,7 @@ class GameMain():
                     self.exitUI('created')
                 """Mouse Events"""
                 if event.type == pygame.MOUSEBUTTONDOWN:
-                    self.mousedown = True
+                    self.mouseclicked = True
                 """Keyboard Events"""
                 """Pressed"""
                 if event.type == pygame.KEYDOWN:
