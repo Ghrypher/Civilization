@@ -1,3 +1,5 @@
-No collisions between the cells and the character
-Character movement broken (moves more than necessarily)
-While exit function is on, the cursor does something weird
+Random Map:
+	-No collisions between the cells and the character
+	-Character movement broken (moves more than necessarily)
+ExitUI:
+	-While exit function is on, the cursor does something weird
