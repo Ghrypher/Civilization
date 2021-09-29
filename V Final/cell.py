@@ -12,7 +12,7 @@ class Cell:
         self.biome = ""
         self.busy = False
         self.occupant = None
-        self.revealed = False
+        self.active = False
         self.plants = ""
         self.tile = None
         self.position_x = int
