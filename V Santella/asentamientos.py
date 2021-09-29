@@ -9,15 +9,17 @@ class Asentamientos:
         self.build_id = int
 
     def set_qualieties(self, build_id):
-        self.build_id = build_id
+        """ funcion que establece las cualidades """
+        """self.build_id = build_id
         if build_id = 1
 
         if build_id = 2
 
-        if build_id = 3
+        if build_id = 3"""
 
     definir_cualidades= {
-        1 :self.life = 1,
+        """ diccionario que ponndra las caracteristicas de cada edificio """
+        """1 :self.life = 1,
             self.utility = "house",
             self.shield = 0
 
@@ -27,7 +29,7 @@ class Asentamientos:
 
         3 :self.life = 3,
             self.utility = "scout",
-            self.shield = 10
+            self.shield = 10"""
     }
     """
     1 casa
