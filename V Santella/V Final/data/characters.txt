@@ -1,0 +1,5 @@
+fundador
+guerrero-c-c
+guerrero-c-d
+explorador
+obrero
