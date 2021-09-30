@@ -145,6 +145,8 @@ class Graphic:
             for y in range(len(M_Obj[x])):
                 spaceRect = pygame.Rect(x * self.tile_size, y * self.tile_size, self.tile_size, self.tile_size)
                 baseTile = Map_to_Tile[M_Obj[x][y]]
+                if Map_to_Tile[M_Obj[x][y]] == "M" or Map_to_Tile[M_Obj[x][y]] == "Y" :
+                        self.non_reachables.append(str(x)+ " " +str(y))
 
                 # Dibuja el la casilla con el bioma en la superficie
                 M_surf.blit(baseTile, spaceRect)
