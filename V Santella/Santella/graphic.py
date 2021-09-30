@@ -39,7 +39,7 @@ class Graphic:
 
     def random_game_loop(self):
         """ funcion encargada de crear el mundo y adminstrar personajes """
-        self.world = Tablero()
+        self.world = Tablero(40, 23)
         self.world.random_world()
         offset_pos_y = 0
         offset_pos_x = 0
@@ -134,10 +134,6 @@ class Graphic:
             self.character_pos_y = prev_pos_y
             return False
     
-        
-    def blit(self, offset_pos_x, offset_pos_y): 
-        """  """
-    
     def Load_map(self, M_Obj):
         """ """
         
@@ -204,7 +200,7 @@ class Graphic:
         return self.M_Obj
 
     def menu_loop(self):
-        self.world = Tablero()
+        self.world = Tablero(40, 23)
         self.world.background_world()
         while True:
 
@@ -275,11 +271,11 @@ class Graphic:
 
         posX, posY = self.setPositionRandom(len(self.M_Obj), len(self.M_Obj[0]), c_SetOffX, c_SetOffY)
         self.character_pos_x = 0 
-        self.character_pos_y = 16
+        self.character_pos_y = 0
 
         # Establece el limite de hasta donde puede moverse la camara
-        max_cam_move_X = 999999
-        max_cam_move_Y = 999999
+        max_cam_move_X = abs(half_winWIdth - int(M_width/2))
+        max_cam_move_Y = abs(half_winHeight - int(M_height/2))
 
         # Rastrea si las teclas para mover la camara estan presionadas 
         c_Up = False
@@ -300,7 +296,7 @@ class Graphic:
                     self.terminate()
 
                 # Maneja las teclas que fueron presionadas
-                if event.type == KEYUP:
+                if event.type == KEYDOWN:
 
                     # camera
                     if event.key == K_LEFT:
@@ -372,7 +368,7 @@ class Graphic:
     def createBoard(self, M_Obj):
         """Crea el tablero de la clase board y le asigna el bioma a cada celda"""
         global board
-        board = Tablero()
+        board = Tablero(len(M_Obj), len(M_Obj[0]))
         for x in range(len(M_Obj)):
             for y in range(len(M_Obj[0])):
                 board.addCellAndBiome(y, x, M_Obj[x][y])

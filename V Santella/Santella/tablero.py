@@ -2,10 +2,10 @@ import random
 from cell import Cell
 
 class Tablero:
-    def __init__(self):
+    def __init__(self, ancho, alto):
         """ constructor de la clase """
-        self.ancho = 40
-        self.alto = 23
+        self.ancho = ancho
+        self.alto = alto
         self.cells = []
         self.non_reachables =[]
         self.crear_tablero()
