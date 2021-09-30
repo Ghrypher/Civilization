@@ -121,6 +121,10 @@ class Tablero:
         else:
             return True
             
+    def addCellAndBiome(self, x, y, biome):
+        """Añade un objeto Cell a la lista correspondiente y le establece el bioma"""
+        self.cells[x].append(Cell())
+        self.cells[x][y].set_biome(biome)
 
 number_to_biomes = {
     1 : "Water",
