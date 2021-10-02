@@ -121,10 +121,25 @@ class Tablero:
         else:
             return True
             
+    def set_biome(self, x, y, biome):
+        """Añade un objeto Cell a la lista correspondiente y le establece el bioma"""
+        self.cells[x][y].set_biome(biome)
+
+    def get_biome(self, x, y):
+        """  """
+        biome = self.cells[x][y].get_biome()
+        return biome
+    
     def addCellAndBiome(self, x, y, biome):
         """Añade un objeto Cell a la lista correspondiente y le establece el bioma"""
         self.cells[x].append(Cell())
         self.cells[x][y].set_biome(biome)
+    
+    def assignSize(self, width):
+        """Asigna el tamaño del tablero segun el tamaño del mapa"""
+        self.cells = [] 
+        for _ in range(width):
+            self.cells.append([])
 
 number_to_biomes = {
     1 : "Water",
