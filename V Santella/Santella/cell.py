@@ -1,7 +1,3 @@
-import pygame
-
-
-import pygame
 import random
 
 class Cell:
@@ -22,6 +18,9 @@ class Cell:
     def set_biome(self, biome):
         """ establece el bioma de la celda """
         self.biome = str(biome)
+
+    def get_biome(self):
+        return self.biome
 
     def erase_biome(self):
         """ borra el bioma actual de la celda """
