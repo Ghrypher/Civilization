@@ -1,5 +1,15 @@
-Random Map:
-	-No collisions between the cells and the character
-	-Character movement broken (moves more than necessarily)
+Program:
+	-Load time to high - SOLVED
+Game Mode:
+	Pre-Created:
+		-No collisions between the cells and the character - SOLVED
+		-Character movement broken (moves more than necessarily) - SOLVED
+		-Camera don't moves on the x axis
+	Random:
+		-Random not created yet SOLVED
+		-Error of list out of range in gameboard.py line 102 SOLVED
+		-The character doesn't move
 ExitUI:
-	-While exit function is on, the cursor does something weird
+	-While exit function is on, the cursor does something weird - FEATURE NOW :)
+Online:
+	-Server connection not added to the project
