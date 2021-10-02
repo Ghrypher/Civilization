@@ -20,6 +20,10 @@ class Graphic:
         self.mousepos = (0,0)
         self.M_Obj = None
         self.screen = pygame.display.set_mode((1280,704))
+        self.screen_width = 1280
+        self.screen_height = 704
+        self.width = 40
+        self.height = 23
         self.clock = pygame.time.Clock()
         self.mouse_img = pygame.image.load('asets/menus/Mouse.png')
         self.character = pygame.image.load('asets/characters/Fundador_temp.png')
@@ -39,13 +43,17 @@ class Graphic:
 
     def random_game_loop(self):
         """ funcion encargada de crear el mundo y adminstrar personajes """
-        self.world = Tablero(40, 23)
+        
+        self.world = Tablero(self.width, self.height)
         self.world.random_world()
+        self.character_pos_x = 576  
+        self.character_pos_y = 320
         offset_pos_y = 0
         offset_pos_x = 0
         mov_pos_y = 0
         mov_pos_x = 0
         loop = True
+        Map_surf = self.generate_Random_world(offset_pos_x, offset_pos_y)
         while loop:
             '''Mouse'''
             self.mousepos = pygame.mouse.get_pos()
@@ -72,18 +80,20 @@ class Graphic:
                         mov_pos_x = self.tile_size
                     
                     #movimiento del mapa
-                    if event.key == K_UP and offset_pos_y <= -32:
+                    if event.key == K_UP and offset_pos_y <= -(self.screen_height/height):
                         offset_pos_y += self.tile_size
-                    if event.key == K_DOWN and offset_pos_y >= -160:
+                    if event.key == K_DOWN and offset_pos_y >= -(self.screen_height/height):
                         offset_pos_y -= self.tile_size
-                    if event.key == K_LEFT and offset_pos_x <= -32:
+                    if event.key == K_LEFT and offset_pos_x <= -(self.screen_width/width):
                         offset_pos_x += self.tile_size
-                    if event.key == K_RIGHT and offset_pos_x >= -192:
+                    if event.key == K_RIGHT and offset_pos_x >= 32:
                         offset_pos_x -= self.tile_size
                     
                     if event.key == K_ESCAPE:
                         loop = False
-                    
+
+                    Map_surf = self.generate_Random_world(offset_pos_x, offset_pos_y)
+            self.screen.blit(Map_surf,(0 + offset_pos_x,0 + offset_pos_y))        
             self.generate_Random_world(offset_pos_x, offset_pos_y)  
             self.check_charac_pos(mov_pos_x, mov_pos_y, offset_pos_x, offset_pos_y)
 
@@ -97,25 +107,28 @@ class Graphic:
         self.menu_loop()
     
     def generate_Random_world(self, offset_pos_x, offset_pos_y):
-        for Y in range(23):
-                for X in range(40):
-                    #obtencion de pngs
-                    tile = pygame.image.load('asets/floor/' + str(self.world.get_tiles(Y, X)) + '.png').convert()
-                    x = self.tile_size * X
-                    y = self.tile_size * Y
+
+        M_width = self.width * self.tile_size
+        M_height = self.height * self.tile_size
+
+        M_surf = pygame.Surface((M_width, M_height))
+        for y in range(self.height):
+            for x in range(self.width):
+                spaceRect = pygame.Rect((x * self.tile_size) , (y * self.tile_size) , self.tile_size, self.tile_size)
+                tile = pygame.image.load('asets/floor/' + str(self.world.get_tiles(y, x)) + '.png').convert()
+                
+                if ((x-(self.character_pos_x/self.tile_size))**2 + (y-(self.character_pos_y/self.tile_size))**2)**(1/2) <= 5:
+                    self.world.cells[y][x].revealed = True
                     
-                    if ((X-self.character_pos_x/self.tile_size)**2 + (Y-self.character_pos_y/self.tile_size)**2)**(1/2) <= 5:
-                        self.world.cells[Y][X].revealed = True
-
-                    if self.world.cells[Y][X].revealed == True:
-                        self.screen.blit(tile,(x + offset_pos_x,y + offset_pos_y))
-                    else:
-                        self.screen.blit(self.hidden,(x + offset_pos_x,y + offset_pos_y))
-
-                    # guadado de celdas inalcanzables
-                    if self.world.get_tiles(Y, X) == "Mountain" or self.world.get_tiles(Y, X) == "Water" or Y == 0 or X == 0 or Y == 22 or X == 39:
-                        self.non_reachables.append(str(x)+ " " +str(y))
-        
+                if self.world.cells[y][x].revealed == True:
+                    M_surf.blit(tile, spaceRect)
+                else:
+                    M_surf.blit(self.hidden, spaceRect)
+                
+                if self.world.get_tiles(y, x) == "Mountain" or self.world.get_tiles(y, x) == "Water" or y == 0 or x == 0 or y == 220 or x == 390:
+                        self.non_reachables.append(str(x * self.tile_size)+ " " +str(y * self.tile_size))
+        return M_surf
+               
     def check_charac_pos(self, mov_pos_x, mov_pos_y, offset_pos_x, offset_pos_y):
         #posicion previa
         prev_pos_x =self.character_pos_x
@@ -145,17 +158,11 @@ class Graphic:
             for y in range(len(M_Obj[x])):
                 spaceRect = pygame.Rect(x * self.tile_size, y * self.tile_size, self.tile_size, self.tile_size)
                 baseTile = Map_to_Tile[M_Obj[x][y]]
-                if Map_to_Tile[M_Obj[x][y]] == "M" or Map_to_Tile[M_Obj[x][y]] == "Y" :
-                        self.non_reachables.append(str(x)+ " " +str(y))
+                if M_Obj[x][y] == "M" or M_Obj[x][y] == "Y" :
+                    self.non_reachables.append(str(y * self.tile_size)+ " " +str(x * self.tile_size))
 
                 # Dibuja el la casilla con el bioma en la superficie
-                M_surf.blit(baseTile, spaceRect)
-
-        # Obtiene la posicion del personaje y lo dibuja
-        spaceRect = pygame.Rect(self.character_pos_x * self.tile_size, self.character_pos_x * self.tile_size, self.tile_size, self.tile_size)
-        baseCharacter = pygame.image.load("asets/characters/fundador_temp.png")
-        M_surf.blit(baseCharacter, spaceRect)
-        
+                M_surf.blit(baseTile, spaceRect)        
         return M_surf
     
     def Read_Map (self, file):
@@ -204,11 +211,13 @@ class Graphic:
     def menu_loop(self):
         self.world = Tablero(40, 23)
         self.world.background_world()
+        background = self.Load_background()
         while True:
+            self.screen.blit(background, (0,0))
 
             '''Mouse'''
             self.mousepos = pygame.mouse.get_pos()
-            pygame.mouse.set_visible(True)
+            pygame.mouse.set_visible(False)
 
             '''Events Manager'''
             for event in pygame.event.get():
@@ -222,17 +231,13 @@ class Graphic:
                 else:
                     self.mouseclicked = False
 
-            # Draw Calls
-
-            self.Load_background()
-            self.screen.blit(self.screenlogo,self.screenlogocoll)
-            
             # Play button 
             self.screen.blit(self.menu_button_play,self.menubuttonplaycoll)
             if self.menubuttonplaycoll.collidepoint(self.mousepos) == True:
                 self.screen.blit(self.menu_button_play_p,(self.menubuttonplaycoll))
                 if self.mouseclicked == True:
                     self.mouseclicked = False
+                    self.non_reachables =[]
                     self.random_game_loop()
             
             # load button 
@@ -241,29 +246,36 @@ class Graphic:
                 self.screen.blit(self.menu_button_play_p,(self.menubuttonplaycoll_2))
                 if self.mouseclicked == True:
                     self.mouseclicked = False
+                    self.non_reachables =[]
                     self.M_Obj = self.Read_Map("maps/map1.txt")
                     self.load_game_loop(self.M_Obj)
 
             '''System'''
+            self.screen.blit(self.screenlogo,self.screenlogocoll)
+            self.screen.blit(self.mouse_img,self.mousepos)
             pygame.display.update()
             self.clock.tick(30)
         
     def Load_background(self):    
-        for Y in range(23):
-            for X in range(40):
-                tile = pygame.image.load('asets/floor/' + str(self.world.get_tiles(Y, X)) + '.png').convert()
-                x = self.tile_size * X
-                y = self.tile_size * Y
-                self.screen.blit(tile,(x ,y))
-        self.screen.blit(self.filtro,(0, 0))
+        M_width =40 * self.tile_size
+        M_height = 23 * self.tile_size
+
+        M_surf = pygame.Surface((M_width, M_height))
+        for y in range(23):
+            for x in range(40):
+                spaceRect = pygame.Rect(x * self.tile_size, y * self.tile_size, self.tile_size, self.tile_size)
+                baseTile = pygame.image.load('asets/floor/' + str(self.world.get_tiles(y, x)) + '.png').convert()
+                # Dibuja el la casilla con el bioma en la superficie
+                M_surf.blit(baseTile, spaceRect)
+        return M_surf
     
     def load_game_loop(self, M_Obj):
         M_width = len(self.M_Obj) * self.tile_size
         M_height = len(self.M_Obj[0]) * self.tile_size
         mapNeedRedraw = True # verdadero para qe llame a drawMap()
-        half_winWIdth = 640
-        half_winHeight = 352
-        c_Move= 0.5
+        half_winWIdth = self.screen_width/2
+        half_winHeight = self.screen_height/2
+        c_Move= 1.5
 
         c_SetOffX = 0
         c_SetOffY = 0 
@@ -271,9 +283,10 @@ class Graphic:
         # Crea el tablero en la clase board
         self.createBoard(self.M_Obj)
 
-        posX, posY = self.setPositionRandom(len(self.M_Obj), len(self.M_Obj[0]), c_SetOffX, c_SetOffY)
-        self.character_pos_x = 0 
-        self.character_pos_y = 0
+        self.character_pos_x, self.character_pos_y = self.setPositionRandom(len(self.M_Obj), len(self.M_Obj[0]), c_SetOffX, c_SetOffY)
+        """mapRect = M_surf.get_rect()
+        mapRect.center = (half_winWIdth + c_SetOffX, half_winHeight + c_SetOffY)
+        self.character_pos_x, self.character_pos_y = mapRect.center """
 
         # Establece el limite de hasta donde puede moverse la camara
         max_cam_move_X = abs(half_winWIdth - int(M_width/2))
@@ -286,10 +299,13 @@ class Graphic:
         c_Right = False
 
         # Comienza el loop del juego hasta que el juegador cierre el juego
-        while True: 
+        loop = True
+        while loop: 
             mov_pos_y = 0
             mov_pos_x = 0
-            
+            '''Mouse'''
+            self.mousepos = pygame.mouse.get_pos()
+            pygame.mouse.set_visible(False)
 
             # Registra y obtiene todos los eventos que realizo el usuario como un click o apretar una tecla
             for event in pygame.event.get():
@@ -319,6 +335,9 @@ class Graphic:
                         mov_pos_x = -self.tile_size
                     if event.key == K_d:
                         mov_pos_x = self.tile_size
+                    
+                    if event.key == K_ESCAPE:
+                        loop = False
                 
                 if event.type == KEYUP:
                     if event.key == K_LEFT:
@@ -348,24 +367,16 @@ class Graphic:
             # Ajusta el centro del mapa segun que tanto lo movio el usuario del centro
             mapRect = M_surf.get_rect()
             mapRect.center = (half_winWIdth + c_SetOffX, half_winHeight + c_SetOffY)
-
             self.screen.fill((0,0,0))
 
             # Dibuja el mapa en la pantalla del display
             self.screen.blit(M_surf, mapRect)
             self.check_charac_pos(mov_pos_x, mov_pos_y, c_SetOffX, c_SetOffY)
-
+            
+            self.screen.blit(self.mouse_img,self.mousepos)
             pygame.display.update()
             self.clock.tick()
-        
-    def setPositionRandom(width, height):
-        # Selecciona de mandera aleatoria 2 posiciones para spawnear
-        while True:
-            positionX = random.randrange(0, width + 1)
-            positionY = random.randrange(0, height + 1)
-            if movementPosible(positionX, positionY) == True:
-                break
-        return positionX, positionY
+        self.menu_loop()
     
     def createBoard(self, M_Obj):
         """Crea el tablero de la clase board y le asigna el bioma a cada celda"""
@@ -374,15 +385,6 @@ class Graphic:
         for x in range(len(M_Obj)):
             for y in range(len(M_Obj[0])):
                 board.addCellAndBiome(y, x, M_Obj[x][y])
-    
-    def setPositionRandom(self, width, height, c_SetOffX, c_SetOffY):
-        # Selecciona de mandera aleatoria 2 posiciones para spawnear
-        while True:
-            positionX = random.randrange(0, width + 1)
-            positionY = random.randrange(0, height + 1)
-            if self.check_charac_pos(positionX, positionY, c_SetOffX, c_SetOffY) == True:
-                break
-        return positionX, positionY
 
     def terminate(self):
         """Finaliza el programa y cierra todo"""

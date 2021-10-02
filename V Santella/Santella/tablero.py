@@ -26,15 +26,15 @@ class Tablero:
 
     def random_world(self):
         """ crea el mundo aleatoriamente y lo filtra """
-        for Y in range(23):
-            for x in range(40):
+        for Y in range(self.alto):
+            for x in range(self.ancho):
                 ran = str(self.biome_random())
                 self.cells[Y][x].set_biome(ran)
 
-        for Y in range(23):
-            for x in range(40):
+        for Y in range(self.alto):
+            for x in range(self.ancho):
                 #bordes
-                if x == 0 or Y == 0 or x == 39 or Y == 22:
+                if x == 0 or Y == 0 or x == (self.ancho-1) or Y == (self.alto-1):
                     self.cells[Y][x].set_biome("Barrier")
                     continue
                 
