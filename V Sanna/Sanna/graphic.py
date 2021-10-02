@@ -34,7 +34,7 @@ class Graphic():
         
         self.mapObj = self.readMap("maps/map1.txt")
         # Crea el tablero en la clase board
-        self.board = self.createBoard()
+        self.createBoard()
         self.character = None
         self.runGame()
 
@@ -80,6 +80,7 @@ class Graphic():
                         cameraDown = True
                     if event.key == K_w:
                         cameraUp = True
+                        
                     if event.key == K_UP:
                         posX, posY = self.character.getPosition()
                         if self.movementPosible(posX, posY - 1):
@@ -141,12 +142,11 @@ class Graphic():
 
     def createBoard(self):
         """Crea el tablero de la clase board y le asigna el bioma a cada celda"""
-        global board
-        board = Board()
-        board.assignSize(len(self.mapObj))
+        self.board = Board()
+        self.board.assignSize(len(self.mapObj))
         for x in range(len(self.mapObj)):
             for y in range(len(self.mapObj[0])):
-                board.addCellAndBiome(x, y, self.mapObj[x][y])
+                self.board.addCellAndBiome(x, y, self.mapObj[x][y])
 
     def writeMap(self):
         """Crea una superficie y dibuja sobre ella el mapa ingresado 
@@ -162,18 +162,18 @@ class Graphic():
         # Obtiene la posicion del personaje
         positionX, positionY = self.character.getPosition()
 
-        board.hideAllCells()
+        self.board.hideAllCells()
 
         # Dibuja todas las casillas del mapa generando una superficie nueva 
         for x in range(len(self.mapObj)):
             for y in range(len(self.mapObj[x])):
 
                 if ((x - positionX)**2 + (y - positionY)**2)**(1/2) <= 3:
-                    board.celdas[x][y].visible = True
-                
-                if board.celdas[x][y].visible == True:                
+                    self.board.revealCell(x, y) 
+                                    
+                if self.board.getVisibility(x, y) == True:                
                     spaceRect = pygame.Rect(x*self.tileWidth, y*self.tileHeight, self.tileWidth, self.tileHeight)
-                    baseTile = self.biomeTiles[board.checkBiome(x, y)]
+                    baseTile = self.biomeTiles[self.board.checkBiome(x, y)]
 
                     # Dibuja el la casilla con el bioma en la superficie
                     mapSurf.blit(baseTile, spaceRect)
@@ -239,10 +239,9 @@ class Graphic():
     def movementPosible(self, posX, posY):
         """Obtiene el bioma de la celda y si es posible caminar sobre el devuelve True
         de lo contrario devuelve False"""
-        global board
         if posX >= 0 and posY >= 0:
             try:
-                biome = board.checkBiome(posX, posY)
+                biome = self.board.checkBiome(posX, posY)
                 if biome == "X":
                     return True
                 else:
