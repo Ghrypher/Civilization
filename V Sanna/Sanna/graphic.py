@@ -34,7 +34,7 @@ class Graphic():
         
         self.mapObj = self.readMap("maps/map1.txt")
         # Crea el tablero en la clase board
-        self.board = self.createBoard()
+        self.createBoard()
         self.character = None
         self.runGame()
 
@@ -142,11 +142,11 @@ class Graphic():
 
     def createBoard(self):
         """Crea el tablero de la clase board y le asigna el bioma a cada celda"""
-        board = Board()
-        board.assignSize(len(self.mapObj))
+        self.board = Board()
+        self.board.assignSize(len(self.mapObj))
         for x in range(len(self.mapObj)):
             for y in range(len(self.mapObj[0])):
-                board.addCellAndBiome(x, y, self.mapObj[x][y])
+                self.board.addCellAndBiome(x, y, self.mapObj[x][y])
 
     def writeMap(self):
         """Crea una superficie y dibuja sobre ella el mapa ingresado 
