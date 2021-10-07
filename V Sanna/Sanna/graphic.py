@@ -1,4 +1,4 @@
-import random, sys, copy, os, pygame
+import random, sys, copy, os, pygame, math
 from pygame.locals import *
 from board import Board
 from character import Character
@@ -30,9 +30,13 @@ class Graphic():
         self.biomeTiles = {"X": pygame.image.load("floor/Dirt.png"),
                     "Y": pygame.image.load("floor/Mountain.png"),
                     "M": pygame.image.load("floor/Water.png"),
+                    " X": pygame.image.load("floor/Dirt_inactive.png"),
+                    " Y": pygame.image.load("floor/Mountain_inactive.png"),
+                    " M": pygame.image.load("floor/Water_inactive.png"),
                     " ": pygame.image.load("floor/off_world.png")}
         
         self.mapObj = self.readMap("maps/map1.txt")
+
         # Crea el tablero en la clase board
         self.createBoard()
         self.character = None
@@ -51,6 +55,13 @@ class Graphic():
         cameraSetOffX = 0
         cameraSetOffY = 0 
 
+        #Registra cuanto se movio el mouse en base al movimiento de la camara
+        mouseSetOffX = 0
+        mouseSetOffY = 0
+
+        #Permite saber si se presiono el mouse
+        mousePressed = False
+
         # Establece el limite de hasta donde puede moverse la camara
         max_cam_move_X = abs(self.half_winWIdth - int(mapWidth/2))
         max_cam_move_Y = abs(self.half_winHeight - int(mapHeight/2))
@@ -64,12 +75,15 @@ class Graphic():
         # Comienza el loop del juego hasta que el juegador cierre el juego
         while True: 
 
+            #Obtiene la posicion del mouse
+            mousePos = pygame.mouse.get_pos()
+
             # Registra y obtiene todos los eventos que realizo el usuario como un click o apretar una tecla
             for event in pygame.event.get():
                 if event.type == QUIT:
                     # El usuario presiono la "X" para cerrar la aplicacion
                     self.terminate()
-
+                
                 # Maneja las teclas que fueron presionadas
                 if event.type == KEYDOWN:
                     if event.key == K_a:
@@ -112,6 +126,9 @@ class Graphic():
                         cameraUp = False
                     if event.key == K_s:
                         cameraDown = False
+                
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mousePressed = True
 
             # Si mapNeedRedraw entonces se recarga el mapa
             if mapNeedRedraw:
@@ -131,6 +148,18 @@ class Graphic():
             # Ajusta el centro del mapa segun que tanto lo movio el usuario del centro
             mapRect = mapSurf.get_rect()
             mapRect.center = (self.half_winWIdth + cameraSetOffX, self.half_winHeight + cameraSetOffY)
+
+            # Obtiene la posicion de arriba a la izquierda del mapa, donde esta ubicada la camara
+            mapRectX, mapRectY = mapRect.topleft
+            topLeftPos = abs(mapRectX), abs(mapRectY)
+
+            # Suma dos tuplas
+            mousePos = tuple(sum(x) for x in zip(mousePos, topLeftPos))
+
+            if mousePressed:
+                posX, posY = mousePos
+                print(self.board.checkBiome(math.floor(posX/32), math.floor(posY/32)))
+                mousePressed = False
 
             self.screen.fill((0,0,0))
 
@@ -171,18 +200,25 @@ class Graphic():
                 if ((x - positionX)**2 + (y - positionY)**2)**(1/2) <= 3:
                     self.board.revealCell(x, y) 
                                     
-                if self.board.getVisibility(x, y) == True:                
+                if self.board.getVisibility(x, y) == (True, True):                
                     spaceRect = pygame.Rect(x*self.tileWidth, y*self.tileHeight, self.tileWidth, self.tileHeight)
                     baseTile = self.biomeTiles[self.board.checkBiome(x, y)]
 
                     # Dibuja el la casilla con el bioma en la superficie
                     mapSurf.blit(baseTile, spaceRect)
                 else:
-                    spaceRect = pygame.Rect(x*self.tileWidth, y*self.tileHeight, self.tileWidth, self.tileHeight)
-                    baseTile = self.biomeTiles[" "]
+                    if self.board.getVisibility(x, y) == (False, True):
+                        spaceRect = pygame.Rect(x*self.tileWidth, y*self.tileHeight, self.tileWidth, self.tileHeight)
+                        baseTile = self.biomeTiles[" " + self.board.checkBiome(x, y)]
 
-                    # Dibuja el la casilla con el bioma en la superficie
-                    mapSurf.blit(baseTile, spaceRect)
+                        # Dibuja el la casilla con el bioma en la superficie
+                        mapSurf.blit(baseTile, spaceRect)
+                    else:
+                        spaceRect = pygame.Rect(x*self.tileWidth, y*self.tileHeight, self.tileWidth, self.tileHeight)
+                        baseTile = self.biomeTiles[" "]
+
+                        # Dibuja el la casilla con el bioma en la superficie
+                        mapSurf.blit(baseTile, spaceRect)
 
         # Dibuja al personaje 
         spaceRect = pygame.Rect(positionX * self.tileWidth, positionY * self.tileHeight, self.tileWidth, self.tileHeight)
