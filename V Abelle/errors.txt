@@ -5,6 +5,7 @@ Game Mode:
 		-No collisions between the cells and the character - SOLVED
 		-Character movement broken (moves more than necessarily) - SOLVED
 		-Camera don't moves on the x axis
+		-Error 'Cell' no attribute 'hideCell' in gameboard.py line 142
 	Random:
 		-Random not created yet SOLVED
 		-Error of list out of range in gameboard.py line 102 SOLVED
