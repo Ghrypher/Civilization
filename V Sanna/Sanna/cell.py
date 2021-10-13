@@ -4,6 +4,7 @@ class Cell():
         self.troop = None
         self.biome = None
         self.visible = False
+        self.revealed = False
     
     def setBiome(self, biome):
         self.biome = biome
@@ -16,6 +17,10 @@ class Cell():
     
     def showCell(self):
         self.visible = True
+        self.revealed = True
     
     def getVisibility(self):
-        return self.visible
+        return self.visible, self.revealed
+    
+    def revealCell(self):
+        self.revealed = True
