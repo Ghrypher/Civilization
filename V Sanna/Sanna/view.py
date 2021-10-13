@@ -47,17 +47,14 @@ class Graphic():
         mapHeight = len(self.mapObj[0]) * self.tileHeight
         mapNeedRedraw = True # verdadero para qe llame a drawMap()
 
-        self.character = Character()
-        posX, posY = self.setPositionRandom(len(self.mapObj), len(self.mapObj[0]))
-        self.character.setPosition(posX, posY)
+        for x in range(2):
+            posX, posY = self.setPositionRandom(len(self.mapObj), len(self.mapObj[0]))
+            self.board.createUnit(posX, posY)
+            self.character = self.board.getUnit(posX, posY)
 
         # Registra cuanto se movio la camara de su punto original
         cameraSetOffX = 0
         cameraSetOffY = 0 
-
-        #Registra cuanto se movio el mouse en base al movimiento de la camara
-        mouseSetOffX = 0
-        mouseSetOffY = 0
 
         #Permite saber si se presiono el mouse
         mousePressed = False
@@ -98,21 +95,29 @@ class Graphic():
                     if event.key == K_UP:
                         posX, posY = self.character.getPosition()
                         if self.movementPosible(posX, posY - 1):
+                            self.board.removeUnitCell(posX, posY)
+                            self.board.assignUnitCell(posX , posY - 1, self.character)    
                             self.character.setPosition(posX, posY - 1)
                             mapNeedRedraw = True
                     elif event.key == K_DOWN:
                         posX, posY = self.character.getPosition()
                         if self.movementPosible(posX, posY + 1):
+                            self.board.removeUnitCell(posX, posY)
+                            self.board.assignUnitCell(posX, posY + 1, self.character)    
                             self.character.setPosition(posX, posY + 1)
                             mapNeedRedraw = True
                     if event.key == K_LEFT:
                         posX, posY = self.character.getPosition()
                         if self.movementPosible(posX - 1, posY):
+                            self.board.removeUnitCell(posX, posY)
+                            self.board.assignUnitCell(posX - 1, posY, self.character)    
                             self.character.setPosition(posX - 1, posY)
                             mapNeedRedraw = True
                     elif event.key == K_RIGHT:
                         posX, posY = self.character.getPosition()
                         if self.movementPosible(posX + 1, posY):
+                            self.board.removeUnitCell(posX, posY)
+                            self.board.assignUnitCell(posX + 1, posY, self.character)                            
                             self.character.setPosition(posX + 1, posY)
                             mapNeedRedraw = True
                     
@@ -158,7 +163,9 @@ class Graphic():
 
             if mousePressed:
                 posX, posY = mousePos
-                print(self.board.checkBiome(math.floor(posX/32), math.floor(posY/32)))
+                unit = self.board.getUnit(math.floor(posX/32), math.floor(posY/32))
+                if unit != None:
+                    self.character = unit
                 mousePressed = False
 
             self.screen.fill((0,0,0))
@@ -188,10 +195,18 @@ class Graphic():
         # Crea una superficie donde dibujar el mapa
         mapSurf = pygame.Surface((mapWidth, mapHeight))
 
-        # Obtiene la posicion del personaje
-        positionX, positionY = self.character.getPosition()
-
         self.board.hideAllCells()
+
+        unitList = self.board.getListUnits()
+
+        # Revela todas las celdas alrededor de todas las unidades que haya
+        for unit in range(len(unitList)):            
+            positionX, positionY = unitList[unit].getPosition() # Obtiene la posicion del personaje
+            for x in range(len(self.mapObj)):
+                for y in range(len(self.mapObj[x])):
+
+                    if ((x - positionX)**2 + (y - positionY)**2)**(1/2) <= 3:
+                        self.board.revealCell(x, y) 
 
         # Dibuja todas las casillas del mapa generando una superficie nueva 
         for x in range(len(self.mapObj)):
@@ -221,9 +236,11 @@ class Graphic():
                         mapSurf.blit(baseTile, spaceRect)
 
         # Dibuja al personaje 
-        spaceRect = pygame.Rect(positionX * self.tileWidth, positionY * self.tileHeight, self.tileWidth, self.tileHeight)
-        baseCharacter = pygame.image.load("characters/Main.png")
-        mapSurf.blit(baseCharacter, spaceRect)
+        for unit in range(len(unitList)):
+            positionX, positionY = unitList[unit].getPosition()
+            spaceRect = pygame.Rect(positionX * self.tileWidth, positionY * self.tileHeight, self.tileWidth, self.tileHeight)
+            baseCharacter = pygame.image.load("characters/Main.png")
+            mapSurf.blit(baseCharacter, spaceRect)
         
         return mapSurf
 
@@ -278,7 +295,8 @@ class Graphic():
         if posX >= 0 and posY >= 0:
             try:
                 biome = self.board.checkBiome(posX, posY)
-                if biome == "X":
+                unit = self.board.getUnit(posX, posY)
+                if biome == "X" and unit == None:
                     return True
                 else:
                     return False
