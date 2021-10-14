@@ -1,0 +1,7 @@
+;Mapa hecho por Ian Sanna
+;Los elementos en el mapa corresponden de la siguiente manera
+;  X: Valle
+;  Y: Montaña
+;  M: Mar
+
+; Empezando el nivel:
