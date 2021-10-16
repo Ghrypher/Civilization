@@ -8,11 +8,17 @@ class Tablero:
         self.alto = alto
         self.cells = []
         self.non_reachables =[]
+        self.map_to_text = {"Barrier" : "B",
+                            "Dirt" : "D",
+                            "Water" : "W",
+                            "Mountain" :"M",
+                            "Revealed" :"R",
+                            "Hidden" : "H"}
         self.crear_tablero()
 
 
     def crear_tablero(self):
-        """ crea un tablero de 40x23 """
+        """ crea un tablero de ancho por alto """
         for columna in range (0, self.alto):
             lista = []
             for fila in range (0, self.ancho):
@@ -60,6 +66,15 @@ class Tablero:
                     plant = self.plants_random()
                     self.cells[Y][x].set_plants(plant)
                     continue
+
+        self.document_txt("Maps/random_world.txt")
+        f = open("Maps/random_world.txt", "a+")
+        for y in range(self.alto):
+            f.write("\n")
+            for x in range(self.ancho):
+                tile = self.map_to_text[self.get_tiles(y, x)]
+                f.write(tile)
+
     
     def background_world(self):
         """ crea el mundo aleatoriamente y lo filtra """
@@ -140,6 +155,21 @@ class Tablero:
         self.cells = [] 
         for _ in range(width):
             self.cells.append([])
+    
+    def document_txt(self,path):
+        f = open(path, "w")
+        f.write(";Map made by Santella Agustin")
+        f.write("\n")
+        f.write(";element index")
+        f.write("\n")
+        f.write(";  D : Diert")
+        f.write("\n")
+        f.write(";  M : Mountain")
+        f.write("\n")
+        f.write(";  W : Water")
+        f.write("\n")
+        f.write("\n")
+        f.write("; starting the level:")
 
 number_to_biomes = {
     1 : "Water",
