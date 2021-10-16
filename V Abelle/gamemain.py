@@ -6,8 +6,8 @@ from character import Character
 
 class GameMain():
 
-    """Function __init__"""
     def __init__(self):
+        """Function __init__"""
         self.playing = True #Establishes if a function is running or not
         self.cameraspeed = 5 #Establishes the speed from the camera
         self.tilesize = 32 #Establishes the size from the tiles
@@ -29,12 +29,12 @@ class GameMain():
         self.character = None
         self.menuLoop() #Starts the program from the menuLoop function
 
-    """Function loadingBarProgress, establishes the progress from the loading bar"""
     def loadingBarProgress(self,mode):
+        """Function loadingBarProgress, establishes the progress from the loading bar"""
         self.gameview.loadBarView(mode)
 
-    """Function menuLoop, is the menu loop"""
     def menuLoop(self):
+        """Function menuLoop, is the menu loop"""
         """First Draw Call"""
         self.gameview.menuFirstDraw()
 
@@ -50,8 +50,8 @@ class GameMain():
         elif selectedmenu == 'insts':
             self.instructionsOpen()
 
-    """Function workInProgress, is a temporaly function which says that this part of the code is not finished yet"""
     def workInProgress(self,mode):        
+        """Function workInProgress, is a temporaly function which says that this part of the code is not finished yet"""
         self.gameview.workInProgressFirstDraw()
         
         self.gameviewreturned = self.gameview.workInProgressView()
@@ -64,8 +64,8 @@ class GameMain():
             else:
                 self.menuLoop()
 
-    """Function exitUI, ask if you want to exit"""
     def exitUI(self,gamemode):
+        """Function exitUI, ask if you want to exit"""
         self.gameview.exitUIFirstDraw()
 
         self.gameviewreturned = self.gameview.exitUIView(gamemode)
@@ -85,8 +85,8 @@ class GameMain():
         elif self.gameviewreturned == 'mode':
             self.gameMapSelector(True)
 
-    """Function creditsOpen, put the credits on screen"""
     def creditsOpen(self):
+        """Function creditsOpen, put the credits on screen"""
         self.gameview.creditsFirstDraw()
 
         returnedvalue = ''
@@ -98,8 +98,8 @@ class GameMain():
         else:
             self.menuLoop()
 
-    """Function instructionsOpen, put the instructions on screen"""
     def instructionsOpen(self):
+        """Function instructionsOpen, put the instructions on screen"""
         self.gameview.instructionsFirstDraw()
 
         returnedvalue = ''
@@ -111,8 +111,8 @@ class GameMain():
         else:
             self.menuLoop()
         
-    """Function gameMapSelector, is the game map selector"""
     def gameMapSelector(self):
+        """Function gameMapSelector, is the game map selector"""
         self.loadingBarProgress(2)
 
         self.gameview.mapSelectorFirstDraw()

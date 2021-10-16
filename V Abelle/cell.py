@@ -3,8 +3,8 @@ import random
 
 class Cell():
 
-    """Function __init__"""
     def __init__(self):
+        """Function __init__"""
         self.occupant = None
         self.visible = False
         self.biome = None
@@ -16,53 +16,53 @@ class Cell():
         self.position_x = int
         self.position_y = int
 
-    """Function setBiome, establishes the biome from the cell"""
     def setBiome(self,biome):
+        """Function setBiome, establishes the biome from the cell"""
         self.biome = str(biome)
 
-    """Function eraseBiome, deletes the actual biome from the cell"""
     def eraseBiome(self):
+        """Function eraseBiome, deletes the actual biome from the cell"""
         if self.biome != "":
             self.biome = ""
 
-    """Function readBiome, returns what biome contains the cell"""
     def getBiome(self):
+        """Function readBiome, returns what biome contains the cell"""
         return self.biome
 
-    """Function setPlants, puts a plant on the cell"""
     def setPlants(self,plants):
+        """Function setPlants, puts a plant on the cell"""
         self.plants = str(plants)
 
-    """Function erasePlants, deletes the plant from the cell"""
     def erasePlants(self):
+        """Function erasePlants, deletes the plant from the cell"""
         if self.plants != "":
             self.plants = ""
 
-    """Function freeCell, checks if the cell is empty"""
     def freeCell(self):
+        """Function freeCell, checks if the cell is empty"""
         if self.plants == "" and self.busy == False:
             return True
         else:
             return False
     
-    """Function revealCell, reveals the cell"""
     def revealCell(self):
+        """Function revealCell, reveals the cell"""
         img = pygame.image.load('asets/floor/' + str(self.biome) + '.png').convert()
         self.tile = img
         self.tile.set_colorkey((0, 0, 0))
         return img
 
-    """Function hideCell, hides the cell"""
     def hideCell(self):
+        """Function hideCell, hides the cell"""
         self.tile = []
         self.tile.set_colorkey((0, 0, 0))
 
-    """Function setCoordinates, establishes the cell coordinates"""
     def setCoordinates(self,x,y):
+        """Function setCoordinates, establishes the cell coordinates"""
         self.position_x = x
         self.position_y = y
 
-    """Function getCoordinates, returns the cell coordinates"""
     def getCoordinates(self):
+        """Function getCoordinates, returns the cell coordinates"""
         coordenates = str(self.position_x) + " " + str(self.position_y)
         return coordenates

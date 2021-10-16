@@ -5,12 +5,13 @@ pygame.init()
 
 class GameView():
     def __init__(self):
+        """Function __init__"""
         self.syscon = SystemController()
         self.screensx = 1280 #Is the width from the window
         self.screensy = 704 #Is the height from the window
         self.screensize = (self.screensx,self.screensy) #Is the size from the window
         self.screen = self.syscon.createScreen(self.screensize)
-        self.windowicon,self.windowname,self.menufont,self.menufontlittle,self.menufontlittle2,self.buttonwoodtexture = self.syscon.systemLoads() #Uses the systemLoads function from systemcontroller
+        self.windowicon,self.windowname,self.menufont,self.menufontlittle,self.menufontlittle2,self.buttonwoodtexture,self.buttonselector = self.syscon.systemLoads() #Uses the systemLoads function from systemcontroller
         self.clock = self.syscon.createClock() #Creates the clock function from the game
         self.mousepos = (0,0) #Records the position from the mouse
         self.screenlogo,self.screenlogocoll = self.syscon.screenLogo() #Uses the self.screenLogo function from systemcontroller
@@ -67,6 +68,7 @@ class GameView():
         self.gamemusic2 = None
 
     def loadBarView(self,mode):
+        """Function loadBarView, is the loop from the load bar"""
         loading = True
         loadingstep = 0
         loadingprogressvalue = 0
@@ -135,6 +137,7 @@ class GameView():
             pygame.display.update()
 
     def menuFirstDraw(self):
+        """Function menuFirstDraw, draws in the menu the basic draw"""
         """Draw Calls"""
         """Background"""
         self.screen.blit(self.defaultbackground,(0,0))
@@ -154,6 +157,7 @@ class GameView():
         self.menumusic.set_volume(0.50)
 
     def menuView(self):
+        """Function menuView, is the menu loop"""
         playing = True
         self.mouseclicked = False
 
@@ -198,7 +202,7 @@ class GameView():
             """Mouse Passes Over the Buttons"""
             """Map Select"""
             if self.mapselectorbuttoncoll.collidepoint(self.mousepos) == True:
-                pygame.draw.rect(self.screen,[0,0,255],(self.mapselectorbuttoncoll))
+                self.screen.blit(self.buttonselector,self.mapselectorbuttoncoll)
                 self.screen.blit(self.handcursor,self.mousepos)
                 if self.mouseclicked == True:
                     self.mouseclicked = False
@@ -207,7 +211,7 @@ class GameView():
                     playing = False
             """Credits"""
             if self.menubuttoncreditscoll.collidepoint(self.mousepos) == True:
-                pygame.draw.rect(self.screen,[0,0,255],(self.menubuttoncreditscoll))
+                self.screen.blit(self.buttonselector,self.menubuttoncreditscoll)
                 self.screen.blit(self.handcursor,self.mousepos)
                 if self.mouseclicked == True:
                     self.mouseclicked = False
@@ -215,7 +219,7 @@ class GameView():
                     playing = False
             """Instructions"""
             if self.menubuttoninstructionscoll.collidepoint(self.mousepos) == True:
-                pygame.draw.rect(self.screen,[0,0,255],(self.menubuttoninstructionscoll))
+                self.screen.blit(self.buttonselector,self.menubuttoninstructionscoll)
                 self.screen.blit(self.handcursor,self.mousepos)
                 if self.mouseclicked == True:
                     self.mouseclicked = False
@@ -229,6 +233,7 @@ class GameView():
         return returnedvalue
 
     def workInProgressFirstDraw(self):
+        """Function workInProgressFirstDraw, draws in the screen the basic work in progress menu"""
         """Draw Calls"""
         """Background"""
         self.screen.blit(self.defaultbackground,(0,0))
@@ -237,6 +242,7 @@ class GameView():
         self.screen.blit(self.underconstruction,(425,75))
     
     def workInProgressView(self):
+        """Function workInProgressView, is the work in progress menu loop"""
         returnedvalue = ''
         playing = False
         
@@ -272,6 +278,7 @@ class GameView():
         return returnedvalue
 
     def exitUIFirstDraw(self):
+        """Function exitUIFirstDraw, draws in the screen the basic exit UI menu"""
         """Draw Calls"""
         """Background"""
         self.screen.blit(self.exitbackground,self.exitbackgroundpos)
@@ -287,6 +294,7 @@ class GameView():
         oldmousepos = (0,0)
 
     def exitUIView(self,gamemode):
+        """Function exitUIView, is the exit UI menu loop"""
         oldmousepos = None
         looping = True
 
@@ -321,7 +329,7 @@ class GameView():
                 """Mouse Passes Over the Buttons"""
                 """Yes"""
                 if self.exitbuttonyescoll.collidepoint(self.mousepos) == True:
-                    pygame.draw.rect(self.screen,[0,0,255],(self.exitbuttonyescoll))
+                    self.screen.blit(self.buttonselector,self.exitbuttonyescoll)
                     self.screen.blit(self.handcursor,self.mousepos)
                     if self.mouseclicked == True:
                         self.mouseclicked = False
@@ -329,7 +337,7 @@ class GameView():
                         exit()
                 """No"""
                 if self.exitbuttonnocoll.collidepoint(self.mousepos) == True:
-                    pygame.draw.rect(self.screen,[0,0,255],(self.exitbuttonnocoll))
+                    self.screen.blit(self.buttonselector,self.exitbuttonnocoll)
                     self.screen.blit(self.handcursor,self.mousepos)
                     if self.mouseclicked == True:
                         self.mouseclicked = False
@@ -353,6 +361,7 @@ class GameView():
             return 'mode'
 
     def creditsFirstDraw(self):
+        """Function creditsFirstDraw, draws in the screen the basic credits menu"""
         """Draw Calls"""
         """Background"""
         self.screen.blit(self.defaultbackground,(0,0))
@@ -361,6 +370,7 @@ class GameView():
         self.screen.blit(self.underconstruction,(425,75))
 
     def creditsView(self):
+        """Function creditsView, is the credits menu loop"""
         playing = True
         returnedvalue = ' '
 
@@ -390,6 +400,7 @@ class GameView():
         return returnedvalue
 
     def instructionsFirstDraw(self):
+        """Function instructionsFirstDraw, draws in the screen the basic instructions menu"""
         """Background"""
         self.screen.blit(self.defaultbackground,(0,0))
         """Under Construction"""
@@ -397,6 +408,7 @@ class GameView():
         self.screen.blit(self.underconstruction,(425,75))
 
     def instructionsView(self):
+        """Function instructionsView, is the instructions menu loop"""
         playing = True
         returnedvalue = ' '
 
@@ -425,6 +437,7 @@ class GameView():
         return returnedvalue
 
     def mapSelectorFirstDraw(self):
+        """Function mapSelectorFirstDraw, draws in the screen the basic map selector menu"""
         """Draw Calls"""
         """Background"""
         self.screen.blit(self.defaultbackground,(0,0))
@@ -437,6 +450,7 @@ class GameView():
         self.screen.blit(self.createdplaybuttontext,self.createdplaybuttontextcoll)
 
     def mapSeclectorView(self):
+        """Function mapSeclectorView, is the map selector menu loop"""
         playing = True
         returnedvalue = ''
 
@@ -474,7 +488,7 @@ class GameView():
             """Mouse Passes Over the Buttons"""
             """Random Map"""
             if self.randomplaybuttoncoll.collidepoint(self.mousepos) == True:
-                pygame.draw.rect(self.screen,[0,0,255],(self.randomplaybuttoncoll))
+                self.screen.blit(self.buttonselector,self.randomplaybuttoncoll)
                 self.screen.blit(self.handcursor,self.mousepos)
                 if self.mouseclicked == True:
                     self.mouseclicked = False
@@ -483,7 +497,7 @@ class GameView():
                     playing = False
             """Pre-Created Map"""
             if self.createdplaybuttoncoll.collidepoint(self.mousepos) == True:
-                pygame.draw.rect(self.screen,[0,0,255],(self.createdplaybuttoncoll))
+                self.screen.blit(self.buttonselector,self.createdplaybuttoncoll)
                 self.screen.blit(self.handcursor,self.mousepos)
                 if self.mouseclicked == True:
                     self.mouseclicked = False

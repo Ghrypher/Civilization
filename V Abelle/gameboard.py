@@ -3,29 +3,29 @@ from cell import Cell
 
 class GameBoard():
 
-    """Function __init__"""
     def __init__(self,width,height):
+        """Function __init__"""
         self.cells = []
         self.width = 40
         self.height = 33
         self.nonreachables =[]
         self.createBoard()
 
-    """Function createBoard, creates a game board from 40x23"""
     def createBoard(self):
+        """Function createBoard, creates a game board from 40x23"""
         for column in range (0, self.height):
             list = []
             for row in range (0, self.width):
                 list.append(Cell())
             self.cells.append(list)
 
-    """Function biomeRandom, generates biomes randomly"""
     def biomeRandom(self):
+        """Function biomeRandom, generates biomes randomly"""
         biome = number_to_biomes[random.randrange(1,4)]
         return biome
 
-    """Function randomWorld, create the world randomly and filters it"""
     def randomWorld(self):
+        """Function randomWorld, create the world randomly and filters it"""
         for Y in range(self.height):
             for x in range(self.width):
                 ran = str(self.biomeRandom())
@@ -61,8 +61,8 @@ class GameBoard():
                     self.cells[Y][x].setPlants(plant)
                     continue
 
-    """Function backgroundWorld, create the world randomly and filters it"""
     def backgroundWorld(self):
+        """Function backgroundWorld, create the world randomly and filters it"""
         for Y in range(23):
             for x in range(40):
                 ran = str(self.biomeRandom())
@@ -97,46 +97,46 @@ class GameBoard():
                     self.cells[Y][x].setPlants(plant)
                     continue
 
-    """Function getTiles, returns the biome from a cell"""
     def getTiles(self, y, x):
+        """Function getTiles, returns the biome from a cell"""
         self.cells[y][x].setCoordinates(x, y)
         biome = self.cells[y][x].biome
         return biome
     
-    """Function eraseBoard, deletes the biome from a cell"""
     def eraseBoard(self):
+        """Function eraseBoard, deletes the biome from a cell"""
         for x in range (self.height):
             for y in range (self.width):
                 self.cells[y][x].setBiome("")
 
-    """Function plantsRandom, generates plants randomly"""
     def plantsRandom(self):
+        """Function plantsRandom, generates plants randomly"""
         plants = number_to_plants[random.randrange(1,3)]
         return plants
 
-    """Function checkSpace, checks if the cell is free"""
     def checkSpace(self, coord):
+        """Function checkSpace, checks if the cell is free"""
         if coord in self.nonreachables:
             return False
         else:
             return True
 
-    """Function setBiome, adds a Cell object to the list and establishes the biome"""
     def setBiome(self,x,y,biome):
+        """Function setBiome, adds a Cell object to the list and establishes the biome"""
         self.cells[x][y].setBiome(biome)
 
-    """Function getBiome, """
     def getBiome(self,x,y):
+        """Function getBiome, """
         biome = self.cells[x][y].getBiome()
         return biome
 
-    """Function addCellAndBiome, adds a Cell object to the correspondent list and establishes a biome"""
     def addCellAndBiome(self,x,y,biome):
+        """Function addCellAndBiome, adds a Cell object to the correspondent list and establishes a biome"""
         self.cells[x].append(Cell())
         self.cells[x][y].setBiome(biome)
 
-    """Function assignSize, assigns the size from the map"""
     def assignSize(self,width):
+        """Function assignSize, assigns the size from the map"""
         self.cells = []
         for x in range(width):
             self.cells.append([])

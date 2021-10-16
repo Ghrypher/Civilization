@@ -4,6 +4,7 @@ pygame.init()
 
 class SystemController():
     def __init__(self):
+        """Function __init__"""
         self.event = None
         self.mousepos = None
         self.menufont = None
@@ -12,6 +13,7 @@ class SystemController():
         self.buttexture = None
 
     def controlInputsEvents(self,mode):
+        """Function controlInputsEvents, controls the keyboard or mouse inputs"""
         for self.event in pygame.event.get():
             if self.event.type == pygame.QUIT:
                 return 'exit'
@@ -27,53 +29,58 @@ class SystemController():
                         return 'nonexit'
 
     def controlMouseMovement(self):
+        """Function controlMouseMovement, gets the mouse position and sets the cursor on non visible"""
         self.mousepos = pygame.mouse.get_pos()
         pygame.mouse.set_visible(False)
         return self.mousepos
 
     def createScreen(self,screensize):
+        """Function createScreen, creates the game screen"""
         screen = pygame.display.set_mode(screensize, pygame.RESIZABLE)
         return screen
 
     def createClock(self):
+        """Function createClock, creates the game clock"""
         clock = pygame.time.Clock()
         return clock
 
     def screenUpdate(self,clock,fps):
+        """Function screenUpdate, updates the screen and updates the clock"""
         pygame.display.update()
         clock.tick(fps)
 
-    """Function loadWindowIcon, sets the window icon and name from the resources and loads the different fonts from the game"""
     def systemLoads(self):
-        windowiconload = pygame.image.load('resources/icons/windowicon.png') #Loads the window icon
+        """Function systemLoads, loads all the vital resources from the game"""
+        windowiconload = pygame.image.load('resources/assets/windowicon.png') #Loads the window icon
         windowicon = pygame.display.set_icon(windowiconload) #Sets the window icon
         windowname = pygame.display.set_caption('T-H-E') #Sets the title of the window
         self.menufont = pygame.font.Font('resources/fonts/echantedland/Enchanted Land.otf',100) #Loads the default font
         self.menufontlittle = pygame.font.Font('resources/fonts/echantedland/Enchanted Land.otf',90) #Loads the default font but smaller than the previous one
         self.menufontlittle2 = pygame.font.Font('resources/fonts/echantedland/Enchanted Land.otf',73) #Loads the default font but smaller than the rest
-        self.buttexture = pygame.image.load('resources/icons/menubuttontexture.jpg') #Loads the texture from the game buttons
-        return windowicon,windowname,self.menufont,self.menufontlittle,self.menufontlittle2,self.buttexture
+        self.buttexture = pygame.image.load('resources/assets/menubuttontexture.jpg') #Loads the texture from the game buttons
+        buttselector = pygame.image.load('resources/assets/buttonselector.png')
+        return windowicon,windowname,self.menufont,self.menufontlittle,self.menufontlittle2,self.buttexture,buttselector
 
-    """Function screenLogo, loads the logo and creates the collision"""
     def  screenLogo(self):
-        screenlogo = pygame.image.load('resources/icons/gamelogo.png') #Loads the logo from the main menu
+        """Function screenLogo, loads the logo and creates the collision"""
+        screenlogo = pygame.image.load('resources/assets/gamelogo.png') #Loads the logo from the main menu
         screenlogocoll = screenlogo.get_rect(center = (350,360)) #Creates the collision from the previous logo
         return screenlogo,screenlogocoll
 
-    """Function menuesLoads, loads all the menues resources, renders the texts and creates the collisions"""
     def menuesLoads(self,num):
+        """Function menuesLoads, loads all the menues resources, renders the texts and creates the collisions"""
         if num == 1: #Background image
-            defback = pygame.image.load('resources/icons/defaultback.jpg') #Loads the 'background' image
+            defback = pygame.image.load('resources/assets/defaultback.jpg') #Loads the 'background' image
             menumusic = pygame.mixer.Sound('resources/audio/menusong.mp3')
-            defaultcursor = pygame.image.load('resources/icons/defaultcursor.png').convert_alpha() #Loads the default cursor image
-            handcursor = pygame.image.load('resources/icons/handcursor.png').convert_alpha() #Loads the hand cursor image
+            defaultcursor = pygame.image.load('resources/assets/defaultcursor.png').convert_alpha() #Loads the default cursor image
+            handcursor = pygame.image.load('resources/assets/handcursor.png').convert_alpha() #Loads the hand cursor image
             return defback,menumusic,defaultcursor,handcursor
         elif num == 2: #Work in progress
             workinprogmess = self.menufont.render('WORK IN PROGRESS',True,[0,0,0]) #Renders the message on the selected font
-            underconstruc = pygame.image.load('resources/icons/underconstruction.png').convert_alpha() #Loads the 'under construction' image
+            underconstruc = pygame.image.load('resources/assets/underconstruction.png').convert_alpha() #Loads the 'under construction' image
             return workinprogmess,underconstruc
         elif num == 3: #Exit UI
-            exitback = pygame.image.load('resources/icons/exitback.png') #Loads the exit background
+            exitback = pygame.image.load('resources/assets/exitback.png') #Loads the exit background
             exitback.set_alpha(5) #Makes the exit background a bit less opaque
             exitbackpos = (0,0) #Establishes the position from the previous background
             exittext = self.menufont.render('DO YOU WANT TO EXIT?',True,[255,255,255]) #Renders the message on the selected font
@@ -120,25 +127,25 @@ class SystemController():
         elif num == 9: #Loading
             loadingtext = self.menufont.render('LOADING...',True,[255,255,255]) #Renders the message on the selected font
             loadingtextcoll = loadingtext.get_rect(center = (640,352)) #Creates the collision from the previous text
-            loadingbar = pygame.image.load('resources/icons/loadingbar.png') #Loads the loading bar image
+            loadingbar = pygame.image.load('resources/assets/loadingbar.png') #Loads the loading bar image
             loadingbarcoll = loadingbar.get_rect(center = (640,552)) #Creates the collision from the previous button
             return loadingtext,loadingtextcoll,loadingbar,loadingbarcoll
 
-    """Function gameLoads, loads all the game resources and creates the collisions"""
     def gameLoads(self,num):
+        """Function gameLoads, loads all the game resources and creates the collisions"""
         if num == 1:
-            swordcursor = pygame.image.load('resources/icons/swordcursor.png').convert_alpha() #Loads the sword cursor image
-            foundsprites = pygame.image.load('resources/icons/foundersprite.png') #Loads the default character image
+            swordcursor = pygame.image.load('resources/assets/swordcursor.png').convert_alpha() #Loads the sword cursor image
+            foundsprites = pygame.image.load('resources/assets/foundersprite.png') #Loads the default character image
             foundspriteposx = 515 #Establishes the position on 'x' from the default character
             foundspriteposy = 325 #Establishes the position on 'y' from the default character
             foundspritecoll = foundsprites.get_rect().move(foundspriteposx,foundspriteposy) #Creates the collision from the default character
             biometiles = {
-            "X": pygame.image.load("resources/icons/map/floor/dirt.png"), #16+16+16%
-            "M": pygame.image.load("resources/icons/map/floor/mountain.png"), #16+16+16+8%
-            "Y": pygame.image.load("resources/icons/map/floor/water.png"),#16+16+16+16%
-            " ": pygame.image.load("resources/icons/map/floor/offworld.png") #16+16+16+16+8%
+            "X": pygame.image.load("resources/assets/map/floor/dirt.png"), #16+16+16%
+            "M": pygame.image.load("resources/assets/map/floor/mountain.png"), #16+16+16+8%
+            "Y": pygame.image.load("resources/assets/map/floor/water.png"),#16+16+16+16%
+            " ": pygame.image.load("resources/assets/map/floor/offworld.png") #16+16+16+16+8%
             } #Dictionary that records the different sprites from the leeters that appears on the map txt
-            hidden = pygame.image.load("resources/icons/map/floor/offworld.png")
+            hidden = pygame.image.load("resources/assets/map/floor/offworld.png")
             return swordcursor,foundsprites,foundspriteposx,foundspriteposy,foundspritecoll,biometiles,hidden
         if num == 2: #Music and Sounds
             gamemusic1 = pygame.mixer.Sound('resources/audio/gamemusic1.mp3')

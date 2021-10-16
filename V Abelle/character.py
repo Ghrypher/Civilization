@@ -1,7 +1,7 @@
 class Character():
 
-    """Function __init__"""
     def __init__(self):
+        """Function __init__"""
         self.life = None
         self.team = None
         self.positionx = None
@@ -13,32 +13,32 @@ class Character():
         self.speed : int
         self.resources : int
 
-    """Function setPosition, establishes the position from the character"""
     def setPosition(self,posx,posy):
+        """Function setPosition, establishes the position from the character"""
         self.positionx = posx
         self.positiony = posy
 
-    """Function getPosition, returns the position from the character"""
     def getPosition(self):
+        """Function getPosition, returns the position from the character"""
         return self.positionx,self.positiony
 
-    """Function speedDefining, establishes the speed from the character basing on the type of character and the ability from his empire"""
     def speedDefining(self):
+        """Function speedDefining, establishes the speed from the character basing on the type of character and the ability from his empire"""
         pass
 
-    """Function attackDefining, establishes the attack from the character basing on the type of character and the ability from his empire"""
     def attackDefining(self):
+        """Function attackDefining, establishes the attack from the character basing on the type of character and the ability from his empire"""
         pass
 
-    """Function defenseDefining, establishes the defense from the character basing on the type of character and the ability from his empire"""
     def defenseDefining(self):
+        """Function defenseDefining, establishes the defense from the character basing on the type of character and the ability from his empire"""
         pass
 
-    """Function resourcesDefining, establishes the resources that the character need basing on the type of character and the ability from his empire"""
     def resourcesDefining(self):
+        """Function resourcesDefining, establishes the resources that the character need basing on the type of character and the ability from his empire"""
         pass
 
-    """Function spriteSelect, establishes the sprite from the character basing on the type of character"""
     def spriteSelect(self):
+        """Function spriteSelect, establishes the sprite from the character basing on the type of character"""
         pass
 
