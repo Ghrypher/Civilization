@@ -1,0 +1,7 @@
+;Map made by Santella Agustin
+;element index
+;  D : Diert
+;  M : Mountain
+;  W : Water
+
+; starting the level:

@@ -1,6 +1,6 @@
 from tablero import Tablero
 from units import Unit
-import random, sys, copy, os, pygame
+import random, sys, pygame
 from pygame.locals import *
 
 pygame.init()
@@ -42,7 +42,7 @@ class Graphic:
         pygame.display.set_icon(pygame.image.load('asets/menus/icon.png'))
         pygame.display.set_caption('Civilization_POO')
         # save system
-        self.tecx_to_map = {"B" : pygame.image.load("asets/floor/Barrier.png"),
+        self.text_to_map = {"B" : pygame.image.load("asets/floor/Barrier.png"),
                             "D" : pygame.image.load("asets/floor/Dirt.png"),
                             "W" :pygame.image.load("asets/floor/Water.png"),
                             "M" : pygame.image.load("asets/floor/Mountain.png"),
@@ -50,20 +50,21 @@ class Graphic:
                             "H" : "Hidden",
                             "0" : False,
                             "1" : True}
+        
                     
         self.menu_loop()
 
-    def Load_map(self, M_Obj):
+    def Load_map(self):
         """ """
         
         M_width = len(self.M_Obj) * self.tile_size
         M_height = len(self.M_Obj[0]) * self.tile_size
         positionX, positionY = self.Unit.getPosition()
         M_surf = pygame.Surface((M_width, M_height))
-        for x in range(len(M_Obj)):
-            for y in range(len(M_Obj[x])):
+        for x in range(len(self.M_Obj)):
+            for y in range(len(self.M_Obj[x])):
                 spaceRect = pygame.Rect(x * self.tile_size, y * self.tile_size, self.tile_size, self.tile_size)
-                baseTile = self.tecx_to_map[M_Obj[x][y]]
+                baseTile = self.text_to_map[self.M_Obj[x][y]]
 
                 # Dibuja el la casilla con el bioma en la superficie
                 M_surf.blit(baseTile, spaceRect)
@@ -71,53 +72,10 @@ class Graphic:
         spaceRect = pygame.Rect(positionX * self.tile_size, positionY * self.tile_size, self.tile_size, self.tile_size)
         M_surf.blit(self.character, spaceRect)        
         return M_surf
-    
-    def Read_Map (self, file):
-        """ """
-        assert os.path.exists(file), 'Cannot find the level file: %s' % (file)
-        M_File = open(file, "r")
-        content = M_File.readlines() + ["\r\n"]
-        M_File.close()
-
-        M_TextLines = []
-        self.M_Obj = []
-
-        for lineNum in range(len(content)):
-            line = content[lineNum].rstrip('\r\n')
-
-            # Si encuentra un ";" en la linea actual devuelve ""
-            if ";" in line:
-                line = line[:line.find(";")]
-
-            # Si tiene algo lo añade a la lista con las lineas de texto del mapa
-            if line != "":
-                M_TextLines.append(line)
-
-            elif line == "" and len(M_TextLines) > 0:
-                maxWidth = -1
-
-                # Busca la fila mas larga de todas
-                for i in range(len(M_TextLines)):
-                    if len(M_TextLines[i]) > maxWidth:
-                        maxWidth = len(M_TextLines[i])
-
-                # Las empareja llenando con espacios si es que hace falta
-                for i in range (len(M_TextLines)):
-                    M_TextLines[i] += " " * (maxWidth - len(M_TextLines[i]))
-
-                # Añade una lista por cada linea de mapa
-                for x in range (len(M_TextLines[0])):
-                    self.M_Obj.append([])
-
-                # Invierte el mapa para que quede al derecho en la matriz
-                for y in range (len(M_TextLines)):
-                    for x in range (maxWidth):
-                        self.M_Obj[x].append(M_TextLines[y][x])
-        return self.M_Obj
 
     def menu_loop(self):
         self.world = Tablero(40, 23)
-        self.world.background_world()
+        self.world.random_world()
         background = self.Load_background()
         while True:
             self.screen.blit(background, (0,0))
@@ -147,8 +105,8 @@ class Graphic:
                     self.non_reachables =[]
                     self.world = Tablero(self.width, self.height)
                     self.world.random_world()
-                    self.M_Obj = self.Read_Map("maps/random_world.txt")
-                    self.game_loop(self.M_Obj)
+                    self.M_Obj = self.world.Read_Map("maps/random_world.txt")
+                    self.game_loop()
             
             # load button 
             self.screen.blit(self.menu_button_play, self.menubuttonplaycoll_2)
@@ -157,8 +115,8 @@ class Graphic:
                 if self.mouseclicked == True:
                     self.mouseclicked = False
                     self.non_reachables =[]
-                    self.M_Obj = self.Read_Map("maps/map1.txt")
-                    self.game_loop(self.M_Obj)
+                    self.M_Obj = self.world.Read_Map("maps/save.txt")
+                    self.game_loop()
 
             '''System'''
             self.screen.blit(self.screenlogo,self.screenlogocoll)
@@ -167,22 +125,24 @@ class Graphic:
             self.clock.tick(30)
         
     def Load_background(self):    
-        M_width =40 * self.tile_size
+        self.world = Tablero(40, 23)
+        self.world.random_world()
+        M_Obj = self.world.Read_Map("maps/random_world.txt")
+        M_width = 40 * self.tile_size
         M_height = 23 * self.tile_size
-
         M_surf = pygame.Surface((M_width, M_height))
-        for y in range(23):
-            for x in range(40):
+        for x in range(40):
+            for y in range(23):
                 spaceRect = pygame.Rect(x * self.tile_size, y * self.tile_size, self.tile_size, self.tile_size)
-                baseTile = pygame.image.load('asets/floor/' + str(self.world.get_tiles(y, x)) + '.png').convert()
-                # Dibuja el la casilla con el bioma en la superficie
-                M_surf.blit(baseTile, spaceRect)
+                baseTile = self.text_to_map[M_Obj[x][y]]
+                M_surf.blit(baseTile, spaceRect)       
         return M_surf
     
-    def game_loop(self, M_Obj):
+    def game_loop(self):
         M_width = len(self.M_Obj) * self.tile_size
         M_height = len(self.M_Obj[0]) * self.tile_size
         mapNeedRedraw = True # verdadero para qe llame a drawMap()
+        save_game = False
         half_winWIdth = self.screen_width/2
         half_winHeight = self.screen_height/2
         c_Move= 1.5
@@ -197,7 +157,7 @@ class Graphic:
         c_SetOffX = 0
         c_SetOffY = 0 
 
-        M_surf = self.Load_map(self.M_Obj)
+        M_surf = self.Load_map()
         mapRect = M_surf.get_rect()
         mapRect.center = (half_winWIdth + c_SetOffX, half_winHeight + c_SetOffY)
         self.character_pos_x, self.character_pos_y = mapRect.center 
@@ -259,6 +219,10 @@ class Graphic:
                         if self.movementPosible(posX + 1, posY):
                             self.Unit.setPosition(posX + 1, posY)
                             mapNeedRedraw = True
+
+                    if event.key == K_g:
+                        mapNeedRedraw = True
+                        save_game = True
                     
                     if event.key == K_ESCAPE:
                         loop = False
@@ -275,8 +239,11 @@ class Graphic:
 
             # Si mapNeedRedraw entonces se recarga el mapa
             if mapNeedRedraw:
-                M_surf = self.Load_map(self.M_Obj)
+                M_surf = self.Load_map()
                 mapNeedRedraw = False
+                if save_game:
+                    self.world.save_game(self.M_Obj)
+                    save_game = False
             
             # Cambia la variable del movimiento de la camara si el usuario presiono la tecla y no supera el limite
             if c_Up and c_SetOffY < self.max_cam_move_Y:
@@ -337,7 +304,6 @@ class Graphic:
     def terminate(self):
         """Finaliza el programa y cierra todo"""
         pygame.quit()
-        sys.exit()
-
+        sys.exit()         
 
 G = Graphic()
