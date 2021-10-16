@@ -17,7 +17,7 @@ class Graphic:
         self.non_reachables =[]
         self.non_reachables_load= []
         self.mousepos = (0,0)
-        self.M_Obj = None
+        self.map = None
         self.Unit = None
         self.screen = pygame.display.set_mode((1280,704))
         self.screen_width = 1280
@@ -57,14 +57,14 @@ class Graphic:
     def Load_map(self):
         """ """
         
-        M_width = len(self.M_Obj) * self.tile_size
-        M_height = len(self.M_Obj[0]) * self.tile_size
+        M_width = len(self.map) * self.tile_size
+        M_height = len(self.map[0]) * self.tile_size
         positionX, positionY = self.Unit.getPosition()
         M_surf = pygame.Surface((M_width, M_height))
-        for x in range(len(self.M_Obj)):
-            for y in range(len(self.M_Obj[x])):
+        for x in range(len(self.map)):
+            for y in range(len(self.map[x])):
                 spaceRect = pygame.Rect(x * self.tile_size, y * self.tile_size, self.tile_size, self.tile_size)
-                baseTile = self.text_to_map[self.M_Obj[x][y]]
+                baseTile = self.text_to_map[self.map[x][y]]
 
                 # Dibuja el la casilla con el bioma en la superficie
                 M_surf.blit(baseTile, spaceRect)
@@ -105,7 +105,7 @@ class Graphic:
                     self.non_reachables =[]
                     self.world = Tablero(self.width, self.height)
                     self.world.random_world()
-                    self.M_Obj = self.world.Read_Map("maps/random_world.txt")
+                    self.map = self.world.Read_Map("maps/random_world.txt")
                     self.game_loop()
             
             # load button 
@@ -115,7 +115,7 @@ class Graphic:
                 if self.mouseclicked == True:
                     self.mouseclicked = False
                     self.non_reachables =[]
-                    self.M_Obj = self.world.Read_Map("maps/save.txt")
+                    self.map = self.world.Read_Map("maps/save.txt")
                     self.game_loop()
 
             '''System'''
@@ -127,20 +127,20 @@ class Graphic:
     def Load_background(self):    
         self.world = Tablero(40, 23)
         self.world.random_world()
-        M_Obj = self.world.Read_Map("maps/random_world.txt")
+        map = self.world.Read_Map("maps/random_world.txt")
         M_width = 40 * self.tile_size
         M_height = 23 * self.tile_size
         M_surf = pygame.Surface((M_width, M_height))
         for x in range(40):
             for y in range(23):
                 spaceRect = pygame.Rect(x * self.tile_size, y * self.tile_size, self.tile_size, self.tile_size)
-                baseTile = self.text_to_map[M_Obj[x][y]]
+                baseTile = self.text_to_map[map[x][y]]
                 M_surf.blit(baseTile, spaceRect)       
         return M_surf
     
     def game_loop(self):
-        M_width = len(self.M_Obj) * self.tile_size
-        M_height = len(self.M_Obj[0]) * self.tile_size
+        M_width = len(self.map) * self.tile_size
+        M_height = len(self.map[0]) * self.tile_size
         mapNeedRedraw = True # verdadero para qe llame a drawMap()
         save_game = False
         half_winWIdth = self.screen_width/2
@@ -148,10 +148,10 @@ class Graphic:
         c_Move= 1.5
 
         # Crea el tablero en la clase board
-        self.createBoard(self.M_Obj)
+        self.createBoard(self.map)
 
         self.Unit = Unit("Wk","a")
-        posX, posY = self.setPositionRandom(len(self.M_Obj), len(self.M_Obj[0]))
+        posX, posY = self.setPositionRandom(len(self.map), len(self.map[0]))
         self.Unit.setPosition(posX, posY)
 
         c_SetOffX = 0
@@ -242,7 +242,7 @@ class Graphic:
                 M_surf = self.Load_map()
                 mapNeedRedraw = False
                 if save_game:
-                    self.world.save_game(self.M_Obj)
+                    self.world.save_game(self.map)
                     save_game = False
             
             # Cambia la variable del movimiento de la camara si el usuario presiono la tecla y no supera el limite
@@ -271,11 +271,10 @@ class Graphic:
     def createBoard(self, M_Obj):
         """Crea el tablero de la clase board y le asigna el bioma a cada celda"""
 
-        self.world = Tablero(len(M_Obj), len(M_Obj[0]))
-        self.world.assignSize(len(self.M_Obj))
+        self.world.assignSize(len(M_Obj))
         for x in range(len(M_Obj)):
             for y in range(len(M_Obj[0])):
-                self.world.addCellAndBiome(x, y, self.M_Obj[x][y])
+                self.world.addCellAndBiome(x, y, M_Obj[x][y])
 
     def setPositionRandom(self, width, height):
         # Selecciona de mandera aleatoria 2 posiciones para spawnear

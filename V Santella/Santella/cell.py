@@ -1,4 +1,4 @@
-import random
+import random, pygame
 
 class Cell:
     """ clase Celda almacena barcos o no """

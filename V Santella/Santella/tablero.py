@@ -44,22 +44,25 @@ class Tablero:
                     self.M_obj[Y][x].set_biome("B")
                     continue
                 
+                #tierra firme
+                if self.M_obj[Y + 1 ][x].biome == "D" and self.M_obj[Y][x + 1].biome == "D" and self.M_obj[Y][x - 1].biome == "D":
+                    self.M_obj[Y][x].set_biome("D")
+                    #montañas
+                    mountain = random.randrange(1,16)
+                    if mountain == 1:
+                        self.M_obj[Y][x].set_biome("M")
+                        self.M_obj[Y][x].set_coordinates(Y, x)
+                        continue
+
                 #rios
                 if self.M_obj[Y + 1][x].biome == "W" and self.M_obj[Y - 1][x].biome == "W" or self.M_obj[Y + 1][x].biome == "W" and self.M_obj[Y][x - 1].biome == "W":
                     lake = random.randrange(1,6)
                     if lake == 1:
                         self.M_obj[Y][x].set_biome("W")
                         self.M_obj[Y][x].set_coordinates(Y, x)
-                
-                #tierra firme
-                if self.M_obj[Y + 1 ][x].biome == "D" and self.M_obj[Y][x + 1].biome == "D" and self.M_obj[Y][x - 1].biome == "D":
-                    self.M_obj[Y][x].set_biome("D")
-                    #montañas
-                    mountain = random.randrange(1,11)
-                    if mountain == 1:
-                        self.M_obj[Y][x].set_biome("M")
+                    else:
+                        self.M_obj[Y][x].set_biome("D")
                         self.M_obj[Y][x].set_coordinates(Y, x)
-                        continue
                 
                 #plantas
                 if self.M_obj[Y][x].biome == "D":
@@ -75,16 +78,14 @@ class Tablero:
                 tile = self.get_tiles(y, x)
                 f.write(tile)
 
-    def save_game(self, M_Obj):
-        """ """
+    def save_game(self, map):
         print("game saved")
         self.document_txt("Maps/save.txt")
-        f = open("Maps/save.txt", "a+")    
-        for y in range(len(M_Obj)):
+        f = open("maps/save.txt", "a+")
+        for y in range(len(map[0])):
             f.write("\n")
-            for x in range(len(M_Obj[y])):
-                tile = self.get_tiles(y, x)
-                f.write(tile)
+            for x in range(len(map)):
+                f.write(self.get_biome(x, y))
 
 
     def Read_Map (self, file):
