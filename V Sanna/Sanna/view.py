@@ -1,7 +1,6 @@
 import random, sys, copy, os, pygame, math
 from pygame.locals import *
 from board import Board
-from character import Character
 
 class Graphic():
 
@@ -35,7 +34,8 @@ class Graphic():
                     " M": pygame.image.load("floor/Water_inactive.png"),
                     " ": pygame.image.load("floor/off_world.png")}
         
-        self.mapObj = self.readMap("maps/map1.txt")
+        self.randomMap(70, 40)
+        self.mapObj = self.readMap("maps/random_world.txt")
 
         # Crea el tablero en la clase board
         self.createBoard()
@@ -91,6 +91,9 @@ class Graphic():
                         cameraDown = True
                     if event.key == K_w:
                         cameraUp = True
+
+                    if event.key == K_g:
+                        self.saveMap()
                         
                     if event.key == K_UP:
                         posX, posY = self.character.getPosition()
@@ -205,7 +208,7 @@ class Graphic():
             for x in range(len(self.mapObj)):
                 for y in range(len(self.mapObj[x])):
 
-                    if ((x - positionX)**2 + (y - positionY)**2)**(1/2) <= 3:
+                    if ((x - positionX)**2 + (y - positionY)**2)**(1/2) <= 4000:
                         self.board.revealCell(x, y) 
 
         # Dibuja todas las casillas del mapa generando una superficie nueva 
@@ -313,6 +316,22 @@ class Graphic():
             if self.movementPosible(positionX, positionY) == True:
                 break
         return positionX, positionY
+
+    def randomMap(self, width, heihgt):
+        f = open("maps/random_world.txt", "a+")
+        biomas = ["X", "Y", "M"]
+        for y in range(heihgt):
+            f.write("\n")
+            for x in range(width):
+                tile = biomas[random.randrange(0, 3)]
+                f.write(tile)
+
+    def saveMap(self):
+        f = open("maps/save.txt", "a+")
+        for y in range(len(self.mapObj[0])):
+            f.write("\n")
+            for x in range(len(self.mapObj)):
+                f.write(self.board.checkBiome(x, y))
 
     def terminate(self):
         """Finaliza el programa y cierra todo"""
