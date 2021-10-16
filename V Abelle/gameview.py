@@ -1,5 +1,4 @@
 import pygame
-import gameresources as gameres
 from systemcontroller import SystemController
 
 pygame.init()
@@ -11,13 +10,12 @@ class GameView():
         self.screensy = 704 #Is the height from the window
         self.screensize = (self.screensx,self.screensy) #Is the size from the window
         self.screen = self.syscon.createScreen(self.screensize)
-        self.windowicon,self.windowname,self.menufont,self.menufontlittle,self.menufontlittle2,self.buttonwoodtexture = gameres.systemLoads() #Uses the systemLoads function from gameresources
+        self.windowicon,self.windowname,self.menufont,self.menufontlittle,self.menufontlittle2,self.buttonwoodtexture = self.syscon.systemLoads() #Uses the systemLoads function from systemcontroller
         self.clock = self.syscon.createClock() #Creates the clock function from the game
         self.mousepos = (0,0) #Records the position from the mouse
-        self.screenlogo,self.screenlogocoll = gameres.screenLogo() #Uses the self.screenLogo function from gameresources
-        self.loadingtext,self.loadingtextcoll,self.loadingbar,self.loadingbarcoll = gameres.menuesLoads(9)
+        self.screenlogo,self.screenlogocoll = self.syscon.screenLogo() #Uses the self.screenLogo function from systemcontroller
+        self.loadingtext,self.loadingtextcoll,self.loadingbar,self.loadingbarcoll = self.syscon.menuesLoads(9)
 
-        self.gamecontroll = SystemController()
         self.event = ''
         self.mouseclicked = False
         self.defaultbackground = None
@@ -91,27 +89,27 @@ class GameView():
                     loadingprogressvalue += 130
                 if loadingstep == 10:
                     """Menues All"""
-                    self.defaultbackground,self.menumusic,self.defaultcursor,self.handcursor = gameres.menuesLoads(1) #Uses the menuLoads function from gameresources
+                    self.defaultbackground,self.menumusic,self.defaultcursor,self.handcursor = self.syscon.menuesLoads(1) #Uses the menuLoads function from systemcontroller
                     loadingprogressvalue += 130
                 elif loadingstep == 15:
                     """Work In Progress"""
-                    self.workinprogressmessage,self.underconstruction = gameres.menuesLoads(2) #Uses the menuLoads function from gameresources
+                    self.workinprogressmessage,self.underconstruction = self.syscon.menuesLoads(2) #Uses the menuLoads function from systemcontroller
                     loadingprogressvalue += 130
                 elif loadingstep == 20:
                     """Exit"""
-                    self.exitbackground,self.exitbackgroundpos,self.exittext,self.exittextpos,self.exitbuttonyes,self.exitbuttonyescoll,self.exitbuttonyestext,self.exitbuttonyestextcoll,self.exitbuttonno,self.exitbuttonnocoll,self.exitbuttonnotext,self.exitbuttonnotextcoll = gameres.menuesLoads(3) #Uses the menuLoads function from gameresources
+                    self.exitbackground,self.exitbackgroundpos,self.exittext,self.exittextpos,self.exitbuttonyes,self.exitbuttonyescoll,self.exitbuttonyestext,self.exitbuttonyestextcoll,self.exitbuttonno,self.exitbuttonnocoll,self.exitbuttonnotext,self.exitbuttonnotextcoll = self.syscon.menuesLoads(3) #Uses the menuLoads function from systemcontroller
                     loadingprogressvalue += 130
                 elif loadingstep == 25:
                     """Map Selector"""
-                    self.mapselectorbutton,self.mapselectorbuttoncoll,self.mapselectorbuttontext,self.mapselectorbuttontextcoll= gameres.menuesLoads(4) #Uses the menuLoads function from gameresources
+                    self.mapselectorbutton,self.mapselectorbuttoncoll,self.mapselectorbuttontext,self.mapselectorbuttontextcoll= self.syscon.menuesLoads(4) #Uses the menuLoads function from systemcontroller
                     loadingprogressvalue += 130
                 elif loadingstep == 30:
                     """Credits"""
-                    self.menubuttoncredits,self.menubuttoncreditstext,self.menubuttoncreditscoll,self.menubuttoncreditstextcoll = gameres.menuesLoads(5) #Uses the menuLoads function from gameresources
+                    self.menubuttoncredits,self.menubuttoncreditstext,self.menubuttoncreditscoll,self.menubuttoncreditstextcoll = self.syscon.menuesLoads(5) #Uses the menuLoads function from systemcontroller
                     loadingprogressvalue += 130
                 elif loadingstep == 35:
                     """Instructions"""
-                    self.menubuttoninstructions,self.menubuttoninstructionstext,self.menubuttoninstructionscoll,self.menubuttoninstructionstextcoll = gameres.menuesLoads(6) #Uses the menuLoads function from gameresources
+                    self.menubuttoninstructions,self.menubuttoninstructionstext,self.menubuttoninstructionscoll,self.menubuttoninstructionstextcoll = self.syscon.menuesLoads(6) #Uses the menuLoads function from systemcontroller
                     loading = False
             """Game Loads"""
             if mode == 2:
@@ -119,18 +117,18 @@ class GameView():
                     loadingprogressvalue += 195
                 if loadingstep == 10:
                     """Play Random"""
-                    self.randomplaybutton,self.randomplaybuttoncoll,self.randomplaybuttontext,self.randomplaybuttontextcoll = gameres.menuesLoads(7) #Uses the menuLoads function from gameresources
+                    self.randomplaybutton,self.randomplaybuttoncoll,self.randomplaybuttontext,self.randomplaybuttontextcoll = self.syscon.menuesLoads(7) #Uses the menuLoads function from systemcontroller
                     loadingprogressvalue += 195
                 elif loadingstep == 15:
                     """Play Pre-Created"""
-                    self.createdplaybutton,self.createdplaybuttoncoll,self.createdplaybuttontext,self.createdplaybuttontextcoll = gameres.menuesLoads(8) #Uses the menuLoads function from gameresources
+                    self.createdplaybutton,self.createdplaybuttoncoll,self.createdplaybuttontext,self.createdplaybuttontextcoll = self.syscon.menuesLoads(8) #Uses the menuLoads function from systemcontroller
                     loadingprogressvalue += 195
                 elif loadingstep == 30:
                     """Game"""
-                    self.swordcursor,self.foundersprite,self.founderspriteposx,self.founderspriteposy,self.founderspritecoll,self.biometiles,self.hidden = gameres.gameLoads(1) #Uses the gameLoads function from gameresources
+                    self.swordcursor,self.foundersprite,self.founderspriteposx,self.founderspriteposy,self.founderspritecoll,self.biometiles,self.hidden = self.syscon.gameLoads(1) #Uses the gameLoads function from systemcontroller
                     loadingprogressvalue += 195
                 elif loadingstep == 35:
-                    self.gamemusic1,self.gamemusic2 = gameres.gameLoads(2) #Uses the gameLoads function from gameresources
+                    self.gamemusic1,self.gamemusic2 = self.syscon.gameLoads(2) #Uses the gameLoads function from systemcontroller
                     loading = False
 
             self.clock.tick(30)
@@ -161,10 +159,10 @@ class GameView():
 
         while playing == True:
             """Mouse Movement"""
-            self.mousepos = self.gamecontroll.controlMouseMovement()
+            self.mousepos = self.syscon.controlMouseMovement()
 
             """Events Manager"""
-            self.event = self.gamecontroll.controlInputsEvents('menu')
+            self.event = self.syscon.controlInputsEvents('menu')
             if self.event == 'exit':
                 returnedvalue = 'exit'
                 playing = False
@@ -244,10 +242,10 @@ class GameView():
         
         while playing == True:
             """Mouse Movement"""
-            self.mousepos = self.gamecontroll.controlMouseMovement()
+            self.mousepos = self.syscon.controlMouseMovement()
 
             """Events Manager"""
-            self.event = self.gamecontroll.controlInputsEvents('work')
+            self.event = self.syscon.controlInputsEvents('work')
             if self.event == 'exit':
                 returnedvalue = 'exit'
                 playing = False
@@ -294,10 +292,10 @@ class GameView():
 
         while looping == True:
             """Mouse Movement"""
-            self.mousepos = self.gamecontroll.controlMouseMovement()
+            self.mousepos = self.syscon.controlMouseMovement()
 
             """Events Manager"""
-            self.event = self.gamecontroll.controlInputsEvents('exit')
+            self.event = self.syscon.controlInputsEvents('exit')
             if self.event == 'mouseon':
                 self.mouseclicked = True
             elif self.event == 'mouseoff':
@@ -368,10 +366,10 @@ class GameView():
 
         while playing == True:
             """Mouse Movement"""
-            self.mousepos = self.gamecontroll.controlMouseMovement()
+            self.mousepos = self.syscon.controlMouseMovement()
 
             """Events Manager"""
-            self.event = self.gamecontroll.controlInputsEvents('credits')
+            self.event = self.syscon.controlInputsEvents('credits')
             if self.event == 'exit':
                 returnedvalue = 'credits'
                 playing = False
@@ -404,10 +402,10 @@ class GameView():
 
         while playing == True:
             """Mouse Movement"""
-            self.mousepos = self.gamecontroll.controlMouseMovement()
+            self.mousepos = self.syscon.controlMouseMovement()
 
             """Events Manager"""
-            self.event = self.gamecontroll.controlInputsEvents('insts')
+            self.event = self.syscon.controlInputsEvents('insts')
             if self.event == 'exit':
                 returnedvalue = 'exit'
                 playing = False
@@ -444,10 +442,10 @@ class GameView():
 
         while playing == True:
             """Mouse Movement"""
-            self.mousepos = self.gamecontroll.controlMouseMovement()
+            self.mousepos = self.syscon.controlMouseMovement()
 
             """Events Manager"""
-            self.event = self.gamecontroll.controlInputsEvents('map')
+            self.event = self.syscon.controlInputsEvents('map')
             if self.event == 'exit':
                 returnedvalue = 'exit'
                 playing = False
