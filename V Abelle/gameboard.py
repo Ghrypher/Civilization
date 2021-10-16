@@ -4,9 +4,8 @@ from cell import Cell
 class GameBoard():
 
     """Function __init__"""
-    def __init__(self):
+    def __init__(self,width,height):
         self.cells = []
-        self.cellsr = []
         self.width = 40
         self.height = 33
         self.nonreachables =[]
@@ -18,7 +17,7 @@ class GameBoard():
             list = []
             for row in range (0, self.width):
                 list.append(Cell())
-            self.cellsr.append(list)
+            self.cells.append(list)
 
     """Function biomeRandom, generates biomes randomly"""
     def biomeRandom(self):
@@ -30,36 +29,36 @@ class GameBoard():
         for Y in range(self.height):
             for x in range(self.width):
                 ran = str(self.biomeRandom())
-                self.cellsr[Y][x].setBiome(ran)
+                self.cells[Y][x].setBiome(ran)
 
         for Y in range(self.height):
             for x in range(self.width):
                 #bordes
                 if x == 0 or Y == 0 or x == (self.width-1) or Y == (self.height-1):
-                    self.cellsr[Y][x].setBiome("Barrier")
+                    self.cells[Y][x].setBiome("Barrier")
                     continue
                 
                 #rios
-                if self.cellsr[Y + 1][x].biome == "Water" and self.cellsr[Y - 1][x].biome == "Water" or self.cellsr[Y + 1][x].biome == "Water" and self.cellsr[Y][x - 1].biome == "Water":
+                if self.cells[Y + 1][x].biome == "Water" and self.cells[Y - 1][x].biome == "Water" or self.cells[Y + 1][x].biome == "Water" and self.cells[Y][x - 1].biome == "Water":
                     lake = random.randrange(1,6)
                     if lake == 1:
-                        self.cellsr[Y][x].setBiome("Water")
-                        self.cellsr[Y][x].setCoordinates(Y, x)
+                        self.cells[Y][x].setBiome("Water")
+                        self.cells[Y][x].setCoordinates(Y, x)
                 
                 #tierra firme
-                if self.cellsr[Y + 1 ][x].biome == "Dirt" and self.cellsr[Y][x + 1].biome == "Dirt" and self.cellsr[Y][x - 1].biome == "Dirt":
-                    self.cellsr[Y][x].setBiome("Dirt")
+                if self.cells[Y + 1 ][x].biome == "Dirt" and self.cells[Y][x + 1].biome == "Dirt" and self.cells[Y][x - 1].biome == "Dirt":
+                    self.cells[Y][x].setBiome("Dirt")
                     #montañas
                     mountain = random.randrange(1,11)
                     if mountain == 1:
-                        self.cellsr[Y][x].setBiome("Mountain")
-                        self.cellsr[Y][x].setCoordinates(Y, x)
+                        self.cells[Y][x].setBiome("Mountain")
+                        self.cells[Y][x].setCoordinates(Y, x)
                         continue
                 
                 #plantas
-                if self.cellsr[Y][x].biome == "Dirt":
+                if self.cells[Y][x].biome == "Dirt":
                     plant = self.plantsRandom()
-                    self.cellsr[Y][x].setPlants(plant)
+                    self.cells[Y][x].setPlants(plant)
                     continue
 
     """Function backgroundWorld, create the world randomly and filters it"""
@@ -100,15 +99,15 @@ class GameBoard():
 
     """Function getTiles, returns the biome from a cell"""
     def getTiles(self, y, x):
-        self.cellsr[y][x].setCoordinates(x, y)
-        biome = self.cellsr[y][x].biome
+        self.cells[y][x].setCoordinates(x, y)
+        biome = self.cells[y][x].biome
         return biome
     
     """Function eraseBoard, deletes the biome from a cell"""
     def eraseBoard(self):
         for x in range (self.height):
             for y in range (self.width):
-                self.cellsr[y][x].setBiome("")
+                self.cells[y][x].setBiome("")
 
     """Function plantsRandom, generates plants randomly"""
     def plantsRandom(self):
@@ -122,6 +121,15 @@ class GameBoard():
         else:
             return True
 
+    """Function setBiome, adds a Cell object to the list and establishes the biome"""
+    def setBiome(self,x,y,biome):
+        self.cells[x][y].setBiome(biome)
+
+    """Function getBiome, """
+    def getBiome(self,x,y):
+        biome = self.cells[x][y].getBiome()
+        return biome
+
     """Function addCellAndBiome, adds a Cell object to the correspondent list and establishes a biome"""
     def addCellAndBiome(self,x,y,biome):
         self.cells[x].append(Cell())
@@ -129,26 +137,9 @@ class GameBoard():
 
     """Function assignSize, assigns the size from the map"""
     def assignSize(self,width):
+        self.cells = []
         for x in range(width):
             self.cells.append([])
-
-    """Fucntion checkBiome, checks wath biome has the cell"""
-    def checkBiome(self, posX, posY):
-        return self.cellsr[posX][posY].readBiome()
-    
-    """Function hideAllCells, sets the visibility from all the cells on 'False'"""
-    def hideAllCells(self):
-        for x in range(len(self.cells)):
-            for y in range(len(self.cells[0])):
-                self.cells[x][y].setVisibility()
-    
-    """Function revealCell, changes the visibility from an especific cell to 'True'"""
-    def revealCell(self, posX, posY):
-        self.cells[posX][posY].showCell()
-    
-    """Function getVisibility, asks to the cell if it's visible or not"""
-    def getVisibility(self,posX,posY):
-        return self.cells[posX][posY].getVisibility()
 
 number_to_biomes = {
     1 : "Water",

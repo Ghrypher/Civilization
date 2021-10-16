@@ -26,7 +26,7 @@ class Cell():
             self.biome = ""
 
     """Function readBiome, returns what biome contains the cell"""
-    def readBiome(self):
+    def getBiome(self):
         return self.biome
 
     """Function setPlants, puts a plant on the cell"""
@@ -45,13 +45,17 @@ class Cell():
         else:
             return False
     
-    """Function setVisibility, sets the visibility of the cell on False"""
-    def setVisibility(self):
-        self.visible = False
+    """Function revealCell, reveals the cell"""
+    def revealCell(self):
+        img = pygame.image.load('asets/floor/' + str(self.biome) + '.png').convert()
+        self.tile = img
+        self.tile.set_colorkey((0, 0, 0))
+        return img
 
-    """Function getVisibility, returns the visibility of the cell"""
-    def getVisibility(self):
-        return self.visible
+    """Function hideCell, hides the cell"""
+    def hideCell(self):
+        self.tile = []
+        self.tile.set_colorkey((0, 0, 0))
 
     """Function setCoordinates, establishes the cell coordinates"""
     def setCoordinates(self,x,y):
