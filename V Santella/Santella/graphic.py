@@ -4,9 +4,6 @@ import random, sys, copy, os, pygame
 from pygame.locals import *
 
 pygame.init()
-Map_to_Tile = {"X": pygame.image.load("asets/floor/Dirt.png"),
-                  "Y": pygame.image.load("asets/floor/Mountain.png"),
-                  "M": pygame.image.load("asets/floor/Water.png")}
 
 class Graphic:
     """ clase graphic encargada del apartado grafico """
@@ -44,179 +41,17 @@ class Graphic:
         self.menubuttonplaycoll_2 = self.menu_button_play.get_rect(midleft = (640, 476))
         pygame.display.set_icon(pygame.image.load('asets/menus/icon.png'))
         pygame.display.set_caption('Civilization_POO')
+        # save system
+        self.tecx_to_map = {"B" : pygame.image.load("asets/floor/Barrier.png"),
+                            "D" : pygame.image.load("asets/floor/Dirt.png"),
+                            "W" :pygame.image.load("asets/floor/Water.png"),
+                            "M" : pygame.image.load("asets/floor/Mountain.png"),
+                            "R" : "Revealed",
+                            "H" : "Hidden",
+                            "0" : False,
+                            "1" : True}
+                    
         self.menu_loop()
-
-    def random_game_loop(self):
-        """ funcion encargada de crear el mundo y adminstrar personajes """
-        
-        self.world = Tablero(self.width, self.height)
-        self.world.random_world()
-        self.character_pos_x = 576  
-        self.character_pos_y = 320
-        offset_pos_y = 0
-        offset_pos_x = 0
-        mov_pos_y = 0
-        mov_pos_x = 0
-        c_Move= 15
-        redraw = True
-        loop = True
-        Map_surf = self.generate_Random_world(offset_pos_x, offset_pos_y)
-
-        # Establece el limite de hasta donde puede moverse la camara
-        M_width = self.width * self.tile_size
-        M_height = self.height * self.tile_size
-
-        half_winWIdth = self.screen_width/2
-        half_winHeight = self.screen_height/2
-
-        self.max_cam_move_X = abs((half_winWIdth * 2) - M_width)
-        self.max_cam_move_Y = abs((half_winHeight * 2) - M_height)
-
-        # Rastrea si las teclas para mover la camara estan presionadas 
-        c_Up = False
-        c_Down = False
-        c_Left = False
-        c_Right = False
-        while loop:
-            '''Mouse'''
-            self.mousepos = pygame.mouse.get_pos()
-            pygame.mouse.set_visible(False)
-
-            for event in pygame.event.get():
-                mov_pos_y = 0
-                mov_pos_x = 0
-                
-                #salir del juego con cruz
-                if event.type == pygame.QUIT:
-                    pygame.quit()
-
-                if event.type == pygame.KEYDOWN:
-
-                    #movimiento del personaje
-                    if event.key == K_w:
-                        mov_pos_y = -self.tile_size
-                        redraw = True
-
-                    if event.key == K_s:
-                        mov_pos_y = self.tile_size
-                        redraw = True
-
-                    if event.key == K_a:
-                        mov_pos_x = -self.tile_size
-                        redraw = True
-
-                    if event.key == K_d:
-                        mov_pos_x = self.tile_size
-                        redraw = True
-                    
-                    #movimiento del mapa
-                    if event.key == K_LEFT:
-                        c_Left = True
-                    if event.key == K_RIGHT:
-                        c_Right = True
-                    if event.key == K_DOWN:
-                        c_Down = True
-                    if event.key == K_UP:
-                        c_Up = True
-                    
-                    if event.key == K_ESCAPE:
-                        loop = False
-
-                if event.type == KEYUP :
-                    if redraw:
-                        Map_surf = self.generate_Random_world(offset_pos_x, offset_pos_y)
-                        redraw = False
-
-                    if event.key == K_LEFT:
-                        c_Left = False
-                    if event.key == K_RIGHT:
-                        c_Right = False
-                    if event.key == K_UP:
-                        c_Up = False
-                    if event.key == K_DOWN:
-                        c_Down = False
-            
-            # Cambia la variable del movimiento de la camara si el usuario presiono la tecla y no supera el limite
-            if c_Up and offset_pos_y < 0:
-                offset_pos_y += c_Move
-            if c_Down and offset_pos_y > -self.max_cam_move_Y:
-                offset_pos_y -= c_Move
-            if c_Left and offset_pos_x < 0:
-                offset_pos_x += c_Move
-            if c_Right and offset_pos_x > -self.max_cam_move_X:
-                offset_pos_x -= c_Move
-
-            self.screen.blit(Map_surf,(0 + offset_pos_x,0 + offset_pos_y))         
-            self.check_charac_pos(mov_pos_x, mov_pos_y, offset_pos_x, offset_pos_y)
-
-            mov_pos_y = 0
-            mov_pos_x = 0
-
-            self.screen.blit(self.mouse_img,self.mousepos)
-            pygame.display.update()
-            self.clock.tick(60)
-            
-        self.menu_loop()
-    
-    def generate_Random_world(self, offset_pos_x, offset_pos_y):
-        """ """
-
-        M_width = self.width * self.tile_size
-        M_height = self.height * self.tile_size
-
-        M_surf = pygame.Surface((M_width, M_height))
-        for y in range(self.height):
-            for x in range(self.width):
-                spaceRect = pygame.Rect((x * self.tile_size) , (y * self.tile_size) , self.tile_size, self.tile_size)
-                tile = pygame.image.load('asets/floor/' + str(self.world.get_tiles(y, x)) + '.png').convert()
-                
-                if ((x-(self.character_pos_x/self.tile_size))**2 + (y-(self.character_pos_y/self.tile_size))**2)**(1/2) <= 90:
-                    self.world.cells[y][x].revealed = True
-                    
-                if self.world.cells[y][x].revealed == True:
-                    M_surf.blit(tile, spaceRect)
-                else:
-                    M_surf.blit(self.hidden, spaceRect)
-                
-                if self.world.get_tiles(y, x) == "Mountain" or self.world.get_tiles(y, x) == "Water" or y == 0 or x == 0 or y == 220 or x == 390:
-                        self.non_reachables.append(str(x * self.tile_size)+ " " +str(y * self.tile_size))
-        return M_surf
-               
-    def check_charac_pos(self, mov_pos_x, mov_pos_y, offset_pos_x, offset_pos_y):
-        #posicion previa
-        prev_pos_x =self.character_pos_x
-        prev_pos_y =self.character_pos_y
-        #posicion nueva
-        self.character_pos_x += mov_pos_x
-        self.character_pos_y += mov_pos_y
-        coord= str(self.character_pos_x)+ " " + str(self.character_pos_y)
-
-        #revisar si la celda esta libre
-        if not coord in self.non_reachables:
-            self.screen.blit(self.character,(self.character_pos_x + offset_pos_x, self.character_pos_y + offset_pos_y))
-            return True
-        else:
-            self.character_pos_x = prev_pos_x
-            self.character_pos_y = prev_pos_y
-            return False
-    
-    def check_charac_pos_load(self, mov_pos_x, mov_pos_y, offset_pos_x, offset_pos_y):
-        #posicion previa
-        prev_pos_x =self.character_pos_x
-        prev_pos_y =self.character_pos_y
-        #posicion nueva
-        self.character_pos_x += mov_pos_x
-        self.character_pos_y += mov_pos_y
-        coord= str(self.character_pos_x/self.tile_size)+ " " + str(self.character_pos_y/self.tile_size)
-
-        #revisar si la celda esta libre
-        if not coord in self.non_reachables_load:
-            self.screen.blit(self.character,(self.character_pos_x + offset_pos_x, self.character_pos_y + offset_pos_y))
-            return True
-        else:
-            self.character_pos_x = prev_pos_x
-            self.character_pos_y = prev_pos_y
-            return False
 
     def Load_map(self, M_Obj):
         """ """
@@ -228,7 +63,7 @@ class Graphic:
         for x in range(len(M_Obj)):
             for y in range(len(M_Obj[x])):
                 spaceRect = pygame.Rect(x * self.tile_size, y * self.tile_size, self.tile_size, self.tile_size)
-                baseTile = Map_to_Tile[M_Obj[x][y]]
+                baseTile = self.tecx_to_map[M_Obj[x][y]]
 
                 # Dibuja el la casilla con el bioma en la superficie
                 M_surf.blit(baseTile, spaceRect)
@@ -310,7 +145,10 @@ class Graphic:
                 if self.mouseclicked == True:
                     self.mouseclicked = False
                     self.non_reachables =[]
-                    self.random_game_loop()
+                    self.world = Tablero(self.width, self.height)
+                    self.world.random_world()
+                    self.M_Obj = self.Read_Map("maps/random_world.txt")
+                    self.game_loop(self.M_Obj)
             
             # load button 
             self.screen.blit(self.menu_button_play, self.menubuttonplaycoll_2)
@@ -320,7 +158,7 @@ class Graphic:
                     self.mouseclicked = False
                     self.non_reachables =[]
                     self.M_Obj = self.Read_Map("maps/map1.txt")
-                    self.load_game_loop(self.M_Obj)
+                    self.game_loop(self.M_Obj)
 
             '''System'''
             self.screen.blit(self.screenlogo,self.screenlogocoll)
@@ -341,7 +179,7 @@ class Graphic:
                 M_surf.blit(baseTile, spaceRect)
         return M_surf
     
-    def load_game_loop(self, M_Obj):
+    def game_loop(self, M_Obj):
         M_width = len(self.M_Obj) * self.tile_size
         M_height = len(self.M_Obj[0]) * self.tile_size
         mapNeedRedraw = True # verdadero para qe llame a drawMap()
@@ -352,7 +190,7 @@ class Graphic:
         # Crea el tablero en la clase board
         self.createBoard(self.M_Obj)
 
-        self.Unit = Unit()
+        self.Unit = Unit("Wk","a")
         posX, posY = self.setPositionRandom(len(self.M_Obj), len(self.M_Obj[0]))
         self.Unit.setPosition(posX, posY)
 
@@ -377,8 +215,6 @@ class Graphic:
         # Comienza el loop del juego hasta que el juegador cierre el juego
         loop = True
         while loop: 
-            mov_pos_y = 0
-            mov_pos_x = 0
             '''Mouse'''
             self.mousepos = pygame.mouse.get_pos()
             pygame.mouse.set_visible(False)
@@ -489,7 +325,7 @@ class Graphic:
             try:
                 coord = str(posX)+ " " + str(posY)
                 biome = self.world.get_biome(posX, posY)
-                if biome == "X" :
+                if biome == "D" :
                     return True
                 else:
                     return False
@@ -502,5 +338,6 @@ class Graphic:
         """Finaliza el programa y cierra todo"""
         pygame.quit()
         sys.exit()
+
 
 G = Graphic()
