@@ -11,9 +11,8 @@ class Cell:
         self.revealed = False
         self.active = False
         self.plants = ""
+        self.unit = None
         self.tile = None
-        self.position_x = int
-        self.position_y = int
 
     def set_biome(self, biome):
         """ establece el bioma de la celda """
@@ -54,13 +53,20 @@ class Cell:
         """ esconde la celda """
         self.tile = []
         self.tile.set_colorkey((0, 0, 0))
-    
+
     def set_coordinates(self, x, y):
-        """ le indica sus coordenadas a la celda """
-        self.position_x = x
-        self.position_y = y
+        """ establece las coordenadas de la celda """
 
     def get_coordinates(self):
         """ devuelve las coordenadas de la celda """
         coordenates = str(self.position_x) + " " + str(self.position_y)
         return coordenates
+
+    def getUnit(self):
+        return self.unit
+
+    def setUnit(self, unit):
+        self.unit = unit
+    
+    def setUnitPosition(self,posX, posY):
+        self.unit.setPosition(posX, posY)

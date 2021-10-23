@@ -2,6 +2,7 @@ class Unit():
 
     def __init__(self, type,team):
         """Inicio de la clase, crea las variables de la misma"""
+        self.index = int
         self.life = None
         self.dmg = None
         self.utility = None
@@ -18,7 +19,6 @@ class Unit():
     def define(self, type):
         """" """
         self.unit_sorter[type]()
-
 
     def setPosition(self, posX, posY):
         self.positionX = posX
@@ -50,3 +50,9 @@ class Unit():
     
     def get_sprite(self):
         return self.sprite
+
+    def setIndex(self, index):
+        self.index = index
+
+    def getIndex(self):
+        return self.index

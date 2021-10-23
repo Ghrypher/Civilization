@@ -1,19 +1,30 @@
 import random, os
 from cell import Cell
+from units import Unit
 
 class Tablero:
     def __init__(self, ancho, alto):
         """ constructor de la clase """
         self.ancho = ancho
         self.alto = alto
-        self.M_obj = []
-        self.non_reachables =[]
+        self.Unit = []
+        self.cells = []
         self.map_to_text = {"Barrier" : "B",
                             "Dirt" : "D",
                             "Water" : "W",
                             "Mountain" :"M",
+                            "Iron" : "I",
+                            "Gold" : "G",
                             "Revealed" :"R",
+                            "Forest" : "F",
                             "Hidden" : "H"}
+        self.number_to_biomes = {1 : "W",
+                                2 : "D",
+                                3 : "D", 
+                                4: "D"}
+        self.number_to_plants = {1 : "Grass",
+                                2 : "Tree",
+                                3 : "Flower"}
         self.crear_tablero()
 
 
@@ -23,11 +34,11 @@ class Tablero:
             lista = []
             for fila in range (0, self.ancho):
                 lista.append(Cell())
-            self.M_obj.append(lista)                  
+            self.cells.append(lista)                  
 
     def biome_random(self):
         """ genera biomas aleatoriamente """
-        biome = number_to_biomes[random.randrange(1,4)]
+        biome = self.number_to_biomes[random.randrange(1,5)]
         return biome
 
     def random_world(self):
@@ -35,39 +46,52 @@ class Tablero:
         for Y in range(self.alto):
             for x in range(self.ancho):
                 ran = str(self.biome_random())
-                self.M_obj[Y][x].set_biome(ran)
+                self.cells[Y][x].set_biome(ran)
 
         for Y in range(self.alto):
             for x in range(self.ancho):
                 #bordes
                 if x == 0 or Y == 0 or x == (self.ancho-1) or Y == (self.alto-1):
-                    self.M_obj[Y][x].set_biome("B")
+                    self.cells[Y][x].set_biome("D")
                     continue
                 
                 #tierra firme
-                if self.M_obj[Y + 1 ][x].biome == "D" and self.M_obj[Y][x + 1].biome == "D" and self.M_obj[Y][x - 1].biome == "D":
-                    self.M_obj[Y][x].set_biome("D")
+                if (self.cells[Y + 1 ][x].biome == "D" or self.cells[Y + 1 ][x].biome == "F" or self.cells[Y + 1 ][x].biome == "M") and (self.cells[Y][x + 1].biome == "D" or self.cells[Y][x + 1].biome == "F" or self.cells[Y][x + 1].biome == "M") and (self.cells[Y][x - 1].biome == "D" or self.cells[Y][x - 1].biome == "F" or self.cells[Y][x - 1].biome == "M"):
+                    self.cells[Y][x].set_biome("D")
                     #montañas
                     mountain = random.randrange(1,16)
                     if mountain == 1:
-                        self.M_obj[Y][x].set_biome("M")
-                        self.M_obj[Y][x].set_coordinates(Y, x)
-                        continue
-
+                        mineral = random.randrange(1,11)
+                        if mineral <= 5:
+                            self.cells[Y][x].set_biome("I")
+                            self.cells[Y][x].set_coordinates(Y, x)
+                        if mineral > 5 and mineral <= 7 :
+                            self.cells[Y][x].set_biome("G")
+                            self.cells[Y][x].set_coordinates(Y, x)
+                        if mineral > 7 and mineral <= 10 :
+                            self.cells[Y][x].set_biome("M")
+                            self.cells[Y][x].set_coordinates(Y, x)
+                    continue
+                
                 #rios
-                if self.M_obj[Y + 1][x].biome == "W" and self.M_obj[Y - 1][x].biome == "W" or self.M_obj[Y + 1][x].biome == "W" and self.M_obj[Y][x - 1].biome == "W":
+                if self.cells[Y + 1][x].biome == "W" and self.cells[Y - 1][x].biome == "W" and self.cells[Y][x - 1].biome == "W":
                     lake = random.randrange(1,6)
                     if lake == 1:
-                        self.M_obj[Y][x].set_biome("W")
-                        self.M_obj[Y][x].set_coordinates(Y, x)
+                        self.cells[Y][x].set_biome("W")
+                        self.cells[Y][x].set_coordinates(Y, x)
                     else:
-                        self.M_obj[Y][x].set_biome("D")
-                        self.M_obj[Y][x].set_coordinates(Y, x)
+                        self.cells[Y][x].set_biome("D")
+                        self.cells[Y][x].set_coordinates(Y, x)
                 
-                #plantas
-                if self.M_obj[Y][x].biome == "D":
-                    plant = self.plants_random()
-                    self.M_obj[Y][x].set_plants(plant)
+                #forests
+                if self.cells[Y][x].biome == "D" :
+                    forest = random.randrange(1,6)
+                    if forest == 1:
+                        self.cells[Y][x].set_biome("F")
+                        self.cells[Y][x].set_coordinates(Y, x)
+                    if self.cells[Y + 1 ][x].biome == "F" and self.cells[Y][x + 1].biome == "F" and self.cells[Y][x - 1].biome == "F":
+                        self.cells[Y][x].set_biome("F")
+                        self.cells[Y][x].set_coordinates(Y, x)
                     continue
 
         self.document_txt("Maps/random_world.txt")
@@ -86,7 +110,6 @@ class Tablero:
             f.write("\n")
             for x in range(len(map)):
                 f.write(self.get_biome(x, y))
-
 
     def Read_Map (self, file):
         """ """
@@ -133,47 +156,40 @@ class Tablero:
     
     def get_tiles(self, y, x):
         """ devuelve el bioma de una celda """
-        self.M_obj[y][x].set_coordinates(x, y)
-        biome = self.M_obj[y][x].biome
+        self.cells[y][x].set_coordinates(x, y)
+        biome = self.cells[y][x].biome
         return biome
 
     def limpiar_tablero(self):
         """ elimina todo bioma almacenado en una celda """
         for x in range (self.alto):
             for y in range (self.ancho):
-                self.M_obj[y][x].set_biome("")
+                self.cells[y][x].set_biome("")
     
     def plants_random(self):
         """ genera plantas aleatoriamente """
-        plants = number_to_plants[random.randrange(1,3)]
+        plants = self.number_to_plants[random.randrange(1,3)]
         return plants
     
-    def check_space(self, coord):
-        """ revisa si una celda esta libre """
-        if coord in self.non_reachables:
-            return False
-        else:
-            return True
-            
     def set_biome(self, x, y, biome):
         """Añade un objeto Cell a la lista correspondiente y le establece el bioma"""
-        self.M_obj[x][y].set_biome(biome)
+        self.cells[x][y].set_biome(biome)
 
     def get_biome(self, x, y):
         """  """
-        biome = self.M_obj[x][y].get_biome()
+        biome = self.cells[x][y].get_biome()
         return biome
     
     def addCellAndBiome(self, x, y, biome):
         """Añade un objeto Cell a la lista correspondiente y le establece el bioma"""
-        self.M_obj[x].append(Cell())
-        self.M_obj[x][y].set_biome(biome)
+        self.cells[x].append(Cell())
+        self.cells[x][y].set_biome(biome)
     
     def assignSize(self, width):
         """Asigna el tamaño del tablero segun el tamaño del mapa"""
-        self.M_obj = [] 
+        self.cells = [] 
         for _ in range(width):
-            self.M_obj.append([])
+            self.cells.append([])
     
     def document_txt(self,path):
         f = open(path, "w")
@@ -190,14 +206,17 @@ class Tablero:
         f.write("\n")
         f.write("; starting the level:")
 
-number_to_biomes = {
-    1 : "W",
-    2 : "D",
-    3 : "D" 
-    }
-    
-number_to_plants = {
-    1 : "Grass",
-    2 : "Tree",
-    3 : "Flower"
-    }
+    def checkUnit(self, posX, posY):
+        """  """
+        for x in range(len(self.Unit)):
+            pos = self.Unit[x].getPosition()
+            if pos == (posX, posY):
+                index = self.Unit[x].getIndex()
+                return index
+        
+    def addUnit(self, posX, posY, index, type, team):
+        self.Unit.append(Unit(type, team))
+        self.Unit[index].setPosition(posX, posY)
+
+    def erase_Units(self):
+        self.Unit = []

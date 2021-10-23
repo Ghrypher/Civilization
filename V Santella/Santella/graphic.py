@@ -1,6 +1,6 @@
 from tablero import Tablero
 from units import Unit
-import random, sys, pygame
+import random, sys, pygame, math
 from pygame.locals import *
 
 pygame.init()
@@ -11,14 +11,14 @@ class Graphic:
     def __init__(self):
         """ constructor de la clase """
         self.world = None
-        self.character_pos_x = 576  
-        self.character_pos_y = 320
+        self.carachter_index = 0
         self.tile_size = 32
         self.non_reachables =[]
         self.non_reachables_load= []
         self.mousepos = (0,0)
         self.map = None
-        self.Unit = None
+        self.units = 5
+        
         self.screen = pygame.display.set_mode((1280,704))
         self.screen_width = 1280
         self.screen_height = 704
@@ -28,7 +28,7 @@ class Graphic:
         self.max_cam_move_Y = int
         self.clock = pygame.time.Clock()
         self.mouse_img = pygame.image.load('asets/menus/Mouse.png')
-        self.character = pygame.image.load('asets/characters/Fundador_temp.png')
+        self.character = pygame.image.load('asets/characters/Red_Founder.png')
         self.filtro = pygame.image.load('asets/menus/Menu_Filter.png')
         self.hidden = pygame.image.load('asets/floor/off_world.png').convert()
         # start menu
@@ -44,8 +44,11 @@ class Graphic:
         # save system
         self.text_to_map = {"B" : pygame.image.load("asets/floor/Barrier.png"),
                             "D" : pygame.image.load("asets/floor/Dirt.png"),
+                            "F" : pygame.image.load("asets/floor/Forest.png"),
                             "W" :pygame.image.load("asets/floor/Water.png"),
                             "M" : pygame.image.load("asets/floor/Mountain.png"),
+                            "I" : pygame.image.load("asets/floor/Iron_Mountain.png"),
+                            "G" : pygame.image.load("asets/floor/Gold_Mountain.png"),
                             "R" : "Revealed",
                             "H" : "Hidden",
                             "0" : False,
@@ -59,18 +62,18 @@ class Graphic:
         
         M_width = len(self.map) * self.tile_size
         M_height = len(self.map[0]) * self.tile_size
-        positionX, positionY = self.Unit.getPosition()
         M_surf = pygame.Surface((M_width, M_height))
         for x in range(len(self.map)):
             for y in range(len(self.map[x])):
                 spaceRect = pygame.Rect(x * self.tile_size, y * self.tile_size, self.tile_size, self.tile_size)
                 baseTile = self.text_to_map[self.map[x][y]]
 
-                # Dibuja el la casilla con el bioma en la superficie
+                 # Dibuja el la casilla con el bioma en la superficie
                 M_surf.blit(baseTile, spaceRect)
-
-        spaceRect = pygame.Rect(positionX * self.tile_size, positionY * self.tile_size, self.tile_size, self.tile_size)
-        M_surf.blit(self.character, spaceRect)        
+        for x in range(self.units):
+            positionX, positionY = self.world.Unit[x].getPosition()
+            spaceRect = pygame.Rect(positionX * self.tile_size, positionY * self.tile_size, self.tile_size, self.tile_size)
+            M_surf.blit(self.character, spaceRect)        
         return M_surf
 
     def menu_loop(self):
@@ -146,21 +149,23 @@ class Graphic:
         half_winWIdth = self.screen_width/2
         half_winHeight = self.screen_height/2
         c_Move= 1.5
+        self.world.erase_Units()
 
         # Crea el tablero en la clase board
         self.createBoard(self.map)
-
-        self.Unit = Unit("Wk","a")
-        posX, posY = self.setPositionRandom(len(self.map), len(self.map[0]))
-        self.Unit.setPosition(posX, posY)
-
+        for x in range (self.units):
+            posX, posY = self.setPositionRandom(len(self.map), len(self.map[0]))
+            self.world.addUnit(posX, posY, x, "Wk","Red")
+            self.world.Unit[x].setIndex(x)
+        
         c_SetOffX = 0
         c_SetOffY = 0 
+
+        mousePressed = False
 
         M_surf = self.Load_map()
         mapRect = M_surf.get_rect()
         mapRect.center = (half_winWIdth + c_SetOffX, half_winHeight + c_SetOffY)
-        self.character_pos_x, self.character_pos_y = mapRect.center 
 
         # Establece el limite de hasta donde puede moverse la camara
         self.max_cam_move_X = abs(half_winWIdth - int(M_width/2))
@@ -172,11 +177,14 @@ class Graphic:
         c_Left = False
         c_Right = False
 
+        s_index = 0
+        
         # Comienza el loop del juego hasta que el juegador cierre el juego
         loop = True
         while loop: 
             '''Mouse'''
             self.mousepos = pygame.mouse.get_pos()
+            mousePos =  pygame.mouse.get_pos()
             pygame.mouse.set_visible(False)
 
             # Registra y obtiene todos los eventos que realizo el usuario como un click o apretar una tecla
@@ -200,24 +208,24 @@ class Graphic:
 
                     #Character
                     if event.key == K_w:
-                        posX, posY = self.Unit.getPosition()
+                        posX, posY = self.world.Unit[s_index].getPosition()
                         if self.movementPosible(posX, posY - 1):
-                            self.Unit.setPosition(posX, posY - 1)
+                            self.world.Unit[s_index].setPosition(posX, posY - 1)
                             mapNeedRedraw = True
                     elif event.key == K_s:
-                        posX, posY = self.Unit.getPosition()
+                        posX, posY = self.world.Unit[s_index].getPosition()
                         if self.movementPosible(posX, posY + 1):
-                            self.Unit.setPosition(posX, posY + 1)
+                            self.world.Unit[s_index].setPosition(posX, posY + 1)
                             mapNeedRedraw = True
                     if event.key == K_a:
-                        posX, posY = self.Unit.getPosition()
+                        posX, posY = self.world.Unit[s_index].getPosition()
                         if self.movementPosible(posX - 1, posY):
-                            self.Unit.setPosition(posX - 1, posY)
+                            self.world.Unit[s_index].setPosition(posX - 1, posY)
                             mapNeedRedraw = True
                     elif event.key == K_d:
-                        posX, posY = self.Unit.getPosition()
+                        posX, posY = self.world.Unit[s_index].getPosition()
                         if self.movementPosible(posX + 1, posY):
-                            self.Unit.setPosition(posX + 1, posY)
+                            self.world.Unit[s_index].setPosition(posX + 1, posY)
                             mapNeedRedraw = True
 
                     if event.key == K_g:
@@ -226,6 +234,9 @@ class Graphic:
                     
                     if event.key == K_ESCAPE:
                         loop = False
+
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    mousePressed = True
                 
                 if event.type == KEYUP:
                     if event.key == K_LEFT:
@@ -236,6 +247,17 @@ class Graphic:
                         c_Up = False
                     if event.key == K_DOWN:
                         c_Down = False
+            
+            mapRectX, mapRectY = mapRect.topleft
+            topLeftPos = abs(mapRectX), abs(mapRectY)
+            mousePos = tuple(sum(x) for x in zip(mousePos, topLeftPos))
+
+            if mousePressed:
+                posX, posY = mousePos
+                unit = self.world.checkUnit(math.floor(posX/32), math.floor(posY/32))
+                if unit != None:
+                    s_index = unit
+                mousePressed = False
 
             # Si mapNeedRedraw entonces se recarga el mapa
             if mapNeedRedraw:
@@ -289,7 +311,6 @@ class Graphic:
         """Obtiene el bioma de la celda y si es posible caminar sobre el devuelve True de lo contrario devuelve False"""
         if posX >= 0 and posY >= 0:
             try:
-                coord = str(posX)+ " " + str(posY)
                 biome = self.world.get_biome(posX, posY)
                 if biome == "D" :
                     return True
