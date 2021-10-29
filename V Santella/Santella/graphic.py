@@ -118,7 +118,7 @@ class Graphic:
                 if self.mouseclicked == True:
                     self.mouseclicked = False
                     self.non_reachables =[]
-                    self.map = self.world.Read_Map("maps/save.txt")
+                    self.map = self.world.Read_Map("maps/map1.txt")
                     self.game_loop()
 
             '''System'''
@@ -148,7 +148,7 @@ class Graphic:
         save_game = False
         half_winWIdth = self.screen_width/2
         half_winHeight = self.screen_height/2
-        c_Move= 1.5
+        c_Move= 18.5
         self.world.erase_Units()
 
         # Crea el tablero en la clase board
@@ -287,7 +287,7 @@ class Graphic:
             
             self.screen.blit(self.mouse_img,self.mousepos)
             pygame.display.update()
-            self.clock.tick()
+            self.clock.tick(30)
         self.menu_loop()
     
     def createBoard(self, M_Obj):
