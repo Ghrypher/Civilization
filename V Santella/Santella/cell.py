@@ -9,8 +9,7 @@ class Cell:
         self.busy = False
         self.occupant = None
         self.revealed = False
-        self.active = False
-        self.plants = ""
+        self.visible = False
         self.unit = None
         self.tile = None
 
@@ -26,42 +25,6 @@ class Cell:
         if self.biome != "":
             self.biome = ""
 
-    def set_plants(self, plants):
-        """ establece uan planta en la celda """
-        self.plants = str(plants)
-
-    def erase_plants(self):
-        """ borra el bioma actual de la celda """
-        if self.plants != "":
-            self.plants = ""
-    
-    def free_cell(self):
-        """ revisa si hay una algo/alguien en la celda """
-        if self.plants == "" and self.busy == False:
-            return True
-        else:
-            return False
-
-    def reveal(self):
-        """ revela la celda """
-        img = pygame.image.load('asets/floor/' + str(self.biome) + '.png').convert()
-        self.tile = img
-        self.tile.set_colorkey((0, 0, 0))
-        return img
-    
-    def hide(self):
-        """ esconde la celda """
-        self.tile = []
-        self.tile.set_colorkey((0, 0, 0))
-
-    def set_coordinates(self, x, y):
-        """ establece las coordenadas de la celda """
-
-    def get_coordinates(self):
-        """ devuelve las coordenadas de la celda """
-        coordenates = str(self.position_x) + " " + str(self.position_y)
-        return coordenates
-
     def getUnit(self):
         return self.unit
 
@@ -70,3 +33,13 @@ class Cell:
     
     def setUnitPosition(self,posX, posY):
         self.unit.setPosition(posX, posY)
+    
+    def getVisibility(self):
+        return self.visible, self.revealed
+    
+    def showCell(self):
+        self.visible = True
+        self.revealed = True
+    
+    def cellOff(self):
+        self.visible = False

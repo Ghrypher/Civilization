@@ -8,10 +8,10 @@ class Unit():
         self.utility = None
         self.type = type
         self.team = team
-        self.sprite = None
+        self.sprite = ""
         self.positionX = None
         self.positionY = None
-        self.unit_sorter = {"Wk": self.worker,
+        self.unit_sorter = {"WK": self.worker,
                   "WR": self.warrior,
                   "FD": self.founder}
         self.define(type)
@@ -56,3 +56,6 @@ class Unit():
 
     def getIndex(self):
         return self.index
+    
+    def getSprite(self):
+        return self.sprite

@@ -42,17 +42,23 @@ class Graphic:
         pygame.display.set_icon(pygame.image.load('asets/menus/icon.png'))
         pygame.display.set_caption('Civilization_POO')
         # save system
-        self.text_to_map = {"B" : pygame.image.load("asets/floor/Barrier.png"),
+        self.text_to_map = { #Active
                             "D" : pygame.image.load("asets/floor/Dirt.png"),
                             "F" : pygame.image.load("asets/floor/Forest.png"),
                             "W" :pygame.image.load("asets/floor/Water.png"),
                             "M" : pygame.image.load("asets/floor/Mountain.png"),
                             "I" : pygame.image.load("asets/floor/Iron_Mountain.png"),
                             "G" : pygame.image.load("asets/floor/Gold_Mountain.png"),
-                            "R" : "Revealed",
-                            "H" : "Hidden",
-                            "0" : False,
-                            "1" : True}
+                            #Inactive
+                            " D" : pygame.image.load("asets/floor/Dirt_inactive.png"),
+                            " F" : pygame.image.load("asets/floor/Forest_inactive.png"),
+                            " W" :pygame.image.load("asets/floor/Water_inactive.png"),
+                            " M" : pygame.image.load("asets/floor/Mountain_inactive.png"),
+                            " I" : pygame.image.load("asets/floor/Iron_Mountain_inactive.png"),
+                            " G" : pygame.image.load("asets/floor/Gold_Mountain_inactive.png"),
+                            #hidden
+                            " " : pygame.image.load("asets/floor/off_world.png"),
+                            }
         
                     
         self.menu_loop()
@@ -63,15 +69,48 @@ class Graphic:
         M_width = len(self.map) * self.tile_size
         M_height = len(self.map[0]) * self.tile_size
         M_surf = pygame.Surface((M_width, M_height))
+
         for x in range(len(self.map)):
             for y in range(len(self.map[x])):
-                spaceRect = pygame.Rect(x * self.tile_size, y * self.tile_size, self.tile_size, self.tile_size)
-                baseTile = self.text_to_map[self.map[x][y]]
+                self.world.cellOff(x, y)
+
+        for unit in range(len(self.world.Unit)):            
+            positionX, positionY = self.world.Unit[unit].getPosition() # Obtiene la posicion del personaje
+            for x in range(len(self.map)):
+                for y in range(len(self.map[x])):
+
+                    if ((x - positionX)**2 + (y - positionY)**2)**(1/2) <= 5:
+                        self.world.revealCell(x, y) 
+        
+        for x in range(len(self.map)):
+            for y in range(len(self.map[x])):
+
+                if ((x - positionX)**2 + (y - positionY)**2)**(1/2) <= 5:
+                    self.world.revealCell(x, y) 
+                                
+                if self.world.getVisibility(x, y) == (True, True):                
+                    spaceRect = pygame.Rect(x * self.tile_size, y * self.tile_size, self.tile_size, self.tile_size)
+                    baseTile = self.text_to_map[self.map[x][y]]
 
                  # Dibuja el la casilla con el bioma en la superficie
-                M_surf.blit(baseTile, spaceRect)
+                    M_surf.blit(baseTile, spaceRect)
+                else:
+                    if self.world.getVisibility(x, y) == (False, True):
+                        spaceRect = pygame.Rect(x*self.tile_size, y*self.tile_size, self.tile_size, self.tile_size)
+                        baseTile = self.text_to_map[" " + self.map[x][y]]
+
+                        # Dibuja el la casilla con el bioma en la superficie
+                        M_surf.blit(baseTile, spaceRect)
+                    else:
+                        spaceRect = pygame.Rect(x*self.tile_size, y*self.tile_size, self.tile_size, self.tile_size)
+                        baseTile = self.text_to_map[" "]
+
+                        # Dibuja el la casilla con el bioma en la superficie
+                        M_surf.blit(baseTile, spaceRect) 
+
         for x in range(self.units):
             positionX, positionY = self.world.Unit[x].getPosition()
+            self.character = pygame.image.load('asets/characters/' + str(self.world.Unit[x].getSprite()))
             spaceRect = pygame.Rect(positionX * self.tile_size, positionY * self.tile_size, self.tile_size, self.tile_size)
             M_surf.blit(self.character, spaceRect)        
         return M_surf
@@ -155,7 +194,7 @@ class Graphic:
         self.createBoard(self.map)
         for x in range (self.units):
             posX, posY = self.setPositionRandom(len(self.map), len(self.map[0]))
-            self.world.addUnit(posX, posY, x, "Wk","Red")
+            self.world.addUnit(posX, posY, x, "FD","Red")
             self.world.Unit[x].setIndex(x)
         
         c_SetOffX = 0

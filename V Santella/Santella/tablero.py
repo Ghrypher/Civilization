@@ -64,13 +64,10 @@ class Tablero:
                         mineral = random.randrange(1,11)
                         if mineral <= 5:
                             self.cells[Y][x].set_biome("I")
-                            self.cells[Y][x].set_coordinates(Y, x)
                         if mineral > 5 and mineral <= 7 :
                             self.cells[Y][x].set_biome("G")
-                            self.cells[Y][x].set_coordinates(Y, x)
                         if mineral > 7 and mineral <= 10 :
                             self.cells[Y][x].set_biome("M")
-                            self.cells[Y][x].set_coordinates(Y, x)
                     continue
                 
                 #rios
@@ -78,20 +75,16 @@ class Tablero:
                     lake = random.randrange(1,6)
                     if lake == 1:
                         self.cells[Y][x].set_biome("W")
-                        self.cells[Y][x].set_coordinates(Y, x)
                     else:
                         self.cells[Y][x].set_biome("D")
-                        self.cells[Y][x].set_coordinates(Y, x)
-                
+                         
                 #forests
                 if self.cells[Y][x].biome == "D" :
                     forest = random.randrange(1,6)
                     if forest == 1:
                         self.cells[Y][x].set_biome("F")
-                        self.cells[Y][x].set_coordinates(Y, x)
                     if self.cells[Y + 1 ][x].biome == "F" and self.cells[Y][x + 1].biome == "F" and self.cells[Y][x - 1].biome == "F":
                         self.cells[Y][x].set_biome("F")
-                        self.cells[Y][x].set_coordinates(Y, x)
                     continue
 
         self.document_txt("Maps/random_world.txt")
@@ -156,7 +149,6 @@ class Tablero:
     
     def get_tiles(self, y, x):
         """ devuelve el bioma de una celda """
-        self.cells[y][x].set_coordinates(x, y)
         biome = self.cells[y][x].biome
         return biome
 
@@ -220,3 +212,15 @@ class Tablero:
 
     def erase_Units(self):
         self.Unit = []
+
+    def getVisibility(self, posX, posY):
+        """Consulta a la celda si esta visible o no"""
+        return self.cells[posX][posY].getVisibility()
+    
+    def revealCell(self, posX, posY):
+        """Cambia la visibilidad de la celda especificada a True"""
+        self.cells[posX][posY].showCell()
+    
+    def cellOff(self, posX, posY):
+        """Cambia la visibilidad de la celda especificada a True"""
+        self.cells[posX][posY].cellOff()
