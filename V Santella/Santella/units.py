@@ -57,5 +57,4 @@ class Unit():
     def getIndex(self):
         return self.index
     
-    def getSprite(self):
-        return self.sprite
+   

@@ -158,11 +158,6 @@ class Tablero:
             for y in range (self.ancho):
                 self.cells[y][x].set_biome("")
     
-    def plants_random(self):
-        """ genera plantas aleatoriamente """
-        plants = self.number_to_plants[random.randrange(1,3)]
-        return plants
-    
     def set_biome(self, x, y, biome):
         """Añade un objeto Cell a la lista correspondiente y le establece el bioma"""
         self.cells[x][y].set_biome(biome)

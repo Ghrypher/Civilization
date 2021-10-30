@@ -1,0 +1,4 @@
+DESKTOP-7LKFOMB
+x64-based PC
+192.168.100.68
+18:c0:4d:f8:1e:ef
