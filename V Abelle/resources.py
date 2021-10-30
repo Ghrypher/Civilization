@@ -1,15 +1,37 @@
 class Resources():
-
     def __init__(self):
-        """Function __init__"""
-        self.type : str
-        self.resourcetype = []
-        self.chargeDatatoGame()
+        """ constructor de la clase """
+        self.life = int
+        self.utility = str
+        self.shield = int
+        self.build_id = int
 
-    def chargeDatatoGame(self):
-        """Function chargeDatatoGame"""
-        with open('C:/Users/santi/OneDrive/Escritorio/Santiago/Prog. Or. Obj/T-H-E/Civilization/Version1/data/resourcestypes.txt') as txt:
-            self.resourcetype = txt.read()
-            txt.close()
-            print (self.resourcetype)
+    def set_qualieties(self, build_id):
+        """ funcion que establece las cualidades """
+        """self.build_id = build_id
+        if build_id = 1
+
+        if build_id = 2
+
+        if build_id = 3"""
+
+    definir_cualidades= {
+        """ diccionario que ponndra las caracteristicas de cada edificio """
+        """1 :self.life = 1,
+            self.utility = "house",
+            self.shield = 0
+
+        2 :self.life = 5,
+            self.utility = "capital",
+            self.shield = 10
+
+        3 :self.life = 3,
+            self.utility = "scout",
+            self.shield = 10"""
+    }
+    """
+    1 casa
+    2 capital
+    3 puesto de avanzada
+    """
 

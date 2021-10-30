@@ -1,150 +1,189 @@
-import random
+import random,os
 from cell import Cell
+from character import Character
 
 class GameBoard():
 
     def __init__(self,width,height):
         """Function __init__"""
-        self.cells = []
-        self.width = 40
-        self.height = 33
-        self.nonreachables =[]
-        self.createBoard()
+        self.width = width
+        self.height = height
+        self.Unit = None
+        self.M_obj = []
+        self.non_reachables =[]
+        self.map_to_text = {"Barrier" : "B",
+                            "Dirt" : "D",
+                            "Water" : "W",
+                            "Mountain" :"M",
+                            "Revealed" :"R",
+                            "Hidden" : "H"}
+        self.number_to_biomes = {1 : "W",
+                                2 : "D",
+                                3 : "D", 
+                                4: "D"}
+        self.crear_tablero()
 
-    def createBoard(self):
-        """Function createBoard, creates a game board from 40x23"""
-        for column in range (0, self.height):
-            list = []
-            for row in range (0, self.width):
-                list.append(Cell())
-            self.cells.append(list)
+    def crear_tablero(self):
+        """ crea un tablero de width por height """
+        for columna in range (0, self.height):
+            lista = []
+            for fila in range (0, self.width):
+                lista.append(Cell())
+            self.M_obj.append(lista)                  
 
-    def biomeRandom(self):
-        """Function biomeRandom, generates biomes randomly"""
-        biome = number_to_biomes[random.randrange(1,4)]
+    def biome_random(self):
+        """ genera biomas aleatoriamente """
+        biome = number_to_biomes[random.randrange(1,5)]
         return biome
 
-    def randomWorld(self):
-        """Function randomWorld, create the world randomly and filters it"""
+    def random_world(self):
+        """ crea el mundo aleatoriamente y lo filtra """
         for Y in range(self.height):
             for x in range(self.width):
-                ran = str(self.biomeRandom())
-                self.cells[Y][x].setBiome(ran)
+                ran = str(self.biome_random())
+                self.M_obj[Y][x].set_biome(ran)
 
         for Y in range(self.height):
             for x in range(self.width):
                 #bordes
                 if x == 0 or Y == 0 or x == (self.width-1) or Y == (self.height-1):
-                    self.cells[Y][x].setBiome("Barrier")
+                    continue
+                
+                #tierra firme
+                if (self.M_obj[Y + 1 ][x].biome == "D" or self.M_obj[Y + 1 ][x].biome == "F" or self.M_obj[Y + 1 ][x].biome == "M") and (self.M_obj[Y][x + 1].biome == "D" or self.M_obj[Y][x + 1].biome == "F" or self.M_obj[Y][x + 1].biome == "M") and (self.M_obj[Y][x - 1].biome == "D" or self.M_obj[Y][x - 1].biome == "F" or self.M_obj[Y][x - 1].biome == "M"):
+                    self.M_obj[Y][x].set_biome("D")
+                    #montañas
+                    mountain = random.randrange(1,16)
+                    if mountain == 1:
+                        mineral = random.randrange(1,11)
+                        if mineral <= 5:
+                            self.M_obj[Y][x].set_biome("I")
+                            self.M_obj[Y][x].set_coordinates(Y, x)
+                        if mineral > 5 and mineral <= 7 :
+                            self.M_obj[Y][x].set_biome("G")
+                            self.M_obj[Y][x].set_coordinates(Y, x)
+                        if mineral > 7 and mineral <= 10 :
+                            self.M_obj[Y][x].set_biome("M")
+                            self.M_obj[Y][x].set_coordinates(Y, x)
                     continue
                 
                 #rios
-                if self.cells[Y + 1][x].biome == "Water" and self.cells[Y - 1][x].biome == "Water" or self.cells[Y + 1][x].biome == "Water" and self.cells[Y][x - 1].biome == "Water":
+                if self.M_obj[Y + 1][x].biome == "W" and self.M_obj[Y - 1][x].biome == "W" and self.M_obj[Y][x - 1].biome == "W":
                     lake = random.randrange(1,6)
                     if lake == 1:
-                        self.cells[Y][x].setBiome("Water")
-                        self.cells[Y][x].setCoordinates(Y, x)
+                        self.M_obj[Y][x].set_biome("W")
+                        self.M_obj[Y][x].set_coordinates(Y, x)
+                    else:
+                        self.M_obj[Y][x].set_biome("D")
+                        self.M_obj[Y][x].set_coordinates(Y, x)
                 
-                #tierra firme
-                if self.cells[Y + 1 ][x].biome == "Dirt" and self.cells[Y][x + 1].biome == "Dirt" and self.cells[Y][x - 1].biome == "Dirt":
-                    self.cells[Y][x].setBiome("Dirt")
-                    #montañas
-                    mountain = random.randrange(1,11)
-                    if mountain == 1:
-                        self.cells[Y][x].setBiome("Mountain")
-                        self.cells[Y][x].setCoordinates(Y, x)
-                        continue
-                
-                #plantas
-                if self.cells[Y][x].biome == "Dirt":
-                    plant = self.plantsRandom()
-                    self.cells[Y][x].setPlants(plant)
+                #forests
+                if self.M_obj[Y][x].biome == "D" :
+                    forest = random.randrange(1,6)
+                    if forest == 1:
+                        self.M_obj[Y][x].set_biome("F")
+                        self.M_obj[Y][x].set_coordinates(Y, x)
+                    if self.M_obj[Y + 1 ][x].biome == "F" and self.M_obj[Y][x + 1].biome == "F" and self.M_obj[Y][x - 1].biome == "F":
+                        self.M_obj[Y][x].set_biome("F")
+                        self.M_obj[Y][x].set_coordinates(Y, x)
                     continue
 
-    def backgroundWorld(self):
-        """Function backgroundWorld, create the world randomly and filters it"""
-        for Y in range(23):
-            for x in range(40):
-                ran = str(self.biomeRandom())
-                self.cells[Y][x].setBiome(ran)
+        self.document_txt("resources/maps/map2.txt")
+        f = open("resources/maps/map2.txt", "a+")
+        for y in range(self.height):
+            f.write("\n")
+            for x in range(self.width):
+                tile = self.get_tiles(y, x)
+                f.write(tile)
 
-        for Y in range(23):
-            for x in range(40):
-                #bordes
-                if x == 0 or Y == 0 or x == 39 or Y == 22:
-                    continue
-
-                #rios
-                if self.cells[Y + 1][x].biome == "Water" and self.cells[Y - 1][x].biome == "Water" or self.cells[Y + 1][x].biome == "Water" and self.cells[Y][x - 1].biome == "Water":
-                    lake = random.randrange(1,6)
-                    if lake == 1:
-                        self.cells[Y][x].setBiome("Water")
-                        self.cells[Y][x].setCoordinates(Y, x)
-                
-                #tierra firme
-                if self.cells[Y + 1 ][x].biome == "Dirt" and self.cells[Y][x + 1].biome == "Dirt" and self.cells[Y][x - 1].biome == "Dirt":
-                    self.cells[Y][x].setBiome("Dirt")
-                    #montañas
-                    mountain = random.randrange(1,11)
-                    if mountain == 1:
-                        self.cells[Y][x].setBiome("Mountain")
-                        self.cells[Y][x].setCoordinates(Y, x)
-                        continue
-                
-                #plantas
-                if self.cells[Y][x].biome == "Dirt":
-                    plant = self.plantsRandom()
-                    self.cells[Y][x].setPlants(plant)
-                    continue
-
-    def getTiles(self, y, x):
-        """Function getTiles, returns the biome from a cell"""
-        self.cells[y][x].setCoordinates(x, y)
-        biome = self.cells[y][x].biome
-        return biome
+    def save_game(self, map):
+        print("game saved")
+        self.document_txt("resources/maps/map2.txt")
+        f = open("resources/maps/map2.txt", "a+")
+        for y in range(len(map[0])):
+            f.write("\n")
+            for x in range(len(map)):
+                f.write(self.get_biome(x, y)) 
     
-    def eraseBoard(self):
-        """Function eraseBoard, deletes the biome from a cell"""
+    def get_tiles(self, y, x):
+        """ devuelve el bioma de una celda """
+        self.M_obj[y][x].set_coordinates(x, y)
+        biome = self.M_obj[y][x].biome
+        return biome
+
+    def limpiar_tablero(self):
+        """ elimina todo bioma almacenado en una celda """
         for x in range (self.height):
             for y in range (self.width):
-                self.cells[y][x].setBiome("")
-
-    def plantsRandom(self):
-        """Function plantsRandom, generates plants randomly"""
+                self.M_obj[y][x].set_biome("")
+    
+    def plants_random(self):
+        """ genera plantas aleatoriamente """
         plants = number_to_plants[random.randrange(1,3)]
         return plants
-
-    def checkSpace(self, coord):
-        """Function checkSpace, checks if the cell is free"""
-        if coord in self.nonreachables:
+    
+    def check_space(self, coord):
+        """ revisa si una celda esta libre """
+        if coord in self.non_reachables:
             return False
         else:
             return True
+            
+    def set_biome(self, x, y, biome):
+        """Añade un objeto Cell a la lista correspondiente y le establece el bioma"""
+        self.M_obj[x][y].set_biome(biome)
 
-    def setBiome(self,x,y,biome):
-        """Function setBiome, adds a Cell object to the list and establishes the biome"""
-        self.cells[x][y].setBiome(biome)
-
-    def getBiome(self,x,y):
-        """Function getBiome, """
-        biome = self.cells[x][y].getBiome()
+    def get_biome(self, x, y):
+        """  """
+        biome = self.M_obj[x][y].get_biome()
         return biome
+    
+    def addCellAndBiome(self, x, y, biome):
+        """Añade un objeto Cell a la lista correspondiente y le establece el bioma"""
+        self.M_obj[x].append(Cell())
+        self.M_obj[x][y].set_biome(biome)
+    
+    def assignSize(self, width):
+        """Asigna el tamaño del tablero segun el tamaño del mapa"""
+        self.M_obj = [] 
+        for _ in range(width):
+            self.M_obj.append([])
+    
+    def document_txt(self,path):
+        f = open(path, "w")
+        f.write(";Map made by Santella Agustin")
+        f.write("\n")
+        f.write(";element index")
+        f.write("\n")
+        f.write(";  D : Diert")
+        f.write("\n")
+        f.write(";  M : Mountain")
+        f.write("\n")
+        f.write(";  W : Water")
+        f.write("\n")
+        f.write("\n")
+        f.write("; starting the level:")
 
-    def addCellAndBiome(self,x,y,biome):
-        """Function addCellAndBiome, adds a Cell object to the correspondent list and establishes a biome"""
-        self.cells[x].append(Cell())
-        self.cells[x][y].setBiome(biome)
+    def checkUnit(self, posX, posY):
+        """  """
+        for x in range(len(self.Unit)):
+            pos = self.Unit[x].getPosition()
+            if pos == (posX, posY):
+                index = self.Unit[x].getIndex()
+                return index
+        
+    def addUnit(self, posX, posY, index, type, team):
+        self.Unit.append(Character(type, team))
+        self.Unit[index].setPosition(posX, posY)
 
-    def assignSize(self,width):
-        """Function assignSize, assigns the size from the map"""
-        self.cells = []
-        for x in range(width):
-            self.cells.append([])
+    def erase_Units(self):
+        self.Unit = []
 
 number_to_biomes = {
-    1 : "Water",
-    2 : "Dirt",
-    3 : "Dirt" 
+    1 : "W",
+    2 : "D",
+    3 : "D",
+    4: "D" 
     }
     
 number_to_plants = {
