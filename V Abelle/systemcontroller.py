@@ -1,12 +1,36 @@
-import pygame
+try:
+    import pygame
+except ImportError:
+    print("PyGame library is not installed. Please install it. CMD: pip install pygame")
+
+import random, os, math
+from character import Character
+from gameboard import GameBoard
+from gameview import GameView
 
 pygame.init()
 
 class SystemController():
     def __init__(self):
         """Function __init__"""
+        self.gameview = GameView()
+        self.screen_width = 1280
+        self.screen_height = 656
+        self.world = None
+        self.units = 5
+        self.character_pos_x = 576  
+        self.character_pos_y = 320
+        self.tile_size = 32
+        self.non_reachables =[]
+        self.non_reachables_load= []
+        self.mousepos = (0,0)
+        self.map = None
+        self.Unit = None
+        self.width = 70
+        self.height = 40
+        self.max_cam_move_X = int
+        self.max_cam_move_Y = int
         self.event = None
-        self.mousepos = None
         self.menufont = None
         self.menufontlittle = None
         self.menufontlittle2 = None
@@ -22,132 +46,421 @@ class SystemController():
                 if self.event.type == pygame.MOUSEBUTTONDOWN:
                     return 'mouseon'
             """Only for WorkInProgress, Credits, Instructions, MapSelector"""
-            if mode == 'work' or mode == 'credits' or mode == 'insts' or mode == 'map':
+            if mode == 'work' or mode == 'credits' or mode == 'insts' or mode == 'map' or mode == 'game':
                 if self.event.type == pygame.KEYDOWN:
                     """Escape"""
                     if self.event.key == pygame.K_ESCAPE:
                         return 'nonexit'
+                    if mode == 'game':
+                        if self.event.key == pygame.K_LEFT:
+                            return 'K_LEFTT'
+                        if self.event.key == pygame.K_RIGHT:
+                            return 'K_RIGHTT'
+                        if self.event.key == pygame.K_DOWN:
+                            return 'K_DOWNT'
+                        if self.event.key == pygame.K_UP:
+                            return 'K_UPT'
+
+                        if self.event.key == pygame.K_w:
+                            return 'K_W'
+                        elif self.event.key == pygame.K_s:
+                            return 'K_S'
+                        if self.event.key == pygame.K_a:
+                            return 'K_A'
+                        elif self.event.key == pygame.K_d:
+                            return 'K_D'
+                        
+                        if self.event.key == pygame.K_g:
+                            return 'K_G'
+                if self.event.type == pygame.KEYUP and mode == 'game':
+                    if self.event.key == pygame.K_LEFT:
+                        return 'K_LEFTF'
+                    if self.event.key == pygame.K_RIGHT:
+                        return 'K_RIGHTF'
+                    if self.event.key == pygame.K_UP:
+                        return 'K_UPF'
+                    if self.event.key == pygame.K_DOWN:
+                        return 'K_DOWNF'                    
 
     def controlMouseMovement(self):
         """Function controlMouseMovement, gets the mouse position and sets the cursor on non visible"""
-        self.mousepos = pygame.mouse.get_pos()
+        mousepos = pygame.mouse.get_pos()
         pygame.mouse.set_visible(False)
-        return self.mousepos
+        return mousepos
 
-    def createScreen(self,screensize):
-        """Function createScreen, creates the game screen"""
-        screen = pygame.display.set_mode(screensize, pygame.RESIZABLE)
-        return screen
+    def progressBar(self,mode):
+        """Function loadingBarProgress, establishes the progress from the loading bar"""
+        self.defaultbackground,self.menumusic,self.defaultcursor,self.handcursor,self.workinprogressmessage,self.underconstruction,self.exitbackground,self.exitbackgroundpos,self.exittext,self.exittextpos,self.exitbuttonyes,self.exitbuttonyescoll,self.exitbuttonyestext,self.exitbuttonyestextcoll,self.exitbuttonno,self.exitbuttonnocoll,self.exitbuttonnotext,self.exitbuttonnotextcoll,self.mapselectorbutton,self.mapselectorbuttoncoll,self.mapselectorbuttontext,self.mapselectorbuttontextcoll,self.menubuttoncredits,self.menubuttoncreditstext,self.menubuttoncreditscoll,self.menubuttoncreditstextcoll,self.menubuttoninstructions,self.menubuttoninstructionstext,self.menubuttoninstructionscoll,self.menubuttoninstructionstextcoll,self.randomplaybutton,self.randomplaybuttoncoll,self.randomplaybuttontext,self.randomplaybuttontextcoll,self.createdplaybutton,self.createdplaybuttoncoll,self.createdplaybuttontext,self.createdplaybuttontextcoll,self.swordcursor,self.foundersprite,self.founderspriteposx,self.founderspriteposy,self.founderspritecoll,self.biometiles,self.hidden,self.gamemusic1,self.gamemusic2 = self.gameview.loadBarView(mode)
 
-    def createClock(self):
-        """Function createClock, creates the game clock"""
-        clock = pygame.time.Clock()
-        return clock
+    def menuLoop(self):
+        """Function menuLoop, is the menu loop"""
+        """First Draw Call"""
+        self.gameview.menuFirstDraw()
 
-    def screenUpdate(self,clock,fps):
-        """Function screenUpdate, updates the screen and updates the clock"""
-        pygame.display.update()
-        clock.tick(fps)
+        playing = True
 
-    def systemLoads(self):
-        """Function systemLoads, loads all the vital resources from the game"""
-        windowiconload = pygame.image.load('resources/assets/windowicon.png') #Loads the window icon
-        windowicon = pygame.display.set_icon(windowiconload) #Sets the window icon
-        windowname = pygame.display.set_caption('T-H-E') #Sets the title of the window
-        self.menufont = pygame.font.Font('resources/fonts/echantedland/Enchanted Land.otf',100) #Loads the default font
-        self.menufontlittle = pygame.font.Font('resources/fonts/echantedland/Enchanted Land.otf',90) #Loads the default font but smaller than the previous one
-        self.menufontlittle2 = pygame.font.Font('resources/fonts/echantedland/Enchanted Land.otf',73) #Loads the default font but smaller than the rest
-        self.buttexture = pygame.image.load('resources/assets/menubuttontexture.jpg') #Loads the texture from the game buttons
-        buttselector = pygame.image.load('resources/assets/buttonselector.png')
-        return windowicon,windowname,self.menufont,self.menufontlittle,self.menufontlittle2,self.buttexture,buttselector
+        """Menu View Loop"""
+        while playing == True:
+            try:
+                mousepos = self.controlMouseMovement()
+                keyreturned = self.controlInputsEvents('menu')
+            except:
+                pass
+            sysconreturned = self.gameview.menuView(mousepos,keyreturned)
+            if sysconreturned != ' ':
+                playing = False
 
-    def  screenLogo(self):
-        """Function screenLogo, loads the logo and creates the collision"""
-        screenlogo = pygame.image.load('resources/assets/gamelogo.png') #Loads the logo from the main menu
-        screenlogocoll = screenlogo.get_rect(center = (350,360)) #Creates the collision from the previous logo
-        return screenlogo,screenlogocoll
+        return sysconreturned
 
-    def menuesLoads(self,num):
-        """Function menuesLoads, loads all the menues resources, renders the texts and creates the collisions"""
-        if num == 1: #Background image
-            defback = pygame.image.load('resources/assets/defaultback.jpg') #Loads the 'background' image
-            menumusic = pygame.mixer.Sound('resources/audio/menusong.mp3')
-            defaultcursor = pygame.image.load('resources/assets/defaultcursor.png').convert_alpha() #Loads the default cursor image
-            handcursor = pygame.image.load('resources/assets/handcursor.png').convert_alpha() #Loads the hand cursor image
-            return defback,menumusic,defaultcursor,handcursor
-        elif num == 2: #Work in progress
-            workinprogmess = self.menufont.render('WORK IN PROGRESS',True,[0,0,0]) #Renders the message on the selected font
-            underconstruc = pygame.image.load('resources/assets/underconstruction.png').convert_alpha() #Loads the 'under construction' image
-            return workinprogmess,underconstruc
-        elif num == 3: #Exit UI
-            exitback = pygame.image.load('resources/assets/exitback.png') #Loads the exit background
-            exitback.set_alpha(5) #Makes the exit background a bit less opaque
-            exitbackpos = (0,0) #Establishes the position from the previous background
-            exittext = self.menufont.render('DO YOU WANT TO EXIT?',True,[255,255,255]) #Renders the message on the selected font
-            exittextpos = (215,50) #Establishes the position from the previous message
-            exitbtnyes = self.buttexture #Adds the wood button texture to this button
-            exitbtnyescoll = exitbtnyes.get_rect(center = (640,275)) #Creates the collision from the previous button
-            exitbtnyestext = self.menufont.render('YES',True,[0,0,0]) #Renders the message on the selected font
-            exitbtnyestextcoll = exitbtnyestext.get_rect(midleft = (585,275)) #Creates the surface from the previous text
-            exitbtnno = self.buttexture #Adds the wood button texture to this button
-            exitbtnnocoll = exitbtnno.get_rect(center = (640,425)) #Creates the collision from the previous button
-            exitbtnnotext = self.menufont.render('NO',True,[0,0,0]) #Renders the message on the selected font
-            exitbtnnotextcoll = exitbtnnotext.get_rect(midleft = (585,425)) #Creates the collision from the previous text
-            return exitback,exitbackpos,exittext,exittextpos,exitbtnyes,exitbtnyescoll,exitbtnyestext,exitbtnyestextcoll,exitbtnno,exitbtnnocoll,exitbtnnotext,exitbtnnotextcoll
-        elif num == 4: #Map selector
-            mapselbtn = self.buttexture #Adds the wood button texture to this button
-            mapselbtncoll = mapselbtn.get_rect(midleft = (640,238)) #Creates the collision from the previous button
-            mapselbtntext = self.menufontlittle.render('MAP SELECTION',True,[0,0,0]) #Renders the message on the selected font
-            mapselbtntextcoll = mapselbtntext.get_rect(center = (946,230)) #Creates the collision from the previous text
-            return mapselbtn,mapselbtncoll,mapselbtntext,mapselbtntextcoll
-        elif num == 5: #Credits
-            btncreds = self.buttexture #Adds the wood button texture to this button
-            btncredstext = self.menufont.render('CREDITS',True,[0,0,0]) #Renders the message on the selected font
-            btncredscoll = btncreds.get_rect(midleft = (640,368)) #Creates the collision from the previous button
-            btncredstextcoll = btncredstext.get_rect(center = (952,368)) #Creates the surface from the previous text
-            return btncreds,btncredstext,btncredscoll,btncredstextcoll
-        elif num == 6: #Instructions
-            btninstrs = self.buttexture #Adds the wood button texture to this button
-            btninstrstext = self.menufont.render('INSTRUCTIONS',True,[0,0,0]) #Renders the message on the selected font
-            btninstrscoll = btninstrs.get_rect(midleft = (640,498)) #Creates the collision from the previous button
-            btninstrstextcoll = btninstrstext.get_rect(center = (940,498)) #Creates the surface from the previous text
-            return btninstrs,btninstrstext,btninstrscoll,btninstrstextcoll
-        elif num == 7: #Random mode
-            btnrandom = self.buttexture #Adds the wood button texture to this button
-            btnrandomcoll = btnrandom.get_rect(midleft = (335,275)) #Creates the collision from the previous button
-            btnrandomtext = self.menufontlittle.render('PLAY RANDOM',True,[0,0,0]) #Renders the message on the selected font
-            btnrandomtextcoll = btnrandomtext.get_rect(center = (635,275)) #Creates the surface from the previous text
-            return btnrandom,btnrandomcoll,btnrandomtext,btnrandomtextcoll
-        elif num == 8: #Created mode
-            btncreated = self.buttexture #Adds the wood button texture to this button
-            btncreatedcoll = btncreated.get_rect(midleft = (335,425)) #Creates the collision from the previous button
-            btncreatedtext = self.menufontlittle2.render('PLAY PRE-CREATED',True,[0,0,0]) #Renders the message on the selected font
-            btncreatedtextcoll = btncreatedtext.get_rect(center = (635,425)) #Creates the surface from the previous text
-            return btncreated,btncreatedcoll,btncreatedtext,btncreatedtextcoll
-        elif num == 9: #Loading
-            loadingtext = self.menufont.render('LOADING...',True,[255,255,255]) #Renders the message on the selected font
-            loadingtextcoll = loadingtext.get_rect(center = (640,352)) #Creates the collision from the previous text
-            loadingbar = pygame.image.load('resources/assets/loadingbar.png') #Loads the loading bar image
-            loadingbarcoll = loadingbar.get_rect(center = (640,552)) #Creates the collision from the previous button
-            return loadingtext,loadingtextcoll,loadingbar,loadingbarcoll
+    def workInProgress(self):
+        """Function workInProgress, is a temporaly function which says that this part of the code is not finished yet"""
+        self.gameview.workInProgressFirstDraw()
+        
+        playing = True
 
-    def gameLoads(self,num):
-        """Function gameLoads, loads all the game resources and creates the collisions"""
-        if num == 1:
-            swordcursor = pygame.image.load('resources/assets/swordcursor.png').convert_alpha() #Loads the sword cursor image
-            foundsprites = pygame.image.load('resources/assets/foundersprite.png') #Loads the default character image
-            foundspriteposx = 515 #Establishes the position on 'x' from the default character
-            foundspriteposy = 325 #Establishes the position on 'y' from the default character
-            foundspritecoll = foundsprites.get_rect().move(foundspriteposx,foundspriteposy) #Creates the collision from the default character
-            biometiles = {
-            "X": pygame.image.load("resources/assets/map/floor/dirt.png"), #16+16+16%
-            "M": pygame.image.load("resources/assets/map/floor/mountain.png"), #16+16+16+8%
-            "Y": pygame.image.load("resources/assets/map/floor/water.png"),#16+16+16+16%
-            " ": pygame.image.load("resources/assets/map/floor/offworld.png") #16+16+16+16+8%
-            } #Dictionary that records the different sprites from the leeters that appears on the map txt
-            hidden = pygame.image.load("resources/assets/map/floor/offworld.png")
-            return swordcursor,foundsprites,foundspriteposx,foundspriteposy,foundspritecoll,biometiles,hidden
-        if num == 2: #Music and Sounds
-            gamemusic1 = pygame.mixer.Sound('resources/audio/gamemusic1.mp3')
-            gamemusic2 = pygame.mixer.Sound('resources/audio/gamemusic2.mp3')
-        return gamemusic1,gamemusic2
+        """Menu View Loop"""
+        while playing == True:
+            try:
+                mousepos = self.controlMouseMovement()
+                keyreturned = self.controlInputsEvents('work')
+            except:
+                pass
+            sysconreturned = self.gameview.workInProgressView(mousepos,keyreturned)
+            if sysconreturned != ' ':
+                playing = False
+
+        return sysconreturned
+
+    def exitUI(self,gamemode):
+        """Function exitUI, ask if you want to exit"""
+        self.gameview.exitUIFirstDraw()
+
+        playing = True
+
+        """Menu View Loop"""
+        while playing == True:
+            try:
+                mousepos = self.controlMouseMovement()
+                keyreturned = self.controlInputsEvents('exit')
+            except:
+                pass
+            sysconreturned = self.gameview.exitUIView(mousepos,keyreturned)
+            if sysconreturned == 'nonexit':
+                playing = False
+        
+        if gamemode == 'random':
+            sysconreturned = 'random'
+        elif gamemode == 'created':
+            sysconreturned = 'created'
+        elif gamemode == 'menu':
+            sysconreturned = 'menu'
+        elif gamemode == 'credits':
+            sysconreturned = 'credits'
+        elif gamemode == 'instructions':
+            sysconreturned = 'instructions'
+        elif gamemode == 'mode':
+            sysconreturned = 'mode'
+
+        return sysconreturned
+
+    def credits(self):
+        """Function creditsOpen, put the credits on screen"""
+        self.gameview.creditsFirstDraw()
+
+        playing = True
+
+        """Menu View Loop"""
+        while playing == True:
+            try:
+                mousepos = self.controlMouseMovement()
+                keyreturned = self.controlInputsEvents('credits')
+            except:
+                pass
+            sysconreturned = self.gameview.creditsView(mousepos,keyreturned)
+            if sysconreturned != ' ':
+                playing = False
+
+        return sysconreturned
+
+    def instructions(self):
+        """Function instructionsOpen, put the instructions on screen"""
+        self.gameview.instructionsFirstDraw()
+
+        playing = True
+
+        """Menu View Loop"""
+        while playing == True:
+            try:
+                mousepos = self.controlMouseMovement()
+                keyreturned = self.controlInputsEvents('insts')
+            except:
+                pass
+            sysconreturned = self.gameview.instructionsView(mousepos,keyreturned)
+            if sysconreturned != ' ':
+                playing = False
+
+        return sysconreturned
+
+    def gameMapSelector(self):
+        """Function gameMapSelector, is the game map selector"""
+        self.gameview.mapSelectorFirstDraw()
+        
+        playing = True
+
+        """Menu View Loop"""
+        while playing == True:
+            try:
+                mousepos = self.controlMouseMovement()
+                keyreturned = self.controlInputsEvents('map')
+            except:
+                pass
+            sysconreturned = self.gameview.mapSeclectorView(mousepos,keyreturned)
+            if sysconreturned != ' ':
+                playing = False
+
+        if sysconreturned == 'random':
+            self.non_reachables =[]
+            self.world = GameBoard(100,80)
+            self.world.random_world()
+            self.map = self.Read_Map("resources/maps/map2.txt")
+        if sysconreturned == 'pre':
+            self.non_reachables =[]
+            self.map = self.Read_Map("resources/maps/map1.txt")
+            self.world = GameBoard(len(self.map), len(self.map[0]))
+
+        return sysconreturned
+
+    def movementPosible(self, posX, posY):
+        """Obtiene el bioma de la celda y si es posible caminar sobre el devuelve True de lo contrario devuelve False"""
+        if posX >= 0 and posY >= 0:
+            try:
+                biome = self.world.get_biome(posX, posY)
+                if biome == "D" :
+                    return True
+                else:
+                    return False
+            except:
+                return False
+        else:
+            return False
+
+    def setPositionRandom(self, width, height):
+        # Selecciona de mandera aleatoria 2 posiciones para spawnear
+        while True:
+            positionX = random.randrange(0, width + 1)
+            positionY = random.randrange(0, height + 1)
+            if self.movementPosible(positionX, positionY) == True:
+                break
+        return positionX, positionY
+
+    def createBoard(self, M_Obj):
+        """Crea el tablero de la clase board y le asigna el bioma a cada celda"""
+        self.world.assignSize(len(M_Obj))
+        for x in range(len(M_Obj)):
+            for y in range(len(M_Obj[0])):
+                self.world.addCellAndBiome(x, y, M_Obj[x][y])
+
+    def loadMap(self):
+        """ """
+        M_width = len(self.map) * self.tile_size
+        M_height = len(self.map[0]) * self.tile_size
+        M_surf = pygame.Surface((M_width, M_height))
+        for x in range(len(self.map)):
+            for y in range(len(self.map[x])):
+                spaceRect = pygame.Rect(x * self.tile_size, y * self.tile_size, self.tile_size, self.tile_size)
+                baseTile = self.biometiles[self.map[x][y]]
+
+                # Dibuja el la casilla con el bioma en la superficie
+                M_surf.blit(baseTile, spaceRect)
+
+        for x in range(self.units):
+            positionX, positionY = self.world.Unit[x].getPosition()
+            spaceRect = pygame.Rect(positionX * self.tile_size, positionY * self.tile_size, self.tile_size, self.tile_size)
+            M_surf.blit(self.foundersprite, spaceRect)        
+        return M_surf
+
+    def gameLoop(self):
+        M_width = len(self.map) * self.tile_size
+        M_height = len(self.map[0]) * self.tile_size
+        mapNeedRedraw = True # verdadero para qe llame a drawMap()
+        save_game = False
+        half_winWIdth = self.screen_width/2
+        half_winHeight = self.screen_height/2
+        c_Move = 3.5
+        self.world.erase_Units()
+
+        # Crea el tablero en la clase board
+        self.createBoard(self.map)
+        for x in range (self.units):
+            posX, posY = self.setPositionRandom(len(self.map), len(self.map[0]))
+            self.world.addUnit(posX, posY, x, "Wk","Red")
+            self.world.Unit[x].setIndex(x)
+
+        c_SetOffX = 0
+        c_SetOffY = 0
+
+        mousePressed = False
+
+        M_surf = self.loadMap()
+        mapRect = M_surf.get_rect()
+        mapRect.center = (half_winWIdth + c_SetOffX, half_winHeight + c_SetOffY)
+        self.character_pos_x, self.character_pos_y = mapRect.center 
+
+        # Establece el limite de hasta donde puede moverse la camara
+        self.max_cam_move_X = abs(half_winWIdth - int(M_width/2))
+        self.max_cam_move_Y = abs(half_winHeight - int(M_height/2))
+
+        # Rastrea si las teclas para mover la camara estan presionadas 
+        c_Up = False
+        c_Down = False
+        c_Left = False
+        c_Right = False
+
+        s_index = 0
+
+        # Comienza el loop del juego hasta que el juegador cierre el juego
+        loop = True
+        while loop: 
+            '''Mouse'''
+            try:
+                self.mousepos = self.controlMouseMovement()
+                mousePos = self.mousepos
+            except:
+                pass
+
+            # Registra y obtiene todos los eventos que realizo el usuario como un click o apretar una tecla
+            self.event = self.controlInputsEvents('game')
+            if self.event == 'exit':
+                loop = False
+            if self.event == 'nonexit':
+                loop = False
+            #arrows camera
+            if self.event == 'K_LEFTT':
+                c_Left = True
+            if self.event == 'K_RIGHTT':
+                c_Right = True
+            if self.event == 'K_DOWNT':
+                c_Down = True
+            if self.event == 'K_UPT':
+                c_Up = True
+            if self.event == 'K_LEFTF':
+                c_Left = False
+            if self.event == 'K_RIGHTF':
+                c_Right = False
+            if self.event == 'K_DOWNF':
+                c_Down = False
+            if self.event == 'K_UPF':
+                c_Up = False
+            if self.event == 'mouseon':
+                mousePressed = True
+            if self.event == 'K_G':
+                mapNeedRedraw = True
+                save_game = True
+            
+            #WASD movement
+            if self.event == 'K_W':
+                posX, posY = self.world.Unit[s_index].getPosition()
+                if self.movementPosible(posX, (posY - 1)):
+                    self.world.Unit[s_index].setPosition(posX, posY - 1)
+                    posY -= 1
+                    mapNeedRedraw = True
+            if self.event == 'K_S':
+                posX, posY = self.world.Unit[s_index].getPosition()
+                if self.movementPosible(posX, (posY + 1)):
+                    self.world.Unit[s_index].setPosition(posX, posY + 1)
+                    posY += 1
+                    mapNeedRedraw = True
+            if self.event == 'K_A':
+                posX, posY = self.world.Unit[s_index].getPosition()
+                if self.movementPosible((posX - 1), posY):
+                    self.world.Unit[s_index].setPosition(posX - 1, posY)
+                    posX -= 1
+                    mapNeedRedraw = True
+            if self.event == 'K_D':
+                posX, posY = self.world.Unit[s_index].getPosition()
+                if self.movementPosible((posX + 1), posY):
+                    self.world.Unit[s_index].setPosition(posX + 1, posY)
+                    posX += 1
+                    mapNeedRedraw = True
+
+            mapRectX, mapRectY = mapRect.topleft
+            topLeftPos = abs(mapRectX), abs(mapRectY)
+            mousePos = tuple(sum(x) for x in zip(mousePos, topLeftPos))
+
+            if mousePressed:
+                posX, posY = mousePos
+                unit = self.world.checkUnit(math.floor(posX/32), math.floor(posY/32))
+                if unit != None:
+                    s_index = unit
+                mousePressed = False
+
+            # Si mapNeedRedraw entonces se recarga el mapa
+            if mapNeedRedraw:
+                M_surf = self.loadMap()
+                mapNeedRedraw = False
+                if save_game:
+                    self.world.save_game(self.map)
+                    save_game = False
+            
+            # Cambia la variable del movimiento de la camara si el usuario presiono la tecla y no supera el limite
+            if c_Up and c_SetOffY < self.max_cam_move_Y:
+                c_SetOffY += c_Move
+            if c_Down and c_SetOffY > -self.max_cam_move_Y:
+                c_SetOffY -= c_Move
+            if c_Left and c_SetOffX < self.max_cam_move_X:
+                c_SetOffX += c_Move
+            if c_Right and c_SetOffX > -self.max_cam_move_X:
+                c_SetOffX -= c_Move
+
+            # Ajusta el centro del mapa segun que tanto lo movio el usuario del centro
+            mapRect = M_surf.get_rect()
+            mapRect.center = (half_winWIdth + c_SetOffX, half_winHeight + c_SetOffY)
+
+            self.gameview.gameLoopView(M_surf,mapRect,self.mousepos,self.defaultcursor)
+
+        return 'exit'
+
+    def Read_Map (self, file):
+        """ """
+        assert os.path.exists(file), 'Cannot find the level file: %s' % (file)
+        M_File = open(file, "r")
+        content = M_File.readlines() + ["\r\n"]
+        M_File.close()
+
+        M_TextLines = []
+        M_Obj = []
+
+        for lineNum in range(len(content)):
+            line = content[lineNum].rstrip('\r\n')
+
+            # Si encuentra un ";" en la linea actual devuelve ""
+            if ";" in line:
+                line = line[:line.find(";")]
+
+            # Si tiene algo lo añade a la lista con las lineas de texto del mapa
+            if line != "":
+                M_TextLines.append(line)
+
+            elif line == "" and len(M_TextLines) > 0:
+                maxWidth = -1
+
+                # Busca la fila mas larga de todas
+                for i in range(len(M_TextLines)):
+                    if len(M_TextLines[i]) > maxWidth:
+                        maxWidth = len(M_TextLines[i])
+
+                # Las empareja llenando con espacios si es que hace falta
+                for i in range (len(M_TextLines)):
+                    M_TextLines[i] += " " * (maxWidth - len(M_TextLines[i]))
+
+                # Añade una lista por cada linea de mapa
+                for x in range (len(M_TextLines[0])):
+                    M_Obj.append([])
+
+                # Invierte el mapa para que quede al derecho en la matriz
+                for y in range (len(M_TextLines)):
+                    for x in range (maxWidth):
+                        M_Obj[x].append(M_TextLines[y][x])
+        return M_Obj   
+
+

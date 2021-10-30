@@ -5,10 +5,9 @@ class Cell():
 
     def __init__(self):
         """Function __init__"""
-        self.occupant = None
-        self.visible = False
-        self.biome = None
+        self.biome = ""
         self.busy = False
+        self.occupant = None
         self.revealed = False
         self.active = False
         self.plants = ""
@@ -16,53 +15,52 @@ class Cell():
         self.position_x = int
         self.position_y = int
 
-    def setBiome(self,biome):
-        """Function setBiome, establishes the biome from the cell"""
+    def set_biome(self, biome):
+        """ establece el bioma de la celda """
         self.biome = str(biome)
 
-    def eraseBiome(self):
-        """Function eraseBiome, deletes the actual biome from the cell"""
+    def get_biome(self):
+        return self.biome
+
+    def erase_biome(self):
+        """ borra el bioma actual de la celda """
         if self.biome != "":
             self.biome = ""
 
-    def getBiome(self):
-        """Function readBiome, returns what biome contains the cell"""
-        return self.biome
-
-    def setPlants(self,plants):
-        """Function setPlants, puts a plant on the cell"""
+    def set_plants(self, plants):
+        """ establece uan planta en la celda """
         self.plants = str(plants)
 
-    def erasePlants(self):
-        """Function erasePlants, deletes the plant from the cell"""
+    def erase_plants(self):
+        """ borra el bioma actual de la celda """
         if self.plants != "":
             self.plants = ""
-
-    def freeCell(self):
-        """Function freeCell, checks if the cell is empty"""
+    
+    def free_cell(self):
+        """ revisa si hay una algo/alguien en la celda """
         if self.plants == "" and self.busy == False:
             return True
         else:
             return False
-    
-    def revealCell(self):
-        """Function revealCell, reveals the cell"""
-        img = pygame.image.load('asets/floor/' + str(self.biome) + '.png').convert()
+
+    def reveal(self):
+        """ revela la celda """
+        img = pygame.image.load('assets/floor/' + str(self.biome) + '.png').convert()
         self.tile = img
         self.tile.set_colorkey((0, 0, 0))
         return img
-
-    def hideCell(self):
-        """Function hideCell, hides the cell"""
+    
+    def hide(self):
+        """ esconde la celda """
         self.tile = []
         self.tile.set_colorkey((0, 0, 0))
-
-    def setCoordinates(self,x,y):
-        """Function setCoordinates, establishes the cell coordinates"""
+    
+    def set_coordinates(self, x, y):
+        """ le indica sus coordenadas a la celda """
         self.position_x = x
         self.position_y = y
 
-    def getCoordinates(self):
-        """Function getCoordinates, returns the cell coordinates"""
+    def get_coordinates(self):
+        """ devuelve las coordenadas de la celda """
         coordenates = str(self.position_x) + " " + str(self.position_y)
         return coordenates
