@@ -60,6 +60,9 @@ class SystemController():
                             return 'K_DOWNT'
                         if self.event.key == pygame.K_UP:
                             return 'K_UPT'
+                        if self.event.key == pygame.K_RETURN:
+                            return 'K_RETURN'
+                        
 
                         if self.event.key == pygame.K_w:
                             return 'K_W'
@@ -72,6 +75,7 @@ class SystemController():
                         
                         if self.event.key == pygame.K_g:
                             return 'K_G'
+
                 if self.event.type == pygame.KEYUP and mode == 'game':
                     if self.event.key == pygame.K_LEFT:
                         return 'K_LEFTF'
@@ -235,7 +239,8 @@ class SystemController():
         if posX >= 0 and posY >= 0:
             try:
                 biome = self.world.get_biome(posX, posY)
-                if biome == "D" :
+                ocupied = self.world.checkCell(posX, posY)
+                if biome == "D" and ocupied == False:
                     return True
                 else:
                     return False
@@ -320,7 +325,7 @@ class SystemController():
         save_game = False
         half_winWIdth = self.screen_width/2
         half_winHeight = self.screen_height/2
-        c_Move = 3.5
+        c_Move = 10
         self.world.erase_Units()
 
         # Crea el tablero en la clase board
@@ -328,6 +333,7 @@ class SystemController():
         for x in range (self.units):
             posX, posY = self.setPositionRandom(len(self.map), len(self.map[0]))
             self.world.addUnit(posX, posY, x, "FD","Red")
+            self.world.occupiedCell(posX, posY)
             self.world.Unit[x].setIndex(x)
 
         c_SetOffX = 0
@@ -379,6 +385,7 @@ class SystemController():
                 c_Down = True
             if self.event == 'K_UPT':
                 c_Up = True
+            if self.event == 'K_RETURN':
                 self.passTurn()
             if self.event == 'K_LEFTF':
                 c_Left = False
@@ -399,6 +406,8 @@ class SystemController():
                 posX, posY = self.world.Unit[s_index].getPosition()
                 if self.world.Unit[s_index].movement > 0:
                     if self.movementPosible(posX, (posY - 1)):
+                        self.world.unoccupiedCell(posX, posY)
+                        self.world.occupiedCell(posX, posY - 1)
                         self.world.Unit[s_index].setPosition(posX, posY - 1)
                         posY -= 1
                         mapNeedRedraw = True
@@ -407,6 +416,8 @@ class SystemController():
                 posX, posY = self.world.Unit[s_index].getPosition()
                 if self.world.Unit[s_index].movement > 0:
                     if self.movementPosible(posX, (posY + 1)):
+                        self.world.unoccupiedCell(posX, posY)
+                        self.world.occupiedCell(posX, posY + 1)
                         self.world.Unit[s_index].setPosition(posX, posY + 1)
                         posY += 1
                         mapNeedRedraw = True
@@ -415,6 +426,8 @@ class SystemController():
                 posX, posY = self.world.Unit[s_index].getPosition()
                 if self.world.Unit[s_index].movement > 0:
                     if self.movementPosible((posX - 1), posY):
+                        self.world.unoccupiedCell(posX, posY)
+                        self.world.occupiedCell(posX - 1, posY)
                         self.world.Unit[s_index].setPosition(posX - 1, posY)
                         posX -= 1
                         mapNeedRedraw = True
@@ -423,6 +436,8 @@ class SystemController():
                 posX, posY = self.world.Unit[s_index].getPosition()
                 if self.world.Unit[s_index].movement > 0:
                     if self.movementPosible((posX + 1), posY):
+                        self.world.unoccupiedCell(posX, posY)
+                        self.world.occupiedCell(posX + 1, posY)
                         self.world.Unit[s_index].setPosition(posX + 1, posY)
                         posX += 1
                         mapNeedRedraw = True

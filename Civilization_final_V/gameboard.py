@@ -177,4 +177,13 @@ class GameBoard():
     def revealCell(self, posX, posY):
         """Cambia la visibilidad de la celda especificada a True"""
         self.M_obj[posX][posY].showCell()
+
+    def checkCell(self, x, y):
+        return self.M_obj[x][y].occupant
+
+    def occupiedCell(self, x, y):
+        self.M_obj[x][y].occupant = True
+    
+    def unoccupiedCell(self, x, y):
+        self.M_obj[x][y].occupant = False
     

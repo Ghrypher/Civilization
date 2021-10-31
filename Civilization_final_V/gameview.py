@@ -1,8 +1,10 @@
 try:
     import pygame
+    from pygame.locals import *
 except ImportError:
     print("PyGame library is not installed. Please install it. CMD: pip install pygame")
 
+pygame.mixer.pre_init(44100, 16, 2, 4096)
 pygame.init()
 
 class GameView():
@@ -91,7 +93,7 @@ class GameView():
         """Function menuesLoads, loads all the menues resources, renders the texts and creates the collisions"""
         if num == 1: #Background image
             defback = pygame.image.load('resources/assets/defaultback.jpg') #Loads the 'background' image
-            menumusic = pygame.mixer.Sound('resources/audio/menusong.mp3')
+            menumusic = pygame.mixer.Sound('resources/audio/menusong.wav')
             defaultcursor = pygame.image.load('resources/assets/defaultcursor.png').convert_alpha() #Loads the default cursor image
             handcursor = pygame.image.load('resources/assets/handcursor.png').convert_alpha() #Loads the hand cursor image
             return defback,menumusic,defaultcursor,handcursor
@@ -179,8 +181,8 @@ class GameView():
             hidden = pygame.image.load("resources/assets/map/floor/off_world.png")
             return swordcursor,foundsprites,foundspriteposx,foundspriteposy,foundspritecoll,biometiles,hidden
         if num == 2: #Music and Sounds
-            gamemusic1 = pygame.mixer.Sound('resources/audio/gamemusic1.mp3')
-            gamemusic2 = pygame.mixer.Sound('resources/audio/gamemusic2.mp3')
+            gamemusic1 = pygame.mixer.Sound('resources/audio/gamemusic1.wav')
+            gamemusic2 = pygame.mixer.Sound('resources/audio/gamemusic2.wav')
         return gamemusic1,gamemusic2
 
     def loadBarView(self,mode):

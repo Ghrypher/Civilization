@@ -7,7 +7,7 @@ class Cell():
         """Function __init__"""
         self.biome = ""
         self.busy = False
-        self.occupant = None
+        self.occupant = False
         self.revealed = False
         self.visible = False
         self.plants = ""

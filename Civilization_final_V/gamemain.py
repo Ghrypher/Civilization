@@ -85,10 +85,8 @@ class GameMain():
         returnedvalue = self.syscon.gameMapSelector()
 
         if returnedvalue == 'random':
-            self.non_reachables = []
             self.gameMain()
         elif returnedvalue == 'pre':
-            self.non_reachables = []
             self.M_Obj = None
             self.gameMain()
         elif returnedvalue == 'exit':
