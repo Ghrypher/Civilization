@@ -6,8 +6,8 @@ class Cell():
     def __init__(self):
         """Function __init__"""
         self.biome = ""
-        self.space = True
-        self.occupant = None
+        self.busy = False
+        self.occupant = False
         self.revealed = False
         self.visible = False
         self.plants = ""
