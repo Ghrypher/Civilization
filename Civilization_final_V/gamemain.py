@@ -11,6 +11,7 @@ class GameMain():
         self.syscon = SystemController()
         self.playing = True #Establishes if a function is running or not
         self.sysconreturned = None
+        self.gamelresloaded = False
         """Loads"""
         self.loadingBarProgress(1)
         #createBoard and readMap
@@ -77,10 +78,12 @@ class GameMain():
             self.exitUI('insts')
         else:
             self.menuLoop()
-        
+
     def gameMapSelector(self):
         """Function gameMapSelector, is the game map selector"""
-        self.loadingBarProgress(2)
+        if self.gamelresloaded == False:
+            self.loadingBarProgress(2)
+            self.gamelresloaded = True
 
         returnedvalue = self.syscon.gameMapSelector()
 
