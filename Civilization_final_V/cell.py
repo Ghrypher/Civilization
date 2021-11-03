@@ -6,7 +6,7 @@ class Cell():
     def __init__(self):
         """Function __init__"""
         self.biome = ""
-        self.busy = False
+        self.space = True
         self.occupant = None
         self.revealed = False
         self.visible = False
@@ -53,3 +53,15 @@ class Cell():
     
     def cellOff(self):
         self.visible = False
+
+    def checkSpace(self):
+        """  """
+        return self.space
+    
+    def useSpace(self):
+        """  """
+        self.sapce = False
+    
+    def freeSpace(self):
+        """  """
+        self.sapce = True

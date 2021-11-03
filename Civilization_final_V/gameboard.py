@@ -109,19 +109,17 @@ class GameBoard():
             for y in range (self.width):
                 self.M_obj[y][x].set_biome("")
 
-    def check_space(self, coord):
+    def checkSpace(self, x, y):
         """ revisa si una celda esta libre """
-        if coord in self.non_reachables:
-            return False
-        else:
-            return True
+        biome = self.M_obj[x][y].checkSpace()
+        return biome
             
     def set_biome(self, x, y, biome):
         """Añade un objeto Cell a la lista correspondiente y le establece el bioma"""
         self.M_obj[x][y].set_biome(biome)
 
     def get_biome(self, x, y):
-        """  """
+        """ busca el bioma de una celda """
         biome = self.M_obj[x][y].get_biome()
         return biome
     

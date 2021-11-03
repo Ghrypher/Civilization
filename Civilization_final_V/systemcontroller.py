@@ -235,7 +235,8 @@ class SystemController():
         if posX >= 0 and posY >= 0:
             try:
                 biome = self.world.get_biome(posX, posY)
-                if biome == "D" :
+                space = self.world.checkSpace(posX, posY)
+                if biome == "D" and space:
                     return True
                 else:
                     return False
