@@ -3,8 +3,8 @@ class Structure():
     def __init__(self):
         """Function __init__"""
         self.type : str
-        self.resourcestype : str
-        self.resourcescant : int
+        self.resourcesType : str
+        self.resourcesCant : int
         self.cell = ()
 
     def spriteSelect(self):

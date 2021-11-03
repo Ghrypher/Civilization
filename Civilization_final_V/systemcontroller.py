@@ -21,8 +21,6 @@ class SystemController():
         self.character_pos_x = 576  
         self.character_pos_y = 320
         self.tile_size = 32
-        self.non_reachables =[]
-        self.non_reachables_load= []
         self.mousepos = (0,0)
         self.map = None
         self.Unit = None
@@ -223,12 +221,10 @@ class SystemController():
                 playing = False
 
         if sysconreturned == 'random':
-            self.non_reachables =[]
             self.world = GameBoard(100,80)
-            self.world.random_world()
+            self.world.randomWorld()
             self.map = self.read_Map("resources/maps/map2.txt")
         if sysconreturned == 'pre':
-            self.non_reachables =[]
             self.map = self.read_Map("resources/maps/map1.txt")
             self.world = GameBoard(len(self.map), len(self.map[0]))
 
@@ -238,7 +234,7 @@ class SystemController():
         """Obtiene el bioma de la celda y si es posible caminar sobre el devuelve True de lo contrario devuelve False"""
         if posX >= 0 and posY >= 0:
             try:
-                biome = self.world.get_biome(posX, posY)
+                biome = self.world.getBiome(posX, posY)
                 ocupied = self.world.checkCell(posX, posY)
                 if biome == "D" and ocupied == False:
                     return True
@@ -258,12 +254,12 @@ class SystemController():
                 break
         return positionX, positionY
 
-    def createBoard(self, M_Obj):
+    def createBoard(self, mapObj):
         """Crea el tablero de la clase board y le asigna el bioma a cada celda"""
-        self.world.assignSize(len(M_Obj))
-        for x in range(len(M_Obj)):
-            for y in range(len(M_Obj[0])):
-                self.world.addCellAndBiome(x, y, M_Obj[x][y])
+        self.world.assignSize(len(mapObj))
+        for x in range(len(mapObj)):
+            for y in range(len(mapObj[0])):
+                self.world.addCellAndBiome(x, y, mapObj[x][y])
 
     def loadMap(self):
         """ """
@@ -322,11 +318,11 @@ class SystemController():
         M_width = len(self.map) * self.tile_size
         M_height = len(self.map[0]) * self.tile_size
         mapNeedRedraw = True # verdadero para qe llame a drawMap()
-        save_game = False
+        saveGame = False
         half_winWIdth = self.screen_width/2
         half_winHeight = self.screen_height/2
         c_Move = 10
-        self.world.erase_Units()
+        self.world.eraseUnits()
 
         # Crea el tablero en la clase board
         self.createBoard(self.map)
@@ -399,7 +395,7 @@ class SystemController():
                 mousePressed = True
             if self.event == 'K_G':
                 mapNeedRedraw = True
-                save_game = True
+                saveGame = True
             
             #WASD movement
             if self.event == 'K_W':
@@ -458,9 +454,9 @@ class SystemController():
             if mapNeedRedraw:
                 M_surf = self.loadMap()
                 mapNeedRedraw = False
-                if save_game:
-                    self.world.save_game(self.map)
-                    save_game = False
+                if saveGame:
+                    self.world.saveGame(self.map)
+                    saveGame = False
             
             # Cambia la variable del movimiento de la camara si el usuario presiono la tecla y no supera el limite
             if c_Up and c_SetOffY < self.max_cam_move_Y:
@@ -488,7 +484,7 @@ class SystemController():
         M_File.close()
 
         M_TextLines = []
-        M_Obj = []
+        mapObj = []
 
         for lineNum in range(len(content)):
             line = content[lineNum].rstrip('\r\n')
@@ -515,13 +511,13 @@ class SystemController():
 
                 # Añade una lista por cada linea de mapa
                 for x in range (len(M_TextLines[0])):
-                    M_Obj.append([])
+                    mapObj.append([])
 
                 # Invierte el mapa para que quede al derecho en la matriz
                 for y in range (len(M_TextLines)):
                     for x in range (maxWidth):
-                        M_Obj[x].append(M_TextLines[y][x])
-        return M_Obj   
+                        mapObj[x].append(M_TextLines[y][x])
+        return mapObj   
 
     def passTurn (self):
         for x in range(self.units):

@@ -10,11 +10,11 @@ pygame.init()
 class GameView():
     def __init__(self):
         """Function __init__"""
-        self.screensx = 1280 #Is the width from the window
-        self.screensy = 704 #Is the height from the window
-        self.screensize = (self.screensx,self.screensy) #Is the size from the window
-        self.screen = pygame.display.set_mode(self.screensize, pygame.RESIZABLE)
-        self.windowicon,self.windowname,self.menufont,self.menufontlittle,self.menufontlittle2,self.buttonwoodtexture,self.buttonselector = self.systemLoads() #Uses the systemLoads function from systemcontroller
+        self.screensX = 1280 #Is the width from the window
+        self.screensY = 704 #Is the height from the window
+        self.screenSize = (self.screensX,self.screensY) #Is the size from the window
+        self.screen = pygame.display.set_mode(self.screenSize, pygame.RESIZABLE)
+        self.windowIcon,self.windowName,self.menufont,self.menufontlittle,self.menufontlittle2,self.buttonwoodtexture,self.buttonselector = self.systemLoads() #Uses the systemLoads function from systemcontroller
         self.clock = pygame.time.Clock() #Creates the clock function from the game
         self.mousepos = (0,0) #Records the position from the mouse
         self.screenlogo = pygame.image.load('resources/assets/gamelogo.png') #Loads the logo from the main menu
@@ -79,15 +79,15 @@ class GameView():
 
     def systemLoads(self):
         """Function systemLoads, loads all the vital resources from the game"""
-        windowiconload = pygame.image.load('resources/assets/windowicon.png') #Loads the window icon
-        windowicon = pygame.display.set_icon(windowiconload) #Sets the window icon
-        windowname = pygame.display.set_caption('T-H-E') #Sets the title of the window
+        windowIconload = pygame.image.load('resources/assets/windowIcon.png') #Loads the window icon
+        windowIcon = pygame.display.set_icon(windowIconload) #Sets the window icon
+        windowName = pygame.display.set_caption('T-H-E') #Sets the title of the window
         self.menufont = pygame.font.Font('resources/fonts/echantedland/Enchanted Land.otf',100) #Loads the default font
         self.menufontlittle = pygame.font.Font('resources/fonts/echantedland/Enchanted Land.otf',90) #Loads the default font but smaller than the previous one
         self.menufontlittle2 = pygame.font.Font('resources/fonts/echantedland/Enchanted Land.otf',73) #Loads the default font but smaller than the rest
         self.buttexture = pygame.image.load('resources/assets/menubuttontexture.jpg') #Loads the texture from the game buttons
         buttselector = pygame.image.load('resources/assets/buttonselector.png')
-        return windowicon,windowname,self.menufont,self.menufontlittle,self.menufontlittle2,self.buttexture,buttselector
+        return windowIcon,windowName,self.menufont,self.menufontlittle,self.menufontlittle2,self.buttexture,buttselector
 
     def menuesLoads(self,num):
         """Function menuesLoads, loads all the menues resources, renders the texts and creates the collisions"""

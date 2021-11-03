@@ -9,39 +9,38 @@ class GameBoard():
         self.width = width
         self.height = height
         self.Unit = []
-        self.M_obj = []
-        self.non_reachables =[]
-        self.map_to_text = {"Barrier" : "B",
+        self.mapObj = []
+        self.mapToText = {"Barrier" : "B",
                             "Dirt" : "D",
                             "Water" : "W",
                             "Mountain" :"M",
                             "Revealed" :"R",
                             "Hidden" : "H"}
-        self.number_to_biomes = {1 : "W",
+        self.numberToBiomes = {1 : "W",
                                 2 : "D",
                                 3 : "D", 
                                 4: "D"}
-        self.crear_tablero()
+        self.CrearTablero()
 
-    def crear_tablero(self):
+    def CrearTablero(self):
         """ crea un tablero de width por height """
         for columna in range (0, self.height):
             lista = []
             for fila in range (0, self.width):
                 lista.append(Cell())
-            self.M_obj.append(lista)                  
+            self.mapObj.append(lista)                  
 
-    def biome_random(self):
+    def biomeRandom(self):
         """ genera biomas aleatoriamente """
-        biome = self.number_to_biomes[random.randrange(1,5)]
+        biome = self.numberToBiomes[random.randrange(1,5)]
         return biome
 
-    def random_world(self):
+    def randomWorld(self):
         """ crea el mundo aleatoriamente y lo filtra """
         for Y in range(self.height):
             for x in range(self.width):
-                ran = str(self.biome_random())
-                self.M_obj[Y][x].set_biome(ran)
+                ran = str(self.biomeRandom())
+                self.mapObj[Y][x].setBiome(ran)
 
         for Y in range(self.height):
             for x in range(self.width):
@@ -50,93 +49,80 @@ class GameBoard():
                     continue
                 
                 #tierra firme
-                if (self.M_obj[Y + 1 ][x].biome == "D" or self.M_obj[Y + 1 ][x].biome == "F" or self.M_obj[Y + 1 ][x].biome == "M") and (self.M_obj[Y][x + 1].biome == "D" or self.M_obj[Y][x + 1].biome == "F" or self.M_obj[Y][x + 1].biome == "M") and (self.M_obj[Y][x - 1].biome == "D" or self.M_obj[Y][x - 1].biome == "F" or self.M_obj[Y][x - 1].biome == "M"):
-                    self.M_obj[Y][x].set_biome("D")
+                if (self.mapObj[Y + 1 ][x].biome == "D" or self.mapObj[Y + 1 ][x].biome == "F" or self.mapObj[Y + 1 ][x].biome == "M") and (self.mapObj[Y][x + 1].biome == "D" or self.mapObj[Y][x + 1].biome == "F" or self.mapObj[Y][x + 1].biome == "M") and (self.mapObj[Y][x - 1].biome == "D" or self.mapObj[Y][x - 1].biome == "F" or self.mapObj[Y][x - 1].biome == "M"):
+                    self.mapObj[Y][x].setBiome("D")
                     #montañas
                     mountain = random.randrange(1,16)
                     if mountain == 1:
                         mineral = random.randrange(1,11)
                         if mineral <= 5:
-                            self.M_obj[Y][x].set_biome("I")
+                            self.mapObj[Y][x].setBiome("I")
                         if mineral > 5 and mineral <= 7 :
-                            self.M_obj[Y][x].set_biome("G")
+                            self.mapObj[Y][x].setBiome("G")
                         if mineral > 7 and mineral <= 10 :
-                            self.M_obj[Y][x].set_biome("M")
+                            self.mapObj[Y][x].setBiome("M")
                     continue
                 
                 #rios
-                if self.M_obj[Y + 1][x].biome == "W" and self.M_obj[Y - 1][x].biome == "W" and self.M_obj[Y][x - 1].biome == "W":
+                if self.mapObj[Y + 1][x].biome == "W" and self.mapObj[Y - 1][x].biome == "W" and self.mapObj[Y][x - 1].biome == "W":
                     lake = random.randrange(1,6)
                     if lake == 1:
-                        self.M_obj[Y][x].set_biome("W")        
+                        self.mapObj[Y][x].setBiome("W")        
                     else:
-                        self.M_obj[Y][x].set_biome("D")
+                        self.mapObj[Y][x].setBiome("D")
                 
                 #forests
-                if self.M_obj[Y][x].biome == "D" :
+                if self.mapObj[Y][x].biome == "D" :
                     forest = random.randrange(1,6)
                     if forest == 1:
-                        self.M_obj[Y][x].set_biome("F")      
-                    if self.M_obj[Y + 1 ][x].biome == "F" and self.M_obj[Y][x + 1].biome == "F" and self.M_obj[Y][x - 1].biome == "F":
-                        self.M_obj[Y][x].set_biome("F")      
+                        self.mapObj[Y][x].setBiome("F")      
+                    if self.mapObj[Y + 1 ][x].biome == "F" and self.mapObj[Y][x + 1].biome == "F" and self.mapObj[Y][x - 1].biome == "F":
+                        self.mapObj[Y][x].setBiome("F")      
                     continue
 
-        self.document_txt("resources/maps/map2.txt")
+        self.documentTxt("resources/maps/map2.txt")
         f = open("resources/maps/map2.txt", "a+")
         for y in range(self.height):
             f.write("\n")
             for x in range(self.width):
-                tile = self.get_tiles(y, x)
+                tile = self.getTiles(y, x)
                 f.write(tile)
 
-    def save_game(self, map):
+    def saveGame(self, map):
         print("game saved")
-        self.document_txt("resources/maps/map2.txt")
+        self.documentTxt("resources/maps/map2.txt")
         f = open("resources/maps/map2.txt", "a+")
         for y in range(len(map[0])):
             f.write("\n")
             for x in range(len(map)):
-                f.write(self.get_biome(x, y)) 
+                f.write(self.getBiome(x, y)) 
     
-    def get_tiles(self, y, x):
+    def getTiles(self, y, x):
         """ devuelve el bioma de una celda """
-        biome = self.M_obj[y][x].biome
+        biome = self.mapObj[y][x].biome
         return biome
-
-    def limpiar_tablero(self):
-        """ elimina todo bioma almacenado en una celda """
-        for x in range (self.height):
-            for y in range (self.width):
-                self.M_obj[y][x].set_biome("")
-
-    def check_space(self, coord):
-        """ revisa si una celda esta libre """
-        if coord in self.non_reachables:
-            return False
-        else:
-            return True
             
-    def set_biome(self, x, y, biome):
+    def setBiome(self, x, y, biome):
         """Añade un objeto Cell a la lista correspondiente y le establece el bioma"""
-        self.M_obj[x][y].set_biome(biome)
+        self.mapObj[x][y].setBiome(biome)
 
-    def get_biome(self, x, y):
+    def getBiome(self, x, y):
         """  """
-        biome = self.M_obj[x][y].get_biome()
+        biome = self.mapObj[x][y].getBiome()
         return biome
     
     def addCellAndBiome(self, x, y, biome):
         """Añade un objeto Cell a la lista correspondiente y le establece el bioma"""
-        self.M_obj[x].append(Cell())
-        self.M_obj[x][y].set_biome(biome)
+        self.mapObj[x].append(Cell())
+        self.mapObj[x][y].setBiome(biome)
     
     def assignSize(self, width):
         """Asigna el tamaño del tablero segun el tamaño del mapa"""
-        self.M_obj = [] 
+        self.mapObj = [] 
         for _ in range(width):
-            self.M_obj.append([])
+            self.mapObj.append([])
     
-    def document_txt(self,path):
+    def documentTxt(self,path):
         f = open(path, "w")
         f.write(";Map made by Santella Agustin")
         f.write("\n")
@@ -163,27 +149,27 @@ class GameBoard():
         self.Unit.append(Character(type, team))
         self.Unit[index].setPosition(posX, posY)
 
-    def erase_Units(self):
+    def eraseUnits(self):
         self.Unit = []
 
     def cellOff(self, posX, posY):
             """Cambia la visibilidad de la celda especificada a True"""
-            self.M_obj[posX][posY].cellOff()
+            self.mapObj[posX][posY].cellOff()
 
     def getVisibility(self, posX, posY):
         """Consulta a la celda si esta visible o no"""
-        return self.M_obj[posX][posY].getVisibility()
+        return self.mapObj[posX][posY].getVisibility()
     
     def revealCell(self, posX, posY):
         """Cambia la visibilidad de la celda especificada a True"""
-        self.M_obj[posX][posY].showCell()
+        self.mapObj[posX][posY].showCell()
 
     def checkCell(self, x, y):
-        return self.M_obj[x][y].occupant
+        return self.mapObj[x][y].occupant
 
     def occupiedCell(self, x, y):
-        self.M_obj[x][y].occupant = True
+        self.mapObj[x][y].occupant = True
     
     def unoccupiedCell(self, x, y):
-        self.M_obj[x][y].occupant = False
+        self.mapObj[x][y].occupant = False
     

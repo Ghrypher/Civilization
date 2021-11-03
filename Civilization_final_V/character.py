@@ -48,9 +48,6 @@ class Character():
 
     def getPosition(self):
         return self.positionX, self.positionY
-    
-    def get_sprite(self):
-        return self.sprite
 
     def setIndex(self, index):
         self.index = index

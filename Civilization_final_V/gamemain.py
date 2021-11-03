@@ -87,7 +87,7 @@ class GameMain():
         if returnedvalue == 'random':
             self.gameMain()
         elif returnedvalue == 'pre':
-            self.M_Obj = None
+            self.mapObj = None
             self.gameMain()
         elif returnedvalue == 'exit':
             self.exitUI('mode')

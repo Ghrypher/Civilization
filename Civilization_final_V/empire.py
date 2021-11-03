@@ -7,18 +7,18 @@ class Empire():
         """Function __init__"""
         self.name : str
         self.ability : str
-        self.empirename = []
-        self.empireability = []
+        self.empireName = []
+        self.empiReability = []
         self.chargeDatatoGame()
 
     def chargeDatatoGame(self):
         """Function chargeDatatoGame, reads the txt file that has the information from the empire"""
         with open('C:/Users/santi/OneDrive/Escritorio/Santiago/Prog. Or. Obj/T-H-E/Civilization/Version1/data/empiresnames.txt') as txt:
-            self.empirename = txt.read()
+            self.empireName = txt.read()
             txt.close()
-            print (self.empirename)
+            print (self.empireName)
         with open('C:/Users/santi/OneDrive/Escritorio/Santiago/Prog. Or. Obj/T-H-E/Civilization/Version1/data/empiresabilities.txt') as txt:
             self.empireability = txt.read()
             txt.close()
-            print (self.empireability)
+            print (self.empiReability)
 

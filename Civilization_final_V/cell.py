@@ -13,24 +13,12 @@ class Cell():
         self.plants = ""
         self.tile = None
 
-    def set_biome(self, biome):
+    def setBiome(self, biome):
         """ establece el bioma de la celda """
         self.biome = str(biome)
 
-    def get_biome(self):
+    def getBiome(self):
         return self.biome
-
-    def erase_biome(self):
-        """ borra el bioma actual de la celda """
-        if self.biome != "":
-            self.biome = ""
-    
-    def free_cell(self):
-        """ revisa si hay una algo/alguien en la celda """
-        if self.plants == "" and self.busy == False:
-            return True
-        else:
-            return False
 
     def reveal(self):
         """ revela la celda """
