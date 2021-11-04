@@ -41,15 +41,3 @@ class Cell():
     
     def cellOff(self):
         self.visible = False
-
-    def checkSpace(self):
-        """  """
-        return self.space
-    
-    def useSpace(self):
-        """  """
-        self.sapce = False
-    
-    def freeSpace(self):
-        """  """
-        self.sapce = True

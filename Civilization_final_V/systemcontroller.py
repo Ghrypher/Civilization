@@ -281,11 +281,6 @@ class SystemController():
 
         for x in range(len(self.map)):
             for y in range(len(self.map[x])):
-                if ((x - positionX)**2 + (y - positionY)**2)**(1/2) <= 5:
-                    self.world.revealCell(x, y) 
-
-                if ((x - positionX)**2 + (y - positionY)**2)**(1/2) <= 5:
-                    self.world.revealCell(x, y) 
                                 
                 if self.world.getVisibility(x, y) == (True, True):                
                     spaceRect = pygame.Rect(x * self.tile_size, y * self.tile_size, self.tile_size, self.tile_size)

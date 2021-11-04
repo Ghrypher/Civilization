@@ -20,9 +20,9 @@ class GameBoard():
                                 2 : "D",
                                 3 : "D", 
                                 4: "D"}
-        self.CrearTablero()
+        self.createBoard()
 
-    def CrearTablero(self):
+    def createBoard(self):
         """ crea un tablero de width por height """
         for columna in range (0, self.height):
             lista = []
@@ -41,44 +41,45 @@ class GameBoard():
             for x in range(self.width):
                 ran = str(self.biomeRandom())
                 self.mapObj[Y][x].setBiome(ran)
-
-        for Y in range(self.height):
-            for x in range(self.width):
-                #bordes
-                if x == 0 or Y == 0 or x == (self.width-1) or Y == (self.height-1):
-                    continue
                 
-                #tierra firme
-                if (self.mapObj[Y + 1 ][x].biome == "D" or self.mapObj[Y + 1 ][x].biome == "F" or self.mapObj[Y + 1 ][x].biome == "M") and (self.mapObj[Y][x + 1].biome == "D" or self.mapObj[Y][x + 1].biome == "F" or self.mapObj[Y][x + 1].biome == "M") and (self.mapObj[Y][x - 1].biome == "D" or self.mapObj[Y][x - 1].biome == "F" or self.mapObj[Y][x - 1].biome == "M"):
-                    self.mapObj[Y][x].setBiome("D")
-                    #montañas
-                    mountain = random.randrange(1,16)
-                    if mountain == 1:
-                        mineral = random.randrange(1,11)
-                        if mineral <= 5:
-                            self.mapObj[Y][x].setBiome("I")
-                        if mineral > 5 and mineral <= 7 :
-                            self.mapObj[Y][x].setBiome("G")
-                        if mineral > 7 and mineral <= 10 :
-                            self.mapObj[Y][x].setBiome("M")
-                    continue
-                
-                #rios
-                if self.mapObj[Y + 1][x].biome == "W" and self.mapObj[Y - 1][x].biome == "W" and self.mapObj[Y][x - 1].biome == "W":
-                    lake = random.randrange(1,6)
-                    if lake == 1:
-                        self.mapObj[Y][x].setBiome("W")        
-                    else:
+        for Y in range(2):
+            for Y in range(self.height):
+                for x in range(self.width):
+                    #bordes
+                    if x == 0 or Y == 0 or x == (self.width-1) or Y == (self.height-1):
+                        continue
+                    
+                    #tierra firme
+                    if (self.mapObj[Y + 1 ][x].biome == "D" or self.mapObj[Y + 1 ][x].biome == "F" or self.mapObj[Y + 1 ][x].biome == "M") and (self.mapObj[Y][x + 1].biome == "D" or self.mapObj[Y][x + 1].biome == "F" or self.mapObj[Y][x + 1].biome == "M") and (self.mapObj[Y][x - 1].biome == "D" or self.mapObj[Y][x - 1].biome == "F" or self.mapObj[Y][x - 1].biome == "M"):
                         self.mapObj[Y][x].setBiome("D")
-                
-                #forests
-                if self.mapObj[Y][x].biome == "D" :
-                    forest = random.randrange(1,6)
-                    if forest == 1:
-                        self.mapObj[Y][x].setBiome("F")      
-                    if self.mapObj[Y + 1 ][x].biome == "F" and self.mapObj[Y][x + 1].biome == "F" and self.mapObj[Y][x - 1].biome == "F":
-                        self.mapObj[Y][x].setBiome("F")      
-                    continue
+                        #montañas
+                        mountain = random.randrange(1,16)
+                        if mountain == 1:
+                            mineral = random.randrange(1,11)
+                            if mineral <= 5:
+                                self.mapObj[Y][x].setBiome("I")
+                            if mineral > 5 and mineral <= 7 :
+                                self.mapObj[Y][x].setBiome("G")
+                            if mineral > 7 and mineral <= 10 :
+                                self.mapObj[Y][x].setBiome("M")
+                        continue
+                    
+                    #rios
+                    if self.mapObj[Y + 1][x].biome == "W" and self.mapObj[Y - 1][x].biome == "W" and self.mapObj[Y][x - 1].biome == "W":
+                        lake = random.randrange(1,6)
+                        if lake == 1:
+                            self.mapObj[Y][x].setBiome("W")        
+                        else:
+                            self.mapObj[Y][x].setBiome("D")
+                    
+                    #forests
+                    if self.mapObj[Y][x].biome == "D" :
+                        forest = random.randrange(1,6)
+                        if forest == 1:
+                            self.mapObj[Y][x].setBiome("F")      
+                        if self.mapObj[Y + 1 ][x].biome == "F" and self.mapObj[Y][x + 1].biome == "F" and self.mapObj[Y][x - 1].biome == "F":
+                            self.mapObj[Y][x].setBiome("F")      
+                        continue
 
         self.documentTxt("resources/maps/randomWorld.txt.txt")
         f = open("resources/maps/randomWorld.txt.txt", "a+")

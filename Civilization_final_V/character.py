@@ -15,10 +15,6 @@ class Character():
                 "Wk": self.worker,
                 "WR": self.warrior,
                 "FD": self.founder}
-        self.define(type)
-
-    def define(self, type):
-        """" """
         self.unit_sorter[type]()
 
     def setPosition(self, posX, posY):
