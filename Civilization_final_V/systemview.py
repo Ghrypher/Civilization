@@ -1,13 +1,11 @@
-try:
-    import pygame
-    from pygame.locals import *
-except ImportError:
-    print("PyGame library is not installed. Please install it. CMD: pip install pygame")
+import pygame
+from pygame.locals import *
 
 pygame.mixer.pre_init(44100, 16, 2, 4096)
 pygame.init()
 
 class GameView():
+    """ """
     def __init__(self):
         """Function __init__"""
         self.screensX = 1280 #Is the width from the window
@@ -71,120 +69,7 @@ class GameView():
         self.gamemusic1 = None
         self.gamemusic2 = None
         self.mouseoldpos = None
-
-    def screenUpdate(self,clock,fps):
-        """Function screenUpdate, updates the screen and updates the clock"""
-        pygame.display.update()
-        clock.tick(fps)
-
-    def systemLoads(self):
-        """Function systemLoads, loads all the vital resources from the game"""
-        windowIconload = pygame.image.load('resources/assets/windowIcon.png') #Loads the window icon
-        windowIcon = pygame.display.set_icon(windowIconload) #Sets the window icon
-        windowName = pygame.display.set_caption('T-H-E') #Sets the title of the window
-        self.menufont = pygame.font.Font('resources/fonts/echantedland/Enchanted Land.otf',100) #Loads the default font
-        self.menufontlittle = pygame.font.Font('resources/fonts/echantedland/Enchanted Land.otf',90) #Loads the default font but smaller than the previous one
-        self.menufontlittle2 = pygame.font.Font('resources/fonts/echantedland/Enchanted Land.otf',73) #Loads the default font but smaller than the rest
-        self.buttexture = pygame.image.load('resources/assets/menubuttontexture.jpg') #Loads the texture from the game buttons
-        buttselector = pygame.image.load('resources/assets/buttonselector.png')
-        return windowIcon,windowName,self.menufont,self.menufontlittle,self.menufontlittle2,self.buttexture,buttselector
-
-    def menuesLoads(self,num):
-        """Function menuesLoads, loads all the menues resources, renders the texts and creates the collisions"""
-        if num == 1: #Background image
-            defback = pygame.image.load('resources/assets/defaultback.jpg') #Loads the 'background' image
-            menumusic = pygame.mixer.Sound('resources/audio/menusong.wav')
-            defaultcursor = pygame.image.load('resources/assets/defaultcursor.png').convert_alpha() #Loads the default cursor image
-            handcursor = pygame.image.load('resources/assets/handcursor.png').convert_alpha() #Loads the hand cursor image
-            return defback,menumusic,defaultcursor,handcursor
-        elif num == 2: #Work in progress
-            workinprogmess = self.menufont.render('WORK IN PROGRESS',True,[0,0,0]) #Renders the message on the selected font
-            underconstruc = pygame.image.load('resources/assets/underconstruction.png').convert_alpha() #Loads the 'under construction' image
-            return workinprogmess,underconstruc
-        elif num == 3: #Exit UI
-            exitback = pygame.image.load('resources/assets/exitback.png') #Loads the exit background
-            exitback.set_alpha(5) #Makes the exit background a bit less opaque
-            exitbackpos = (0,0) #Establishes the position from the previous background
-            exittext = self.menufont.render('DO YOU WANT TO EXIT?',True,[255,255,255]) #Renders the message on the selected font
-            exittextpos = (215,50) #Establishes the position from the previous message
-            exitbtnyes = self.buttexture #Adds the wood button texture to this button
-            exitbtnyescoll = exitbtnyes.get_rect(center = (640,275)) #Creates the collision from the previous button
-            exitbtnyestext = self.menufont.render('YES',True,[0,0,0]) #Renders the message on the selected font
-            exitbtnyestextcoll = exitbtnyestext.get_rect(midleft = (585,275)) #Creates the surface from the previous text
-            exitbtnno = self.buttexture #Adds the wood button texture to this button
-            exitbtnnocoll = exitbtnno.get_rect(center = (640,425)) #Creates the collision from the previous button
-            exitbtnnotext = self.menufont.render('NO',True,[0,0,0]) #Renders the message on the selected font
-            exitbtnnotextcoll = exitbtnnotext.get_rect(midleft = (585,425)) #Creates the collision from the previous text
-            return exitback,exitbackpos,exittext,exittextpos,exitbtnyes,exitbtnyescoll,exitbtnyestext,exitbtnyestextcoll,exitbtnno,exitbtnnocoll,exitbtnnotext,exitbtnnotextcoll
-        elif num == 4: #Map selector
-            mapselbtn = self.buttexture #Adds the wood button texture to this button
-            mapselbtncoll = mapselbtn.get_rect(midleft = (640,238)) #Creates the collision from the previous button
-            mapselbtntext = self.menufontlittle.render('MAP SELECTION',True,[0,0,0]) #Renders the message on the selected font
-            mapselbtntextcoll = mapselbtntext.get_rect(center = (946,230)) #Creates the collision from the previous text
-            return mapselbtn,mapselbtncoll,mapselbtntext,mapselbtntextcoll
-        elif num == 5: #Credits
-            btncreds = self.buttexture #Adds the wood button texture to this button
-            btncredstext = self.menufont.render('CREDITS',True,[0,0,0]) #Renders the message on the selected font
-            btncredscoll = btncreds.get_rect(midleft = (640,368)) #Creates the collision from the previous button
-            btncredstextcoll = btncredstext.get_rect(center = (952,368)) #Creates the surface from the previous text
-            return btncreds,btncredstext,btncredscoll,btncredstextcoll
-        elif num == 6: #Instructions
-            btninstrs = self.buttexture #Adds the wood button texture to this button
-            btninstrstext = self.menufont.render('INSTRUCTIONS',True,[0,0,0]) #Renders the message on the selected font
-            btninstrscoll = btninstrs.get_rect(midleft = (640,498)) #Creates the collision from the previous button
-            btninstrstextcoll = btninstrstext.get_rect(center = (940,498)) #Creates the surface from the previous text
-            return btninstrs,btninstrstext,btninstrscoll,btninstrstextcoll
-        elif num == 7: #Random mode
-            btnrandom = self.buttexture #Adds the wood button texture to this button
-            btnrandomcoll = btnrandom.get_rect(midleft = (335,275)) #Creates the collision from the previous button
-            btnrandomtext = self.menufontlittle.render('PLAY RANDOM',True,[0,0,0]) #Renders the message on the selected font
-            btnrandomtextcoll = btnrandomtext.get_rect(center = (635,275)) #Creates the surface from the previous text
-            return btnrandom,btnrandomcoll,btnrandomtext,btnrandomtextcoll
-        elif num == 8: #Created mode
-            btncreated = self.buttexture #Adds the wood button texture to this button
-            btncreatedcoll = btncreated.get_rect(midleft = (335,425)) #Creates the collision from the previous button
-            btncreatedtext = self.menufontlittle2.render('PLAY PRE-CREATED',True,[0,0,0]) #Renders the message on the selected font
-            btncreatedtextcoll = btncreatedtext.get_rect(center = (635,425)) #Creates the surface from the previous text
-            return btncreated,btncreatedcoll,btncreatedtext,btncreatedtextcoll
-        elif num == 9: #Loading
-            loadingtext = self.menufont.render('LOADING...',True,[255,255,255]) #Renders the message on the selected font
-            loadingtextcoll = loadingtext.get_rect(center = (640,352)) #Creates the collision from the previous text
-            loadingbar = pygame.image.load('resources/assets/loadingbar.png') #Loads the loading bar image
-            loadingbarcoll = loadingbar.get_rect(center = (640,552)) #Creates the collision from the previous button
-            return loadingtext,loadingtextcoll,loadingbar,loadingbarcoll
-
-    def gameLoads(self,num):
-        """Function gameLoads, loads all the game resources and creates the collisions"""
-        if num == 1:
-            swordcursor = pygame.image.load('resources/assets/swordcursor.png').convert_alpha() #Loads the sword cursor image
-            foundsprites = pygame.image.load('resources/assets/foundersprite.png') #Loads the default character image
-            foundspriteposx = 515 #Establishes the position on 'x' from the default character
-            foundspriteposy = 325 #Establishes the position on 'y' from the default character
-            foundspritecoll = foundsprites.get_rect().move(foundspriteposx,foundspriteposy) #Creates the collision from the default character
-            biometiles = {  #Active
-                            "D" : pygame.image.load("resources/assets/map/floor/dirt.png"),
-                            "F" : pygame.image.load("resources/assets/map/floor/forest.png"),
-                            "W" : pygame.image.load("resources/assets/map/floor/water.png"),
-                            "M" : pygame.image.load("resources/assets/map/floor/mountain.png"),
-                            "I" : pygame.image.load("resources/assets/map/floor/iron_Mountain.png"),
-                            "G" : pygame.image.load("resources/assets/map/floor/gold_Mountain.png"),
-                            #Inactive
-                            " D" : pygame.image.load("resources/assets/map/floor/dirt_inactive.png"),
-                            " F" : pygame.image.load("resources/assets/map/floor/forest_inactive.png"),
-                            " W" : pygame.image.load("resources/assets/map/floor/water_inactive.png"),
-                            " M" : pygame.image.load("resources/assets/map/floor/mountain_inactive.png"),
-                            " I" : pygame.image.load("resources/assets/map/floor/iron_Mountain_inactive.png"),
-                            " G" : pygame.image.load("resources/assets/map/floor/gold_Mountain_inactive.png"),
-                            #hidden
-                            " " : pygame.image.load("resources/assets/map/floor/off_world.png"),
-                            } #Dictionary that records the different sprites from the leeters that appears on the map txt
-            hidden = pygame.image.load("resources/assets/map/floor/off_world.png")
-            return swordcursor,foundsprites,foundspriteposx,foundspriteposy,foundspritecoll,biometiles,hidden
-        if num == 2: #Music and Sounds
-            gamemusic1 = pygame.mixer.Sound('resources/audio/gamemusic1.wav')
-            gamemusic2 = pygame.mixer.Sound('resources/audio/gamemusic2.wav')
-        return gamemusic1,gamemusic2
-
+    
     def loadBarView(self,mode):
         """Function loadBarView, is the loop from the load bar"""
         loading = True
@@ -201,63 +86,7 @@ class GameView():
             self.screen.blit(self.loadingbar,self.loadingbarcoll)
             """Loading Bar Content Complete"""
             pygame.draw.rect(self.screen,[116,125,131],(250,542,loadingprogressvalue,20)) #97 == 8% progress
-
-            """Loads"""
-            """Menues Loads"""
-            if mode == 1:
-                if loadingstep == 1:
-                    loadingprogressvalue += 130
-                if loadingstep == 10:
-                    """Menues All"""
-                    self.defaultbackground,self.menumusic,self.defaultcursor,self.handcursor = self.menuesLoads(1) #Uses the menuLoads function from systemcontroller
-                    loadingprogressvalue += 130
-                elif loadingstep == 15:
-                    """Work In Progress"""
-                    self.workinprogressmessage,self.underconstruction = self.menuesLoads(2) #Uses the menuLoads function from systemcontroller
-                    loadingprogressvalue += 130
-                elif loadingstep == 20:
-                    """Exit"""
-                    self.exitbackground,self.exitbackgroundpos,self.exittext,self.exittextpos,self.exitbuttonyes,self.exitbuttonyescoll,self.exitbuttonyestext,self.exitbuttonyestextcoll,self.exitbuttonno,self.exitbuttonnocoll,self.exitbuttonnotext,self.exitbuttonnotextcoll = self.menuesLoads(3) #Uses the menuLoads function from systemcontroller
-                    loadingprogressvalue += 130
-                elif loadingstep == 25:
-                    """Map Selector"""
-                    self.mapselectorbutton,self.mapselectorbuttoncoll,self.mapselectorbuttontext,self.mapselectorbuttontextcoll= self.menuesLoads(4) #Uses the menuLoads function from systemcontroller
-                    loadingprogressvalue += 130
-                elif loadingstep == 30:
-                    """Credits"""
-                    self.menubuttoncredits,self.menubuttoncreditstext,self.menubuttoncreditscoll,self.menubuttoncreditstextcoll = self.menuesLoads(5) #Uses the menuLoads function from systemcontroller
-                    loadingprogressvalue += 130
-                elif loadingstep == 35:
-                    """Instructions"""
-                    self.menubuttoninstructions,self.menubuttoninstructionstext,self.menubuttoninstructionscoll,self.menubuttoninstructionstextcoll = self.menuesLoads(6) #Uses the menuLoads function from systemcontroller
-                    loading = False
-            """Game Loads"""
-            if mode == 2:
-                if loadingstep == 1:
-                    loadingprogressvalue += 195
-                if loadingstep == 10:
-                    """Play Random"""
-                    self.randomplaybutton,self.randomplaybuttoncoll,self.randomplaybuttontext,self.randomplaybuttontextcoll = self.menuesLoads(7) #Uses the menuLoads function from systemcontroller
-                    loadingprogressvalue += 195
-                elif loadingstep == 15:
-                    """Play Pre-Created"""
-                    self.createdplaybutton,self.createdplaybuttoncoll,self.createdplaybuttontext,self.createdplaybuttontextcoll = self.menuesLoads(8) #Uses the menuLoads function from systemcontroller
-                    loadingprogressvalue += 195
-                elif loadingstep == 30:
-                    """Game"""
-                    self.swordcursor,self.foundersprite,self.founderspriteposx,self.founderspriteposy,self.founderspritecoll,self.biometiles,self.hidden = self.gameLoads(1) #Uses the gameLoads function from systemcontroller
-                    loadingprogressvalue += 195
-                elif loadingstep == 35:
-                    self.gamemusic1,self.gamemusic2 = self.gameLoads(2) #Uses the gameLoads function from systemcontroller
-                    loading = False
-
-            try:
-                self.screenUpdate(self.clock,30)
-            except:
-                pass
-
-        return self.defaultbackground,self.menumusic,self.defaultcursor,self.handcursor,self.workinprogressmessage,self.underconstruction,self.exitbackground,self.exitbackgroundpos,self.exittext,self.exittextpos,self.exitbuttonyes,self.exitbuttonyescoll,self.exitbuttonyestext,self.exitbuttonyestextcoll,self.exitbuttonno,self.exitbuttonnocoll,self.exitbuttonnotext,self.exitbuttonnotextcoll,self.mapselectorbutton,self.mapselectorbuttoncoll,self.mapselectorbuttontext,self.mapselectorbuttontextcoll,self.menubuttoncredits,self.menubuttoncreditstext,self.menubuttoncreditscoll,self.menubuttoncreditstextcoll,self.menubuttoninstructions,self.menubuttoninstructionstext,self.menubuttoninstructionscoll,self.menubuttoninstructionstextcoll,self.randomplaybutton,self.randomplaybuttoncoll,self.randomplaybuttontext,self.randomplaybuttontextcoll,self.createdplaybutton,self.createdplaybuttoncoll,self.createdplaybuttontext,self.createdplaybuttontextcoll,self.swordcursor,self.foundersprite,self.founderspriteposx,self.founderspriteposy,self.founderspritecoll,self.biometiles,self.hidden,self.gamemusic1,self.gamemusic2
-
+    
     def menuFirstDraw(self):
         """Function menuFirstDraw, draws in the menu the basic draw"""
         """Draw Calls"""
@@ -400,7 +229,7 @@ class GameView():
             pass
 
         return returnedvalue
-
+    
     def exitUIFirstDraw(self):
         """Function exitUIFirstDraw, draws in the screen the basic exit UI menu"""
         """Draw Calls"""
@@ -416,7 +245,7 @@ class GameView():
         self.screen.blit(self.exitbuttonno,self.exitbuttonnocoll)
         self.screen.blit(self.exitbuttonnotext,self.exitbuttonnotextcoll)
         oldmousepos = (0,0)
-
+    
     def exitUIView(self,mousepos,keyevent):
         """Function exitUIView, is the exit UI menu loop"""
         
@@ -478,7 +307,7 @@ class GameView():
             self.screenUpdate(self.clock,30)
         except:
             pass
-
+    
     def creditsFirstDraw(self):
         """Function creditsFirstDraw, draws in the screen the basic credits menu"""
         """Draw Calls"""
@@ -487,7 +316,7 @@ class GameView():
         """Under Construction"""
         self.screen.blit(self.workinprogressmessage,(275,300))
         self.screen.blit(self.underconstruction,(425,75))
-
+    
     def creditsView(self,mousepos,keyevent):
         """Function creditsView, is the credits menu loop"""
         
@@ -533,7 +362,7 @@ class GameView():
         """Under Construction"""
         self.screen.blit(self.workinprogressmessage,(275,300))
         self.screen.blit(self.underconstruction,(425,75))
-
+    
     def instructionsView(self,mousepos,keyevent):
         """Function instructionsView, is the instructions menu loop"""
         
@@ -571,7 +400,7 @@ class GameView():
             pass
 
         return returnedvalue
-
+    
     def mapSelectorFirstDraw(self):
         """Function mapSelectorFirstDraw, draws in the screen the basic map selector menu"""
         """Draw Calls"""
@@ -664,8 +493,56 @@ class GameView():
             self.screenUpdate(self.clock,60)
         except:
             pass
+    
+    def loadMap(self):
+        """ """
+        M_width = len(self.map) * self.tile_size
+        M_height = len(self.map[0]) * self.tile_size
+        M_surf = pygame.Surface((M_width, M_height))
 
-    def updateSprite(self, unitSprite):
-            """ """
-            newSprite = pygame.image.load("resources/assets/characters/" + str(unitSprite))
-            return newSprite
+        for x in range(len(self.map)):
+            for y in range(len(self.map[x])):
+                self.world.cellOff(x, y)
+        
+        for unit in range(len(self.world.Unit)):            
+            positionX, positionY = self.world.Unit[unit].getPosition() # Obtiene la posicion del personaje
+            for x in range(len(self.map)):
+                for y in range(len(self.map[x])):
+
+                    if ((x - positionX)**2 + (y - positionY)**2)**(1/2) <= 5:
+                        self.world.revealCell(x, y) 
+
+        for x in range(len(self.map)):
+            for y in range(len(self.map[x])):
+                if ((x - positionX)**2 + (y - positionY)**2)**(1/2) <= 5:
+                    self.world.revealCell(x, y) 
+
+                if ((x - positionX)**2 + (y - positionY)**2)**(1/2) <= 5:
+                    self.world.revealCell(x, y) 
+                                
+                if self.world.getVisibility(x, y) == (True, True):                
+                    spaceRect = pygame.Rect(x * self.tile_size, y * self.tile_size, self.tile_size, self.tile_size)
+                    baseTile = self.biometiles[self.map[x][y]]
+
+                 # Dibuja el la casilla con el bioma en la superficie
+                    M_surf.blit(baseTile, spaceRect)
+                else:
+                    if self.world.getVisibility(x, y) == (False, True):
+                        spaceRect = pygame.Rect(x * self.tile_size, y * self.tile_size, self.tile_size, self.tile_size)
+                        baseTile = self.biometiles[" " + self.map[x][y]]
+
+                        # Dibuja el la casilla con el bioma en la superficie
+                        M_surf.blit(baseTile, spaceRect)
+                    else:
+                        spaceRect = pygame.Rect(x * self.tile_size, y * self.tile_size, self.tile_size, self.tile_size)
+                        baseTile = self.biometiles[" "]
+
+                        # Dibuja el la casilla con el bioma en la superficie
+                        M_surf.blit(baseTile, spaceRect) 
+
+        for x in range(self.units):
+            positionX, positionY = self.world.Unit[x].getPosition()
+            self.foundersprite = self.gameview.updateSprite((str(self.world.Unit[x].getSprite())))
+            spaceRect = pygame.Rect(positionX * self.tile_size, positionY * self.tile_size, self.tile_size, self.tile_size)
+            M_surf.blit(self.foundersprite, spaceRect)        
+        return M_surf

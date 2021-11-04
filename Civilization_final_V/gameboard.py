@@ -80,8 +80,8 @@ class GameBoard():
                         self.mapObj[Y][x].setBiome("F")      
                     continue
 
-        self.documentTxt("resources/maps/map2.txt")
-        f = open("resources/maps/map2.txt", "a+")
+        self.documentTxt("resources/maps/randomWorld.txt.txt")
+        f = open("resources/maps/randomWorld.txt.txt", "a+")
         for y in range(self.height):
             f.write("\n")
             for x in range(self.width):
@@ -90,8 +90,8 @@ class GameBoard():
 
     def saveGame(self, map):
         print("game saved")
-        self.documentTxt("resources/maps/map2.txt")
-        f = open("resources/maps/map2.txt", "a+")
+        self.documentTxt("resources/maps/randomWorld.txt.txt")
+        f = open("resources/maps/randomWorld.txt.txt", "a+")
         for y in range(len(map[0])):
             f.write("\n")
             for x in range(len(map)):

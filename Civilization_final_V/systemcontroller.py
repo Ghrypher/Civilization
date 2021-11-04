@@ -223,7 +223,7 @@ class SystemController():
         if sysconreturned == 'random':
             self.world = GameBoard(100,80)
             self.world.randomWorld()
-            self.map = self.read_Map("resources/maps/map2.txt")
+            self.map = self.read_Map("resources/maps/randomWorld.txt.txt")
         if sysconreturned == 'pre':
             self.map = self.read_Map("resources/maps/map1.txt")
             self.world = GameBoard(len(self.map), len(self.map[0]))
