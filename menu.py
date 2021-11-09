@@ -25,7 +25,8 @@ class Menu():
         # Dictionary which tells which is the menu that is actualy active
         self.actualMenuDict = {
             1 : self.loadMenuStart,
-            2 : self.loadGameSelector
+            2 : self.loadGameSelector,
+            3 : self.loadCredits
         }
         self.actualMenu = 1
 
@@ -114,6 +115,9 @@ class Menu():
 
         if button3Rect.collidepoint(mousePos):
             buttonBackground = pygame.image.load("resources/assets/menu/buttonselector.png")
+            if click == True:
+                self.actualMenu = 3
+                buttonPressed = True
         else:
             buttonBackground = pygame.image.load("resources/assets/menu/menubuttontexture.jpg")
 
@@ -180,6 +184,43 @@ class Menu():
         button2Surf.blit(buttonText, buttonTextRect)
         self.menuSurf.blit(button2Surf, button2Rect)
     
+    def loadCredits(self, mousePos, click):
+        """Creates and loads the screen of credits"""
+
+        # Loads and draws background
+        background = pygame.image.load("resources/assets/menu/defaultback.jpg")
+        self.menuSurf.blit(background, (0,0))
+
+        text = pygame.font.Font(self.font, 100).render("Creditos", True, (255,255,255)) # Creates text with a Font 
+        textRect = text.get_rect(center = (640, 100))
+
+        self.menuSurf.blit(text, textRect)
+
+        text = pygame.font.Font(self.font, 60).render("Hecho por: Sangiago Abelle, Santella Agustin, Sanna Ian", True, (255,255,255)) # Creates text with a Font 
+        textRect = text.get_rect(center = (640, 220))
+
+        self.menuSurf.blit(text, textRect)
+
+        text = pygame.font.Font(self.font, 60).render("Desarrollador del menu: Santiago Abelle", True, (255,255,255)) # Creates text with a Font 
+        textRect = text.get_rect(center = (640, 320))
+
+        self.menuSurf.blit(text, textRect)
+
+        text = pygame.font.Font(self.font, 60).render("Desarrollador de la generacion del mapa: Sanna Ian", True, (255,255,255)) # Creates text with a Font 
+        textRect = text.get_rect(center = (640, 420))
+
+        self.menuSurf.blit(text, textRect)
+
+        text = pygame.font.Font(self.font, 60).render("Diseñador grafico: Santella Agustin", True, (255,255,255)) # Creates text with a Font 
+        textRect = text.get_rect(center = (640, 520))
+
+        self.menuSurf.blit(text, textRect)
+
+        text = pygame.font.Font(self.font, 70).render("Esperamos que hayas disfrutado de The Huergo Empires", True, (255,255,255)) # Creates text with a Font 
+        textRect = text.get_rect(center = (640, 650))
+
+        self.menuSurf.blit(text, textRect)
+
     def loadMouseIcon(self, mousePos):
         """Loads the mouse image"""
 
