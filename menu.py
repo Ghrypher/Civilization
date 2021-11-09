@@ -6,19 +6,31 @@ class Menu():
     def __init__(self):
         """The variables of the class are created and all the function in are executed when the class is created"""
         pygame.init()
-        
-        self.screen = pygame.display.set_mode((1280,704)) # Creates a screen of 1280 x 704
-        self.menuSUrf = pygame.Surface((1280,704))
-        self.font = "resources/fonts/Enchanted_Land.otf" # Saves the location of the file with the font
 
+        self.screenWidth = 1280
+        self.screenHeight = 704
+        self.screen = pygame.display.set_mode((self.screenWidth,self.screenHeight)) # Creates a screen of 1280 x 704
+        self.menuSurf = pygame.Surface((self.screenWidth,self.screenHeight))
+        self.font = "resources/fonts/Enchanted_Land.otf" # Saves the location of the file with the font
+        self.collition = False
+
+        # Hides the cursor
         pygame.mouse.set_visible(False)
         
+        # Saves the position and size of the buttons shown
         self.buttonRect1 = None
         self.buttonRect2 = None
         self.buttonRect3 = None
 
+        # Dictionary which tells which is the menu that is actualy active
+        self.actualMenuDict = {
+            1 : self.loadMenuStart,
+            2 : self.loadGameSelector
+        }
+        self.actualMenu = 1
+
+        self.loadMenuStart((0,0), False)
         self.loadIconAndCaption()
-        self.loadMenuStart()
         self.loopMenu()
         
     def loadIconAndCaption(self):
@@ -30,30 +42,42 @@ class Menu():
     def loopMenu(self):
         """Loops the menu and gets all the events of the user"""
         while True:
+            mousePressed = False
             for event in pygame.event.get():
                 if event.type == QUIT: # If the X pressed then finish the program
                     self.terminate()
+                if event.type == MOUSEBUTTONDOWN: # Checks if the mouse was pressed
+                    mousePressed = True
 
-            mousePos = pygame.mouse.get_pos() #Gets the position in pixels of the mouse
-            self.menuRect = self.menuSUrf.get_rect()
-            
-            self.screen.blit(self.menuSUrf, self.menuRect)
-            self.loadMouseIcon(mousePos)
+            mousePos = pygame.mouse.get_pos() #Gets the position in pixels of the mouse    
+            self.checkCollition(mousePos, mousePressed)
+            self.updateScreen(mousePos)        
 
-            pygame.display.update()
-
-    def loadMenuStart(self):
+    def loadMenuStart(self, mousePos, click):
         """Creates and load the elements of the start of the menu"""
+        buttonPressed = False #Represents if one of the buttons was pressed or not
 
         buttonBackground = pygame.image.load("resources/assets/menu/menubuttontexture.jpg")
         buttonRect = buttonBackground.get_rect()
 
         # Loads and draws background
         background = pygame.image.load("resources/assets/menu/defaultback.jpg")
-        self.menuSUrf.blit(background, (0,0))
-    
+        self.menuSurf.blit(background, (0,0))
+
+        # Loads the logo of the game
+        logo = pygame.image.load("resources/assets/menu/gamelogo.png")
+        self.menuSurf.blit(logo, (30,90))
+
         button1Surf = pygame.Surface((buttonRect[2], buttonRect[3])) #Creates a surface for the button
         button1Rect = button1Surf.get_rect(center = (900,168))
+
+        if button1Rect.collidepoint(mousePos):
+            buttonBackground = pygame.image.load("resources/assets/menu/buttonselector.png")
+            if click == True:
+                self.actualMenu = 2
+                buttonPressed = True
+        else:
+            buttonBackground = pygame.image.load("resources/assets/menu/menubuttontexture.jpg")
 
         button1Surf.blit(buttonBackground, (0,0)) # Draws the background for the button
 
@@ -64,10 +88,15 @@ class Menu():
 
         # Draws the text on the button and then draws the surface
         button1Surf.blit(buttonText, buttonTextRect)
-        self.menuSUrf.blit(button1Surf, button1Rect)
+        self.menuSurf.blit(button1Surf, button1Rect)
 
         button2Surf = pygame.Surface((buttonRect[2], buttonRect[3])) #Creates a surface for the button
         button2Rect = button2Surf.get_rect(center = (900,336))
+
+        if button2Rect.collidepoint(mousePos):
+            buttonBackground = pygame.image.load("resources/assets/menu/buttonselector.png")
+        else:
+            buttonBackground = pygame.image.load("resources/assets/menu/menubuttontexture.jpg")
 
         button2Surf.blit(buttonBackground, (0,0)) # Draws the background for the button
 
@@ -78,10 +107,15 @@ class Menu():
 
         # Draws the text on the button and then draws the surface
         button2Surf.blit(buttonText, buttonTextRect)
-        self.menuSUrf.blit(button2Surf, button2Rect)
+        self.menuSurf.blit(button2Surf, button2Rect)
 
         button3Surf = pygame.Surface((buttonRect[2], buttonRect[3])) #Creates a surface for the button
         button3Rect = button3Surf.get_rect(center = (900,504))
+
+        if button3Rect.collidepoint(mousePos):
+            buttonBackground = pygame.image.load("resources/assets/menu/buttonselector.png")
+        else:
+            buttonBackground = pygame.image.load("resources/assets/menu/menubuttontexture.jpg")
 
         button3Surf.blit(buttonBackground, (0,0)) # Draws the background for the button
 
@@ -92,11 +126,62 @@ class Menu():
 
         # Draws the text on the button and then draws the surface
         button3Surf.blit(buttonText, buttonTextRect)
-        self.menuSUrf.blit(button3Surf, button3Rect)
+        self.menuSurf.blit(button3Surf, button3Rect)
+        if buttonPressed:
+            self.checkCollition((0,0),False)
 
+    def loadGameSelector(self, mousePos, click):
+        """Creates and load the elements of the start of the menu"""
 
+        buttonBackground = pygame.image.load("resources/assets/menu/menubuttontexture.jpg")
+        buttonRect = buttonBackground.get_rect()
+
+        # Loads and draws background
+        background = pygame.image.load("resources/assets/menu/defaultback.jpg")
+        self.menuSurf.blit(background, (0,0))
+
+        button1Surf = pygame.Surface((buttonRect[2], buttonRect[3])) #Creates a surface for the button
+        button1Rect = button1Surf.get_rect(center = (640,504))
+
+        if button1Rect.collidepoint(mousePos):
+            buttonBackground = pygame.image.load("resources/assets/menu/buttonselector.png")
+        else:
+            buttonBackground = pygame.image.load("resources/assets/menu/menubuttontexture.jpg")
+
+        button1Surf.blit(buttonBackground, (0,0)) # Draws the background for the button
+
+        buttonText = pygame.font.Font(self.font, 100).render("Pre-created Map", True, (0,0,0)) # Creates text with a Font 
+        buttonTextRect = buttonText.get_rect(center = (buttonRect[2]/2, buttonRect[3]/2))
+
+        self.buttonRect1 = button1Rect
+
+        # Draws the text on the button and then draws the surface
+        button1Surf.blit(buttonText, buttonTextRect)
+        self.menuSurf.blit(button1Surf, button1Rect)
+
+        button2Surf = pygame.Surface((buttonRect[2], buttonRect[3])) #Creates a surface for the button
+        button2Rect = button2Surf.get_rect(center = (640,200))
+
+        if button2Rect.collidepoint(mousePos):
+            buttonBackground = pygame.image.load("resources/assets/menu/buttonselector.png")
+        else:
+            buttonBackground = pygame.image.load("resources/assets/menu/menubuttontexture.jpg")
+
+        button2Surf.blit(buttonBackground, (0,0)) # Draws the background for the button
+
+        buttonText = pygame.font.Font(self.font, 100).render("Random Map", True, (0,0,0)) # Creates text with a Font 
+        buttonTextRect = buttonText.get_rect(center = (buttonRect[2]/2, buttonRect[3]/2))
+
+        self.buttonRect2 = button2Rect
+
+        self.buttonRect3 = pygame.Rect(0,0,0,0)
+
+        # Draws the text on the button and then draws the surface
+        button2Surf.blit(buttonText, buttonTextRect)
+        self.menuSurf.blit(button2Surf, button2Rect)
+    
     def loadMouseIcon(self, mousePos):
-        """Loads the mouse image constantly"""
+        """Loads the mouse image"""
 
         mouse = pygame.image.load("resources/assets/menu/defaultcursor.png")
         self.screen.blit(mouse, mousePos)
@@ -105,6 +190,27 @@ class Menu():
         """Finish the program"""
         pygame.quit()
         sys.exit()
+
+    def updateScreen(self, mousePos):
+        """Loads the menu with the cursor and updates the screen"""
+
+        self.menuRect = self.menuSurf.get_rect()            
+        self.screen.blit(self.menuSurf, self.menuRect)
+        self.loadMouseIcon(mousePos)
+
+        pygame.display.update()
+
+    def checkCollition(self, mousePos, click):
+        """Checks if the cursor is on any of the buttons of the actual menu"""
+        if self.buttonRect1.collidepoint(mousePos) == True or self.buttonRect2.collidepoint(mousePos) == True or self.buttonRect3.collidepoint(mousePos) == True:
+            if self.collition == False or click == True:
+                print("pressed")
+                self.collition = True
+                self.actualMenuDict[self.actualMenu](mousePos, click)                    
+        else:
+            if self.collition == True:
+                self.actualMenuDict[self.actualMenu](mousePos, click)
+                self.collition = False    
 
 if __name__ == "__main__":
     menu = Menu()
