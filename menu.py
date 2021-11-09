@@ -50,6 +50,9 @@ class Menu():
                     self.terminate()
                 if event.type == MOUSEBUTTONDOWN: # Checks if the mouse was pressed
                     mousePressed = True
+                if event.type == KEYDOWN: # Records the keys pressed
+                    if event.key == K_ESCAPE:
+                        self.goBack()                        
 
             mousePos = pygame.mouse.get_pos() #Gets the position in pixels of the mouse    
             self.checkCollition(mousePos, mousePressed)
@@ -136,7 +139,8 @@ class Menu():
         button3Surf.blit(buttonText, buttonTextRect)
         self.menuSurf.blit(button3Surf, button3Rect)
         if buttonPressed:
-            self.checkCollition((0,0),False)
+            self.collition = False
+            self.loadActualMenu((0,0), False)
 
     def loadGameSelector(self, mousePos, click):
         """Creates and load the elements of the start of the menu"""
@@ -296,13 +300,30 @@ class Menu():
         """Checks if the cursor is on any of the buttons of the actual menu"""
         if self.buttonRect1.collidepoint(mousePos) == True or self.buttonRect2.collidepoint(mousePos) == True or self.buttonRect3.collidepoint(mousePos) == True:
             if self.collition == False or click == True:
-                print("pressed")
                 self.collition = True
-                self.actualMenuDict[self.actualMenu](mousePos, click)                    
+                self.loadActualMenu(mousePos, click)                    
         else:
             if self.collition == True:
-                self.actualMenuDict[self.actualMenu](mousePos, click)
-                self.collition = False    
+                self.collition = False  
+                self.loadActualMenu(mousePos, click)
+                
+    def loadActualMenu(self, mousePos, click):
+        self.actualMenuDict[self.actualMenu](mousePos, click)
+
+    def goBack(self):
+        """Redirects to the menu before the actual one"""
+
+        goBackDict = {
+            2 : 1,
+            3 : 1,
+            4 : 1
+        }
+        try:
+            self.actualMenu = goBackDict[self.actualMenu]
+            self.collition = False
+            self.loadActualMenu((0,0), False)
+        except:
+            """do nothing"""
 
 if __name__ == "__main__":
     menu = Menu()
