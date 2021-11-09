@@ -26,7 +26,8 @@ class Menu():
         self.actualMenuDict = {
             1 : self.loadMenuStart,
             2 : self.loadGameSelector,
-            3 : self.loadCredits
+            3 : self.loadCredits,
+            4 : self.loadInstructions
         }
         self.actualMenu = 1
 
@@ -96,6 +97,9 @@ class Menu():
 
         if button2Rect.collidepoint(mousePos):
             buttonBackground = pygame.image.load("resources/assets/menu/buttonselector.png")
+            if click == True:
+                self.actualMenu = 4
+                buttonPressed = True
         else:
             buttonBackground = pygame.image.load("resources/assets/menu/menubuttontexture.jpg")
 
@@ -187,10 +191,15 @@ class Menu():
     def loadCredits(self, mousePos, click):
         """Creates and loads the screen of credits"""
 
+        self.buttonRect1 = pygame.Rect(0,0,0,0)
+        self.buttonRect2 = pygame.Rect(0,0,0,0)
+        self.buttonRect3 = pygame.Rect(0,0,0,0)
+
         # Loads and draws background
         background = pygame.image.load("resources/assets/menu/defaultback.jpg")
         self.menuSurf.blit(background, (0,0))
 
+        # Writes text on the screen
         text = pygame.font.Font(self.font, 100).render("Creditos", True, (255,255,255)) # Creates text with a Font 
         textRect = text.get_rect(center = (640, 100))
 
@@ -218,6 +227,48 @@ class Menu():
 
         text = pygame.font.Font(self.font, 70).render("Esperamos que hayas disfrutado de The Huergo Empires", True, (255,255,255)) # Creates text with a Font 
         textRect = text.get_rect(center = (640, 650))
+
+        self.menuSurf.blit(text, textRect)
+
+    def loadInstructions(self, mousePos, click):
+        """Creates and loads the screen of Instructions"""
+
+        self.buttonRect1 = pygame.Rect(0,0,0,0)
+        self.buttonRect2 = pygame.Rect(0,0,0,0)
+        self.buttonRect3 = pygame.Rect(0,0,0,0)
+
+        # Loads and draws background
+        background = pygame.image.load("resources/assets/menu/defaultback.jpg")
+        self.menuSurf.blit(background, (0,0))
+
+        # Writes text on the screen
+        text = pygame.font.Font(self.font, 100).render("Instrucciones", True, (255,255,255)) # Creates text with a Font 
+        textRect = text.get_rect(center = (640, 100))
+
+        self.menuSurf.blit(text, textRect)
+
+        text = pygame.font.Font(self.font, 48).render("""1- Para ganar se debe vencer a todos los enemigos o completar una de las investigaciones en su totalidad""", True, (255,255,255)) # Creates text with a Font 
+        textRect = text.get_rect(midleft = (0, 220))
+
+        self.menuSurf.blit(text, textRect)
+
+        text = pygame.font.Font(self.font, 48).render("2- Se pasa de turno utilizando la tecla enter", True, (255,255,255)) # Creates text with a Font 
+        textRect = text.get_rect(midleft = (0, 320))
+
+        self.menuSurf.blit(text, textRect)
+
+        text = pygame.font.Font(self.font, 48).render("3- Solo se pueden mover las unidades e interactuar con las ciudades cierta cantidad de veces por turno", True, (255,255,255)) # Creates text with a Font 
+        textRect = text.get_rect(midleft = (0, 420))
+
+        self.menuSurf.blit(text, textRect)
+
+        text = pygame.font.Font(self.font, 48).render("4- Las unidades necesitan comida y para construir se requiren materiales", True, (255,255,255)) # Creates text with a Font 
+        textRect = text.get_rect(midleft = (0, 520))
+
+        self.menuSurf.blit(text, textRect)
+
+        text = pygame.font.Font(self.font, 48).render("5- Divertirse jugando", True, (255,255,255)) # Creates text with a Font 
+        textRect = text.get_rect(midleft = (0, 620))
 
         self.menuSurf.blit(text, textRect)
 
