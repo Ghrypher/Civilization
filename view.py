@@ -1,7 +1,7 @@
 import pygame, sys
 from pygame.locals import *
 
-class Menu():
+class View():
 
     def __init__(self):
         """The variables of the class are created and all the function in are executed when the class is created"""
@@ -24,6 +24,7 @@ class Menu():
 
         # Dictionary which tells which is the menu that is actualy active
         self.actualMenuDict = {
+            0 : self.loadLogOut,
             1 : self.loadMenuStart,
             2 : self.loadGameSelector,
             3 : self.loadCredits,
@@ -33,30 +34,12 @@ class Menu():
 
         self.loadMenuStart((0,0), False)
         self.loadIconAndCaption()
-        self.loopMenu()
         
     def loadIconAndCaption(self):
         """Loads and set the title of the window and the icon at the top left of the window"""
         pygame.display.set_caption("T-H-E")
         icon = pygame.image.load("resources/assets/menu/windowicon.png")
-        pygame.display.set_icon(icon)
-    
-    def loopMenu(self):
-        """Loops the menu and gets all the events of the user"""
-        while True:
-            mousePressed = False
-            for event in pygame.event.get():
-                if event.type == QUIT: # If the X pressed then finish the program
-                    self.terminate()
-                if event.type == MOUSEBUTTONDOWN: # Checks if the mouse was pressed
-                    mousePressed = True
-                if event.type == KEYDOWN: # Records the keys pressed
-                    if event.key == K_ESCAPE:
-                        self.goBack()                        
-
-            mousePos = pygame.mouse.get_pos() #Gets the position in pixels of the mouse    
-            self.checkCollition(mousePos, mousePressed)
-            self.updateScreen(mousePos)        
+        pygame.display.set_icon(icon)      
 
     def loadMenuStart(self, mousePos, click):
         """Creates and load the elements of the start of the menu"""
@@ -276,6 +259,83 @@ class Menu():
 
         self.menuSurf.blit(text, textRect)
 
+    def loadLogOut(self, mousePos, click):
+        """Creates and loads the elements for the Log out screen"""
+
+        buttonPressed = False
+
+        self.buttonRect1 = pygame.Rect(0,0,0,0)
+        self.buttonRect2 = pygame.Rect(0,0,0,0)
+        self.buttonRect3 = pygame.Rect(0,0,0,0)
+
+        self.menuSurf.fill((0,0,0))
+
+        # Loads and draws background
+        background = pygame.image.load("resources/assets/menu/defaultback.jpg")
+
+        backgroundSurf = pygame.Surface((self.screenWidth, self.screenHeight), pygame.SRCALPHA)
+        backgroundSurf.blit(background, (0,0))
+        backgroundSurf.set_alpha(100)
+        self.menuSurf.blit(backgroundSurf, (0,0))
+
+        # Writes text on the screen
+        text = pygame.font.Font(self.font, 100).render("¿Queres cerrar el juego?", True, (255,255,255)) # Creates text with a Font 
+        textRect = text.get_rect(center = (640, 100))
+
+        self.menuSurf.blit(text, textRect)
+        
+        buttonBackground = pygame.image.load("resources/assets/menu/menubuttontexture.jpg")
+        buttonRect = buttonBackground.get_rect()
+
+        button1Surf = pygame.Surface((buttonRect[2], buttonRect[3])) #Creates a surface for the button
+        button1Rect = button1Surf.get_rect(center = (640, 281))
+
+        if button1Rect.collidepoint(mousePos):
+            buttonBackground = pygame.image.load("resources/assets/menu/buttonselector.png")
+            if click == True:
+                self.terminate()
+        else:
+            buttonBackground = pygame.image.load("resources/assets/menu/menubuttontexture.jpg")
+
+        button1Surf.blit(buttonBackground, (0,0)) # Draws the background for the button
+
+        buttonText = pygame.font.Font(self.font, 100).render("Si", True, (0,0,0)) # Creates text with a Font 
+        buttonTextRect = buttonText.get_rect(center = (buttonRect[2]/2, buttonRect[3]/2))
+
+        self.buttonRect1 = button1Rect
+
+        # Draws the text on the button and then draws the surface
+        button1Surf.blit(buttonText, buttonTextRect)
+        self.menuSurf.blit(button1Surf, button1Rect)
+
+        button2Surf = pygame.Surface((buttonRect[2], buttonRect[3])) #Creates a surface for the button
+        button2Rect = button2Surf.get_rect(center = (640,469))
+
+        if button2Rect.collidepoint(mousePos):
+            buttonBackground = pygame.image.load("resources/assets/menu/buttonselector.png")
+            if click == True:
+                self.actualMenu = 1
+                buttonPressed = True
+        else:
+            buttonBackground = pygame.image.load("resources/assets/menu/menubuttontexture.jpg")
+
+        button2Surf.blit(buttonBackground, (0,0)) # Draws the background for the button
+
+        buttonText = pygame.font.Font(self.font, 100).render("No", True, (0,0,0)) # Creates text with a Font 
+        buttonTextRect = buttonText.get_rect(center = (buttonRect[2]/2, buttonRect[3]/2))
+
+        self.buttonRect2 = button2Rect
+
+        # Draws the text on the button and then draws the surface
+        button2Surf.blit(buttonText, buttonTextRect)
+        self.menuSurf.blit(button2Surf, button2Rect)
+        
+        self.buttonRect3 = pygame.Rect(0,0,0,0)
+
+        if buttonPressed:
+            self.collition = False
+            self.loadActualMenu((0,0), False)
+
     def loadMouseIcon(self, mousePos):
         """Loads the mouse image"""
 
@@ -314,6 +374,7 @@ class Menu():
         """Redirects to the menu before the actual one"""
 
         goBackDict = {
+            1 : 0,
             2 : 1,
             3 : 1,
             4 : 1
@@ -324,6 +385,3 @@ class Menu():
             self.loadActualMenu((0,0), False)
         except:
             """do nothing"""
-
-if __name__ == "__main__":
-    menu = Menu()
