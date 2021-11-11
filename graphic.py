@@ -13,8 +13,6 @@ class Graphic:
         self.world = None
         self.carachter_index = 0
         self.tile_size = 32
-        self.non_reachables =[]
-        self.non_reachables_load= []
         self.mousepos = (0,0)
         self.map = None
         self.units = 5
@@ -105,7 +103,6 @@ class Graphic:
                 self.screen.blit(self.menu_button_play_p,(self.menubuttonplaycoll))
                 if self.mouseclicked == True:
                     self.mouseclicked = False
-                    self.non_reachables =[]
                     self.world = Tablero(self.width, self.height)
                     self.world.random_world()
                     self.map = self.world.Read_Map("maps/random_world.txt")
@@ -117,7 +114,6 @@ class Graphic:
                 self.screen.blit(self.menu_button_play_p,(self.menubuttonplaycoll_2))
                 if self.mouseclicked == True:
                     self.mouseclicked = False
-                    self.non_reachables =[]
                     self.map = self.world.Read_Map("maps/save.txt")
                     self.game_loop()
 

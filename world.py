@@ -2,11 +2,11 @@ import random, os
 from cell import Cell
 from units import Unit
 
-class Tablero:
-    def __init__(self, ancho, alto):
+class World():
+    def __init__(self):
         """ constructor de la clase """
-        self.ancho = ancho
-        self.alto = alto
+        self.ancho = None
+        self.alto = None
         self.Unit = []
         self.cells = []
         self.map_to_text = {"Barrier" : "B",
@@ -25,8 +25,10 @@ class Tablero:
         self.number_to_plants = {1 : "Grass",
                                 2 : "Tree",
                                 3 : "Flower"}
-        self.crear_tablero()
 
+    def setWorldSize(self, ancho, alto):
+        self.ancho = ancho
+        self.alto = alto
 
     def crear_tablero(self):
         """ crea un tablero de ancho por alto """
@@ -220,3 +222,7 @@ class Tablero:
 
     def erase_Units(self):
         self.Unit = []
+    
+    def getWidthHeight(self):
+        """Gets the width and the height of the actual map"""
+        return len(self.cells), len(self.cells[0])
