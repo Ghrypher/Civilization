@@ -111,54 +111,10 @@ class World():
         for y in range(len(map[0])):
             f.write("\n")
             for x in range(len(map)):
-                f.write(self.get_biome(x, y))
-
-    def Read_Map (self, file):
-        """ """
-        assert os.path.exists(file), 'Cannot find the level file: %s' % (file)
-        M_File = open(file, "r")
-        content = M_File.readlines() + ["\r\n"]
-        M_File.close()
-
-        M_TextLines = []
-        M_Obj = []
-
-        for lineNum in range(len(content)):
-            line = content[lineNum].rstrip('\r\n')
-
-            # Si encuentra un ";" en la linea actual devuelve ""
-            if ";" in line:
-                line = line[:line.find(";")]
-
-            # Si tiene algo lo añade a la lista con las lineas de texto del mapa
-            if line != "":
-                M_TextLines.append(line)
-
-            elif line == "" and len(M_TextLines) > 0:
-                maxWidth = -1
-
-                # Busca la fila mas larga de todas
-                for i in range(len(M_TextLines)):
-                    if len(M_TextLines[i]) > maxWidth:
-                        maxWidth = len(M_TextLines[i])
-
-                # Las empareja llenando con espacios si es que hace falta
-                for i in range (len(M_TextLines)):
-                    M_TextLines[i] += " " * (maxWidth - len(M_TextLines[i]))
-
-                # Añade una lista por cada linea de mapa
-                for x in range (len(M_TextLines[0])):
-                    M_Obj.append([])
-
-                # Invierte el mapa para que quede al derecho en la matriz
-                for y in range (len(M_TextLines)):
-                    for x in range (maxWidth):
-                        M_Obj[x].append(M_TextLines[y][x])
-        return M_Obj    
+                f.write(self.getBiome(x, y))
     
     def get_tiles(self, y, x):
         """ devuelve el bioma de una celda """
-        self.cells[y][x].set_coordinates(x, y)
         biome = self.cells[y][x].biome
         return biome
 
@@ -177,9 +133,9 @@ class World():
         """Añade un objeto Cell a la lista correspondiente y le establece el bioma"""
         self.cells[x][y].set_biome(biome)
 
-    def get_biome(self, x, y):
+    def getBiome(self, x, y):
         """  """
-        biome = self.cells[x][y].get_biome()
+        biome = self.cells[x][y].getBiome()
         return biome
     
     def addCellAndBiome(self, x, y, biome):

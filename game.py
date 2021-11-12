@@ -14,16 +14,47 @@ class Controller():
         self.view = View()
         self.model = Model()
         self.view.setModel(self.model)
-        self.model.Read_Map("Maps/map2.txt")
+        self.model.readMap("Maps/map1.txt")
         self.view.setMapSize()
+        self.view.drawMap()
         self.loopGame()
     
     def loopGame(self):
         """Loop of the game which gets the inputs of the user"""
+        camUp = False
+        camDown = False
+        camRight = False
+        camLeft = False
         while True:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT: #If the user presses the X at the top right
                     self.terminate()
+                if event.type == KEYDOWN:
+                    if event.key == K_UP:
+                        camUp = True
+                    if event.key == K_DOWN:
+                        camDown = True
+                    if event.key == K_RIGHT:
+                        camRight = True
+                    if event.key == K_LEFT:
+                        camLeft = True
+                if event.type == KEYUP:
+                    if event.key == K_UP:
+                        camUp = False
+                    if event.key == K_DOWN:
+                        camDown = False
+                    if event.key == K_RIGHT:
+                        camRight = False
+                    if event.key == K_LEFT:
+                        camLeft = False
+            if camUp:
+                self.view.moveCamera("U")
+            if camDown:
+                self.view.moveCamera("D")
+            if camRight:
+                self.view.moveCamera("R")
+            if camLeft:
+                self.view.moveCamera("L")
                 
             self.view.updateScreen()
 
@@ -39,22 +70,79 @@ class View():
         """Loads the variables and execute the methods when the class is created"""
         self.model = None
 
-        self.screenWidth = 1280
+        self.screenWidth = 1280 
         self.screenHeight = 704
-        self.screen = pygame.display.set_mode((self.screenWidth, self.screenHeight))
+        self.screen = pygame.display.set_mode((self.screenWidth, self.screenHeight)) #Creates the screen where the game will display
 
+        #Store the width and height fo the map
         self.mapWidth = None 
         self.mapHeight = None
+
+        #Store the width and height of the cells
+        self.tileWidth = 32
+        self.tileHeight = 32
+
+        self.mapSurf = None
+
+        self.textToMap = {"B" : pygame.image.load("asets/floor/Barrier.png"),
+                            "D" : pygame.image.load("asets/floor/Dirt.png"),
+                            "F" : pygame.image.load("asets/floor/Forest.png"),
+                            "W" :pygame.image.load("asets/floor/Water.png"),
+                            "M" : pygame.image.load("asets/floor/Mountain.png"),
+                            "I" : pygame.image.load("asets/floor/Iron_Mountain.png"),
+                            "G" : pygame.image.load("asets/floor/Gold_Mountain.png"),
+                            "R" : "Revealed",
+                            "H" : "Hidden",
+                            "0" : False,
+                            "1" : True}
+
+        #Sets the limit for the camera to move
+        self.maxCamMoveX = None
+        self.maxCamMoveY = None
+
+        #Stores how much the camera move fron the center
+        self.cameraMoveX = 0
+        self.cameraMoveY = 0    
+
+        self.cameraVelocity = 5 #Sets the velocity of the camera movement    
 
     def setModel(self, model):
         """Sets the same model that uses the controller"""
         self.model = model
     
     def setMapSize(self):
-        """Sets the map width and height"""
+        """Sets the map width, height and all the variables which need this information"""
         self.mapWidth, self.mapHeight = self.model.getWidthHeight()
+        
+        self.mapSurf = pygame.Surface((self.mapWidth * self.tileWidth, self.mapHeight * self.tileHeight)) #Creates a surface for the map
+        
+        self.maxCamMoveX = abs(self.screenWidth / 2 - self.mapWidth * self.tileWidth / 2)
+        self.maxCamMoveY = abs(self.screenHeight / 2 - self.mapHeight * self.tileHeight / 2)
 
-    def updateScreen(self):        
+    def drawMap(self):
+        """Draws the map on a surface"""
+        for x in range(self.mapWidth):
+            for y in range(self.mapHeight):
+                #Gets the biome of the cell and draw it on the surface
+                baseTile = self.textToMap[self.model.getCellBiome(x, y)]
+                tileRect = pygame.Rect(x * self.tileWidth, y * self.tileHeight, self.tileWidth, self.tileHeight)
+                self.mapSurf.blit(baseTile, tileRect)
+
+    def moveCamera(self, cameraDirection):
+        """Moves the camera and checks if it can move also"""
+        if cameraDirection == "U" and self.cameraMoveY < self.maxCamMoveY:
+            self.cameraMoveY += self.cameraVelocity
+        if cameraDirection == "D" and self.cameraMoveY > -self.maxCamMoveY:
+            self.cameraMoveY -= self.cameraVelocity
+        if cameraDirection == "L" and self.cameraMoveX < self.maxCamMoveX:
+            self.cameraMoveX += self.cameraVelocity
+        if cameraDirection == "R" and self.cameraMoveX > -self.maxCamMoveX:
+            self.cameraMoveX -= self.cameraVelocity
+
+    def updateScreen(self):
+        self.screen.fill((0,0,0))
+        mapSurfRect = self.mapSurf.get_rect(center = (self.screenWidth/2 + self.cameraMoveX, self.screenHeight/2 + self.cameraMoveY))  
+        self.screen.blit(self.mapSurf, mapSurfRect)      
         pygame.display.update()
 
 class Model():
@@ -63,7 +151,7 @@ class Model():
         """Loads the variables and execute the methods when the class is created"""
         self.world = World()
 
-    def Read_Map (self, file):
+    def readMap (self, file):
         """Reads a txt file with the map"""
         assert os.path.exists(file), 'Cannot find the level file: %s' % (file)
         M_File = open(file, "r")
@@ -120,6 +208,10 @@ class Model():
         """Gets the width and height of the actual map"""
         return self.world.getWidthHeight()
 
+    def getCellBiome(self, x, y):
+        """Gets the biome of the cell"""
+        biome = self.world.getBiome(x,y)
+        return biome
 
 if __name__ == "__main__":
     game = Controller()

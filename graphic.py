@@ -307,7 +307,7 @@ class Graphic:
         """Obtiene el bioma de la celda y si es posible caminar sobre el devuelve True de lo contrario devuelve False"""
         if posX >= 0 and posY >= 0:
             try:
-                biome = self.world.get_biome(posX, posY)
+                biome = self.world.getBiome(posX, posY)
                 if biome == "D" :
                     return True
                 else:

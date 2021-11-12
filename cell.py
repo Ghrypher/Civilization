@@ -18,7 +18,7 @@ class Cell:
         """ establece el bioma de la celda """
         self.biome = str(biome)
 
-    def get_biome(self):
+    def getBiome(self):
         return self.biome
 
     def erase_biome(self):
