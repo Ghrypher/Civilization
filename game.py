@@ -19,6 +19,7 @@ class Controller():
         self.view.setMapSize()
         self.model.randomUnitGeneration()
         self.model.randomUnitGeneration()
+        self.model.revealMap()
         self.view.drawMap()
         self.loopGame()
     
@@ -113,11 +114,18 @@ class View():
 
         self.textToMap = {"B" : pygame.image.load("asets/floor/Barrier.png"),
                             "D" : pygame.image.load("asets/floor/Dirt.png"),
+                            " D": pygame.image.load("asets/floor/Dirt_inactive.png"),
                             "F" : pygame.image.load("asets/floor/Forest.png"),
+                            " F" : pygame.image.load("asets/floor/Forest_inactive.png"),
                             "W" :pygame.image.load("asets/floor/Water.png"),
+                            " W" :pygame.image.load("asets/floor/Water_inactive.png"),
                             "M" : pygame.image.load("asets/floor/Mountain.png"),
+                            " M" : pygame.image.load("asets/floor/Mountain_inactive.png"),
                             "I" : pygame.image.load("asets/floor/Iron_Mountain.png"),
+                            " I" : pygame.image.load("asets/floor/Iron_Mountain_inactive.png"),
                             "G" : pygame.image.load("asets/floor/Gold_Mountain.png"),
+                            " G" : pygame.image.load("asets/floor/Gold_Mountain_inactive.png"),
+                            "": pygame.image.load("asets/floor/off_world.png"),
                             "R" : "Revealed",
                             "H" : "Hidden",
                             "0" : False,
@@ -151,13 +159,24 @@ class View():
         for x in range(self.mapWidth):
             for y in range(self.mapHeight):
                 #Gets the biome of the cell and draw it on the surface
+                visibility = self.model.getCellVisibility(x, y)
                 biome, unit = self.model.getCellData(x, y)
-                baseTile = self.textToMap[biome]
-                tileRect = pygame.Rect(x * self.tileWidth, y * self.tileHeight, self.tileWidth, self.tileHeight)
-                self.mapSurf.blit(baseTile, tileRect)
-                if unit != None:
-                    unitImage = pygame.image.load("asets/characters/Red_Founder.png")
-                    self.mapSurf.blit(unitImage, tileRect)
+                if visibility == (True, True):
+                    baseTile = self.textToMap[biome]
+                    tileRect = pygame.Rect(x * self.tileWidth, y * self.tileHeight, self.tileWidth, self.tileHeight)
+                    self.mapSurf.blit(baseTile, tileRect)
+                    if unit != None:
+                        unitImage = pygame.image.load("asets/characters/Red_Founder.png")
+                        self.mapSurf.blit(unitImage, tileRect)
+                if visibility == (True, False):
+                    baseTile = self.textToMap[" " + biome]
+                    tileRect = pygame.Rect(x * self.tileWidth, y * self.tileHeight, self.tileWidth, self.tileHeight)
+                    self.mapSurf.blit(baseTile, tileRect)
+                if visibility == (False, False):
+                    baseTile = self.textToMap[""]
+                    tileRect = pygame.Rect(x * self.tileWidth, y * self.tileHeight, self.tileWidth, self.tileHeight)
+                    self.mapSurf.blit(baseTile, tileRect)
+
 
     def mapNeedsRedraw(self):
         if self.model.getMapRedraw():
@@ -281,6 +300,8 @@ class Model():
         posX, posY = self.actualUnit.getPosition()
         if self.movementPossible(posX + x, posY + y):
             self.reassignUnitCell(posX, posY, posX + x, posY + y)
+            self.hideMap()
+            self.revealMap()
             self.mapNeedsRedraw = True
 
     def getAndAssignUnit(self, x, y):
@@ -313,6 +334,18 @@ class Model():
             return True
         else:
             return False
+
+    def hideMap(self):
+        """Hide the map"""
+        self.world.hideAllCells()
+
+    def revealMap(self):
+        """Reveal the part of the map seen by all the units"""
+        self.world.revealMap()
+
+    def getCellVisibility(self, x, y):
+        """Gets if a cell was revealed and if it is actually being seen"""
+        return self.world.getCellVisibility(x, y)
 
 if __name__ == "__main__":
     game = Controller()

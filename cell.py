@@ -70,3 +70,16 @@ class Cell:
     
     def eraseUnit(self):
         self.unit = None
+
+    def revealCell(self):
+        """Reveals the cell"""
+        self.revealed = True
+        self.active = True
+    
+    def getVisibility(self):
+        """Obtains if the cell is being seen or if it was seen"""
+        return self.revealed, self.active
+    
+    def hideCell(self):
+        """Hide the cell"""
+        self.active = False

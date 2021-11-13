@@ -5,12 +5,15 @@ class Unit():
         self.index = int
         self.life = None
         self.dmg = None
+        self.visibility = 3
         self.utility = None
         self.type = None
         self.team = None
         self.sprite = None
         self.positionX = None
         self.positionY = None
+        self.positionToMoveX = None
+        self.positionToMoveY = None
         self.unit_sorter = {"Wk": self.worker,
                   "WR": self.warrior,
                   "FD": self.founder}
@@ -56,3 +59,13 @@ class Unit():
 
     def getIndex(self):
         return self.index
+
+    def revealMap(self, map):
+        """Reveal all the cells in range of the unit"""
+        for x in range(self.positionX - self.visibility, self.positionX + self.visibility + 1):
+            for y in range(self.positionY - self.visibility, self.positionY + self.visibility + 1):
+                try:
+                    if ((x - self.positionX)**2 + (y - self.positionY)**2)**(1/2) <= self.visibility:
+                        map[x][y].revealCell()
+                except:
+                    continue

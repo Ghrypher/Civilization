@@ -200,6 +200,19 @@ class World():
     def getUnit(self, x, y):
         return self.cells[x][y].getUnit()
 
+    def revealMap(self):
+        for unit in self.unit:
+            unit.revealMap(self.cells)
+    
+    def getCellVisibility(self, x, y):
+        return self.cells[x][y].getVisibility()
+
+    def hideAllCells(self):
+        """Hide all the cells in the map"""
+        for x in range(0, len(self.cells)):
+            for y in range(0, len(self.cells[0])):
+                self.cells[x][y].hideCell()
+
 
 
 
