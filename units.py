@@ -1,26 +1,26 @@
 class Unit():
 
-    def __init__(self, type,team):
+    def __init__(self):
         """Inicio de la clase, crea las variables de la misma"""
         self.index = int
         self.life = None
         self.dmg = None
         self.utility = None
-        self.type = type
-        self.team = team
+        self.type = None
+        self.team = None
         self.sprite = None
         self.positionX = None
         self.positionY = None
         self.unit_sorter = {"Wk": self.worker,
                   "WR": self.warrior,
                   "FD": self.founder}
-        self.define(type)
 
     def define(self, type):
         """" """
         self.unit_sorter[type]()
 
     def setPosition(self, posX, posY):
+        """Asign the position of the unit"""
         self.positionX = posX
         self.positionY = posY
 

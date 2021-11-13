@@ -68,5 +68,5 @@ class Cell:
     def setUnit(self, unit):
         self.unit = unit
     
-    def setUnitPosition(self,posX, posY):
-        self.unit.setPosition(posX, posY)
+    def eraseUnit(self):
+        self.unit = None

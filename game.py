@@ -16,6 +16,7 @@ class Controller():
         self.view.setModel(self.model)
         self.model.readMap("Maps/map1.txt")
         self.view.setMapSize()
+        self.model.randomUnitGeneration()
         self.view.drawMap()
         self.loopGame()
     
@@ -29,6 +30,7 @@ class Controller():
             for event in pygame.event.get():
                 if event.type == pygame.QUIT: #If the user presses the X at the top right
                     self.terminate()
+                #When the arrows are pressed
                 if event.type == KEYDOWN:
                     if event.key == K_UP:
                         camUp = True
@@ -38,6 +40,20 @@ class Controller():
                         camRight = True
                     if event.key == K_LEFT:
                         camLeft = True
+
+                    if event.key == K_w:
+                        self.model.moveUnit(0, -1)
+                        self.view.mapNeedsRedraw()
+                    if event.key == K_s:
+                        self.model.moveUnit(0, 1)
+                        self.view.mapNeedsRedraw()
+                    if event.key == K_a:
+                        self.model.moveUnit(-1, 0)
+                        self.view.mapNeedsRedraw()
+                    if event.key == K_d:
+                        self.model.moveUnit(1, 0)
+                        self.view.mapNeedsRedraw()
+                #When the arrows stopped being pressed
                 if event.type == KEYUP:
                     if event.key == K_UP:
                         camUp = False
@@ -124,9 +140,17 @@ class View():
         for x in range(self.mapWidth):
             for y in range(self.mapHeight):
                 #Gets the biome of the cell and draw it on the surface
-                baseTile = self.textToMap[self.model.getCellBiome(x, y)]
+                biome, unit = self.model.getCellData(x, y)
+                baseTile = self.textToMap[biome]
                 tileRect = pygame.Rect(x * self.tileWidth, y * self.tileHeight, self.tileWidth, self.tileHeight)
                 self.mapSurf.blit(baseTile, tileRect)
+                if unit != None:
+                    unitImage = pygame.image.load("asets/characters/Red_Founder.png")
+                    self.mapSurf.blit(unitImage, tileRect)
+
+    def mapNeedsRedraw(self):
+        if self.model.getMapRedraw():
+            self.drawMap()
 
     def moveCamera(self, cameraDirection):
         """Moves the camera and checks if it can move also"""
@@ -150,6 +174,13 @@ class Model():
     def __init__(self):
         """Loads the variables and execute the methods when the class is created"""
         self.world = World()
+
+        self.mapWidth = None
+        self.mapHeight = None
+
+        self.mapNeedsRedraw = False
+
+        self.actualUnit = None
 
     def readMap (self, file):
         """Reads a txt file with the map"""
@@ -206,12 +237,64 @@ class Model():
 
     def getWidthHeight(self):
         """Gets the width and height of the actual map"""
-        return self.world.getWidthHeight()
+        self.mapWidth, self.mapHeight = self.world.getWidthHeight()
+        return self.mapWidth, self.mapHeight
 
     def getCellBiome(self, x, y):
         """Gets the biome of the cell"""
         biome = self.world.getBiome(x,y)
         return biome
+
+    def getCellData(self, x, y):
+        """Gets the biome and the unit of the cell"""
+        return self.world.getCellData(x, y)
+
+    def assignNewUnitCell(self, x, y):
+        """Asigns a new unit to a cell"""
+        self.world.assignNewUnit(x, y)
+        self.getAndAssignUnit(x, y)
+
+    def reassignUnitCell(self, posX, posY, newPosX, newPosY):
+        """reassign a unit from one cell to other"""
+        self.world.reassignUnit(posX, posY, newPosX, newPosY)
+
+    def moveUnit(self, x, y):
+        """Checks if a unit can move and if so it does"""
+        posX, posY = self.actualUnit.getPosition()
+        if self.movementPossible(posX + x, posY + y):
+            self.reassignUnitCell(posX, posY, posX + x, posY + y)
+            self.mapNeedsRedraw = True
+
+    def getAndAssignUnit(self, x, y):
+        """Gets the unit of a cell and assign it as the active unit"""
+        unit = self.world.getUnit(x, y)
+        if unit != None:
+            self.actualUnit = unit
+
+    def randomUnitGeneration(self):
+        """Selects a random position on the map"""
+        while True:
+            posX = random.randrange(0, self.mapWidth)
+            posY = random.randrange(0, self.mapHeight)
+            if self.movementPossible(posX, posY):
+                break
+        self.assignNewUnitCell(posX, posY)
+
+    def movementPossible(self, x, y):
+        """Checks if it is possible to move to the cell"""
+        biome, unit = self.getCellData(x, y)
+        if biome == "D" and unit == None:
+            return True
+        else:
+            return False
+
+    def getMapRedraw(self):
+        """Return if the map needs to redraw or not"""
+        if self.mapNeedsRedraw:
+            self.mapNeedsRedraw = False
+            return True
+        else:
+            return False
 
 if __name__ == "__main__":
     game = Controller()

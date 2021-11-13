@@ -7,7 +7,7 @@ class World():
         """ constructor de la clase """
         self.ancho = None
         self.alto = None
-        self.Unit = []
+        self.unit = []
         self.cells = []
         self.map_to_text = {"Barrier" : "B",
                             "Dirt" : "D",
@@ -119,10 +119,8 @@ class World():
         return biome
 
     def limpiar_tablero(self):
-        """ elimina todo bioma almacenado en una celda """
-        for x in range (self.alto):
-            for y in range (self.ancho):
-                self.cells[y][x].set_biome("")
+        """Elimina todo el tablero para poder crear uno nuevo"""
+        self.cells = []
     
     def plants_random(self):
         """ genera plantas aleatoriamente """
@@ -137,6 +135,10 @@ class World():
         """  """
         biome = self.cells[x][y].getBiome()
         return biome
+    
+    def getCellData(self, x, y):
+        """Gets the biome and the units or estructures on the cell"""
+        return self.cells[x][y].getBiome(), self.cells[x][y].getUnit()
     
     def addCellAndBiome(self, x, y, biome):
         """Añade un objeto Cell a la lista correspondiente y le establece el bioma"""
@@ -182,3 +184,23 @@ class World():
     def getWidthHeight(self):
         """Gets the width and the height of the actual map"""
         return len(self.cells), len(self.cells[0])
+    
+    def assignNewUnit(self, posX, posY):
+        unit = Unit()
+        unit.setPosition(posX, posY)
+        self.cells[posX][posY].setUnit(unit)
+        self.unit.append(unit)
+    
+    def reassignUnit(self, posX, posY, newPosX, newPosY):
+        unit = self.cells[posX][posY].getUnit()
+        self.cells[posX][posY].eraseUnit()
+        unit.setPosition(newPosX, newPosY)
+        self.cells[newPosX][newPosY].setUnit(unit)
+
+    def getUnit(self, x, y):
+        return self.cells[x][y].getUnit()
+
+
+
+
+

@@ -1,4 +1,4 @@
-from tablero import Tablero
+from world import World
 from units import Unit
 import random, sys, pygame, math
 from pygame.locals import *
