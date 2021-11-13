@@ -1,4 +1,5 @@
 import pygame, sys
+from pygame import mouse
 from pygame.locals import *
 """-----------------------------------------------------------------------------"""
 import random, math,os
@@ -17,6 +18,7 @@ class Controller():
         self.model.readMap("Maps/map1.txt")
         self.view.setMapSize()
         self.model.randomUnitGeneration()
+        self.model.randomUnitGeneration()
         self.view.drawMap()
         self.loopGame()
     
@@ -30,8 +32,9 @@ class Controller():
             for event in pygame.event.get():
                 if event.type == pygame.QUIT: #If the user presses the X at the top right
                     self.terminate()
-                #When the arrows are pressed
+        
                 if event.type == KEYDOWN:
+                    #When the arrows are pressed
                     if event.key == K_UP:
                         camUp = True
                     if event.key == K_DOWN:
@@ -41,6 +44,7 @@ class Controller():
                     if event.key == K_LEFT:
                         camLeft = True
 
+                    #When the leters w,a,s,d are pressed
                     if event.key == K_w:
                         self.model.moveUnit(0, -1)
                         self.view.mapNeedsRedraw()
@@ -63,6 +67,12 @@ class Controller():
                         camRight = False
                     if event.key == K_LEFT:
                         camLeft = False
+
+                #When the mouse is clicked
+                if event.type == MOUSEBUTTONDOWN:
+                    mousePos = pygame.mouse.get_pos()
+                    self.view.getMouseMapPos(mousePos)
+
             if camUp:
                 self.view.moveCamera("U")
             if camDown:
@@ -99,6 +109,7 @@ class View():
         self.tileHeight = 32
 
         self.mapSurf = None
+        self.mapRect = None
 
         self.textToMap = {"B" : pygame.image.load("asets/floor/Barrier.png"),
                             "D" : pygame.image.load("asets/floor/Dirt.png"),
@@ -120,7 +131,7 @@ class View():
         self.cameraMoveX = 0
         self.cameraMoveY = 0    
 
-        self.cameraVelocity = 5 #Sets the velocity of the camera movement    
+        self.cameraVelocity = 2 #Sets the velocity of the camera movement    
 
     def setModel(self, model):
         """Sets the same model that uses the controller"""
@@ -163,10 +174,17 @@ class View():
         if cameraDirection == "R" and self.cameraMoveX > -self.maxCamMoveX:
             self.cameraMoveX -= self.cameraVelocity
 
+    def getMouseMapPos(self, mousePos):
+        """Gets the mouse position in relation of the map Surface"""
+        rectX, rectY = self.mapRect.topleft        
+        mousePos = tuple(sum(x) for x in zip(mousePos, (abs(rectX), abs(rectY))))
+        posX, posY = mousePos
+        self.model.getAndAssignUnit(math.floor(posX/self.tileWidth), math.floor(posY/self.tileHeight))
+
     def updateScreen(self):
         self.screen.fill((0,0,0))
-        mapSurfRect = self.mapSurf.get_rect(center = (self.screenWidth/2 + self.cameraMoveX, self.screenHeight/2 + self.cameraMoveY))  
-        self.screen.blit(self.mapSurf, mapSurfRect)      
+        self.mapRect = self.mapSurf.get_rect(center = (self.screenWidth/2 + self.cameraMoveX, self.screenHeight/2 + self.cameraMoveY))  
+        self.screen.blit(self.mapSurf, self.mapRect)      
         pygame.display.update()
 
 class Model():
