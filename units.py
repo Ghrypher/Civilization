@@ -63,7 +63,11 @@ class Unit():
     def revealMap(self, map):
         """Reveal all the cells in range of the unit"""
         for x in range(self.positionX - self.visibility, self.positionX + self.visibility + 1):
+            if x < 0:
+                continue
             for y in range(self.positionY - self.visibility, self.positionY + self.visibility + 1):
+                if y < 0:
+                    continue
                 try:
                     if ((x - self.positionX)**2 + (y - self.positionY)**2)**(1/2) <= self.visibility:
                         map[x][y].revealCell()

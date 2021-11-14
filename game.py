@@ -20,6 +20,7 @@ class Controller():
         self.model.randomUnitGeneration()
         self.model.revealMap()
         self.view.drawMap()
+        self.view.centerLoadCamera()
         self.loopGame()
     
     def loopGame(self):
@@ -138,7 +139,7 @@ class View():
         self.cameraMoveX = 0
         self.cameraMoveY = 0    
 
-        self.cameraVelocity = 2 #Sets the velocity of the camera movement    
+        self.cameraVelocity = 5 #Sets the velocity of the camera movement    
 
     def setModel(self, model):
         """Sets the same model that uses the controller"""
@@ -176,7 +177,6 @@ class View():
                     tileRect = pygame.Rect(x * self.tileWidth, y * self.tileHeight, self.tileWidth, self.tileHeight)
                     self.mapSurf.blit(baseTile, tileRect)
 
-
     def mapNeedsRedraw(self):
         if self.model.getMapRedraw():
             self.drawMap()
@@ -191,6 +191,25 @@ class View():
             self.cameraMoveX += self.cameraVelocity
         if cameraDirection == "R" and self.cameraMoveX > -self.maxCamMoveX:
             self.cameraMoveX -= self.cameraVelocity
+
+    def centerLoadCamera(self):
+        posX, posY = self.model.getPositionUnit()
+        if posX < self.mapWidth/2:
+            self.cameraMoveX += abs(posX - self.mapWidth/2) * self.tileWidth
+        else:
+            self.cameraMoveX -= abs(posX - self.mapWidth/2) * self.tileWidth
+        if posY < self.mapHeight/2:
+            self.cameraMoveY += abs(posY - self.mapHeight/2) * self.tileHeight
+        else:
+            self.cameraMoveY -= abs(posY - self.mapHeight/2) * self.tileHeight
+        if self.cameraMoveY > self.maxCamMoveY:
+            self.cameraMoveY = self.maxCamMoveY
+        elif self.cameraMoveY < -self.maxCamMoveY:
+            self.cameraMoveY = -self.maxCamMoveY 
+        if self.cameraMoveX > self.maxCamMoveX:
+            self.cameraMoveX = self.maxCamMoveX 
+        elif self.cameraMoveX < -self.maxCamMoveX:
+            self.cameraMoveX = -self.maxCamMoveX
 
     def getMouseMapPos(self, mousePos):
         """Gets the mouse position in relation of the map Surface"""
@@ -345,6 +364,9 @@ class Model():
     def getCellVisibility(self, x, y):
         """Gets if a cell was revealed and if it is actually being seen"""
         return self.world.getCellVisibility(x, y)
+
+    def getPositionUnit(self):
+        return self.actualUnit.getPosition()
 
 if __name__ == "__main__":
     game = Controller()
