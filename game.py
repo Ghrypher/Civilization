@@ -113,6 +113,7 @@ class View():
         self.mapSurf = None
         self.mapRect = None
 
+        #Gets the image of the cell from the string
         self.textToMap = {"B" : pygame.image.load("asets/floor/Barrier.png"),
                             "D" : pygame.image.load("asets/floor/Dirt.png"),
                             " D": pygame.image.load("asets/floor/Dirt_inactive.png"),
@@ -131,6 +132,13 @@ class View():
                             "H" : "Hidden",
                             "0" : False,
                             "1" : True}
+        
+        #Gets the image of the unit from the string
+        self.textToUnit = {
+            "WR" : pygame.image.load("asets/characters/Red_Warrior.png"),
+            "FD" : pygame.image.load("asets/characters/Red_Founder.png"),
+            "WK" : pygame.image.load("asets/characters/Red_worker.png")
+        }
 
         #Sets the limit for the camera to move
         self.maxCamMoveX = None
@@ -167,7 +175,7 @@ class View():
                     tileRect = pygame.Rect(x * self.tileWidth, y * self.tileHeight, self.tileWidth, self.tileHeight)
                     self.mapSurf.blit(baseTile, tileRect)
                     if unit != None:
-                        unitImage = pygame.image.load("asets/characters/Red_Founder.png")
+                        unitImage = self.textToUnit[str(unit)]
                         self.mapSurf.blit(unitImage, tileRect)
                 if visibility == (True, False):
                     baseTile = self.textToMap[" " + biome]
@@ -294,7 +302,7 @@ class Model():
 
         for x in range(len(M_Obj)):
             for y in range(len(M_Obj[0])):
-                self.world.addCellAndBiome(x, y, M_Obj[x][y])
+                self.world.addCellAndBiome(x, M_Obj[x][y])
 
     def getWidthHeight(self):
         """Gets the width and height of the actual map"""
@@ -310,9 +318,9 @@ class Model():
         """Gets the biome and the unit of the cell"""
         return self.world.getCellData(x, y)
 
-    def assignNewUnitCell(self, x, y):
+    def assignNewUnitCell(self, x, y, type):
         """Asigns a new unit to a cell"""
-        self.world.assignNewUnit(x, y)
+        self.world.assignNewUnit(x, y, type)
         self.getAndAssignUnit(x, y)
 
     def reassignUnitCell(self, posX, posY, newPosX, newPosY):
@@ -341,7 +349,7 @@ class Model():
             posY = random.randrange(0, self.mapHeight)
             if self.movementPossible(posX, posY):
                 break
-        self.assignNewUnitCell(posX, posY)
+        self.assignNewUnitCell(posX, posY, "FD")
 
     def movementPossible(self, x, y):
         """Checks if it is possible to move to the cell"""

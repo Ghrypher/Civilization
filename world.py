@@ -1,6 +1,6 @@
 import random, os
 from cell import *
-from units import Unit
+from units import *
 
 class World():
     def __init__(self):
@@ -25,6 +25,11 @@ class World():
             "I" : Iron,
             "G" : Gold,
             "F" : Forest
+        }
+        self.textToUnit = {
+            "WR" : Warrior,
+            "WK" : Worker,
+            "FD" : Founder
         }
         self.number_to_biomes = {1 : Water,
                                 2 : Dirt,
@@ -138,7 +143,7 @@ class World():
         else:
             return self.cells[x][y].getBiome(), None
     
-    def addCellAndBiome(self, x, y, biome):
+    def addCellAndBiome(self, x, biome):
         """Añade un objeto Cell a la lista correspondiente y le establece el bioma"""
         self.cells[x].append(self.textToClass[biome]())
     
@@ -182,8 +187,8 @@ class World():
         """Gets the width and the height of the actual map"""
         return len(self.cells), len(self.cells[0])
     
-    def assignNewUnit(self, posX, posY):
-        unit = Unit()
+    def assignNewUnit(self, posX, posY, type):
+        unit = self.textToUnit[type]()
         unit.setPosition(posX, posY)
         self.cells[posX][posY].setUnit(unit)
         self.unit.append(unit)
