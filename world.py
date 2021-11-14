@@ -21,84 +21,79 @@ class World():
         self.textToClass = {
             "D" : Dirt,
             "M" : Mountain,
-            "W" : Water
+            "W" : Water,
+            "I" : Iron,
+            "G" : Gold,
+            "F" : Forest
         }
-        self.number_to_biomes = {1 : "W",
-                                2 : "D",
-                                3 : "D", 
-                                4: "D"}
+        self.number_to_biomes = {1 : Water,
+                                2 : Dirt,
+                                3 : Dirt, 
+                                4: Dirt}
         self.number_to_plants = {1 : "Grass",
                                 2 : "Tree",
                                 3 : "Flower"}
 
     def setWorldSize(self, ancho, alto):
         self.ancho = ancho
-        self.alto = alto
-
-    def crear_tablero(self):
-        """ crea un tablero de ancho por alto """
-        for columna in range (0, self.alto):
-            lista = []
-            for fila in range (0, self.ancho):
-                lista.append(Cell())
-            self.cells.append(lista)                  
-
-    def biome_random(self):
-        """ genera biomas aleatoriamente """
-        biome = self.number_to_biomes[random.randrange(1,5)]
-        return biome
+        self.alto = alto                 
 
     def random_world(self):
         """ crea el mundo aleatoriamente y lo filtra """
+        for columna in range (0, self.alto):
+            lista = []
+            self.cells.append(lista)
+
         for Y in range(self.alto):
             for x in range(self.ancho):
-                ran = str(self.biome_random())
-                self.cells[Y][x].set_biome(ran)
+                self.cells[Y].append(self.number_to_biomes[random.randrange(1, 5)]())
 
         for Y in range(self.alto):
             for x in range(self.ancho):
                 #bordes
                 if x == 0 or Y == 0 or x == (self.ancho-1) or Y == (self.alto-1):
-                    self.cells[Y][x].set_biome("D")
+                    self.cells[Y].pop(x)
+                    self.cells[Y].insert(x, Dirt())
                     continue
                 
                 #tierra firme
-                if (self.cells[Y + 1 ][x].biome == "D" or self.cells[Y + 1 ][x].biome == "F" or self.cells[Y + 1 ][x].biome == "M") and (self.cells[Y][x + 1].biome == "D" or self.cells[Y][x + 1].biome == "F" or self.cells[Y][x + 1].biome == "M") and (self.cells[Y][x - 1].biome == "D" or self.cells[Y][x - 1].biome == "F" or self.cells[Y][x - 1].biome == "M"):
-                    self.cells[Y][x].set_biome("D")
+                if (str(self.cells[Y + 1 ][x]) == "D" or str(self.cells[Y + 1 ][x]) == "F" or str(self.cells[Y + 1 ][x]) == "M") and (str(self.cells[Y][x + 1]) == "D" or str(self.cells[Y][x + 1]) == "F" or str(self.cells[Y][x + 1]) == "M") and (str(self.cells[Y][x - 1]) == "D" or str(self.cells[Y][x - 1]) == "F" or str(self.cells[Y][x - 1]) == "M"):
+                    self.cells[Y].pop(x)
+                    self.cells[Y].insert(x, Dirt())
                     #montañas
                     mountain = random.randrange(1,16)
                     if mountain == 1:
                         mineral = random.randrange(1,11)
                         if mineral <= 5:
-                            self.cells[Y][x].set_biome("I")
-                            self.cells[Y][x].set_coordinates(Y, x)
+                            self.cells[Y].pop(x)
+                            self.cells[Y].insert(x, Iron())
                         if mineral > 5 and mineral <= 7 :
-                            self.cells[Y][x].set_biome("G")
-                            self.cells[Y][x].set_coordinates(Y, x)
+                            self.cells[Y].pop(x)
+                            self.cells[Y].insert(x, Gold())
                         if mineral > 7 and mineral <= 10 :
-                            self.cells[Y][x].set_biome("M")
-                            self.cells[Y][x].set_coordinates(Y, x)
+                            self.cells[Y].pop(x)
+                            self.cells[Y].insert(x, Mountain())
                     continue
                 
                 #rios
-                if self.cells[Y + 1][x].biome == "W" and self.cells[Y - 1][x].biome == "W" and self.cells[Y][x - 1].biome == "W":
+                if str(self.cells[Y + 1][x]) == "W" and str(self.cells[Y - 1][x]) == "W" and str(self.cells[Y][x - 1]) == "W":
                     lake = random.randrange(1,6)
                     if lake == 1:
-                        self.cells[Y][x].set_biome("W")
-                        self.cells[Y][x].set_coordinates(Y, x)
+                        self.cells[Y].pop(x)
+                        self.cells[Y].insert(x, Water())
                     else:
-                        self.cells[Y][x].set_biome("D")
-                        self.cells[Y][x].set_coordinates(Y, x)
+                        self.cells[Y].pop(x)
+                        self.cells[Y].insert(x, Dirt())
                 
                 #forests
-                if self.cells[Y][x].biome == "D" :
+                if str(self.cells[Y][x]) == "D" :
                     forest = random.randrange(1,6)
                     if forest == 1:
-                        self.cells[Y][x].set_biome("F")
-                        self.cells[Y][x].set_coordinates(Y, x)
-                    if self.cells[Y + 1 ][x].biome == "F" and self.cells[Y][x + 1].biome == "F" and self.cells[Y][x - 1].biome == "F":
-                        self.cells[Y][x].set_biome("F")
-                        self.cells[Y][x].set_coordinates(Y, x)
+                        self.cells[Y].pop(x)
+                        self.cells[Y].insert(x, Forest())
+                    if self.cells[Y + 1 ][x] == "F" and self.cells[Y][x + 1] == "F" and self.cells[Y][x - 1] == "F":
+                        self.cells[Y].pop(x)
+                        self.cells[Y].insert(x, Forest())
                     continue
 
         self.document_txt("Maps/random_world.txt")
@@ -106,7 +101,7 @@ class World():
         for y in range(self.alto):
             f.write("\n")
             for x in range(self.ancho):
-                tile = self.get_tiles(y, x)
+                tile = str(self.cells[y][x])
                 f.write(tile)
 
     def save_game(self, map):
@@ -118,11 +113,6 @@ class World():
             for x in range(len(map)):
                 f.write(self.getBiome(x, y))
     
-    def get_tiles(self, y, x):
-        """ devuelve el bioma de una celda """
-        biome = self.cells[y][x].biome
-        return biome
-
     def limpiar_tablero(self):
         """Elimina todo el tablero para poder crear uno nuevo"""
         self.cells = []
@@ -220,7 +210,8 @@ class World():
             for y in range(0, len(self.cells[0])):
                 self.cells[x][y].hideCell()
 
-
+    def clearWorld(self):
+        self.cells = []
 
 
 

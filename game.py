@@ -15,7 +15,8 @@ class Controller():
         self.view = View()
         self.model = Model()
         self.view.setModel(self.model)
-        self.model.readMap("Maps/map1.txt")
+        self.model.randomMap(100, 80)
+        self.model.readMap("Maps/random_world.txt")
         self.view.setMapSize()
         self.model.randomUnitGeneration()
         self.model.revealMap()
@@ -237,6 +238,11 @@ class Model():
 
         self.actualUnit = None
 
+    def randomMap(self, width, height):
+        """Generates a txt with a random map"""
+        self.world.setWorldSize(width, height)
+        self.world.random_world()
+
     def readMap (self, file):
         """Reads a txt file with the map"""
         assert os.path.exists(file), 'Cannot find the level file: %s' % (file)
@@ -339,10 +345,13 @@ class Model():
 
     def movementPossible(self, x, y):
         """Checks if it is possible to move to the cell"""
-        biome, unit = self.getCellData(x, y)
-        if biome == "D" and unit == None:
-            return True
-        else:
+        try:
+            biome, unit = self.getCellData(x, y)
+            if biome == "D" and unit == None and x >= 0 and y >= 0:
+                return True
+            else:
+                return False
+        except:
             return False
 
     def getMapRedraw(self):
