@@ -18,7 +18,6 @@ class Controller():
         self.model.readMap("Maps/map1.txt")
         self.view.setMapSize()
         self.model.randomUnitGeneration()
-        self.model.randomUnitGeneration()
         self.model.revealMap()
         self.view.drawMap()
         self.loopGame()

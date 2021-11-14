@@ -1,5 +1,5 @@
 import random, os
-from cell import Cell
+from cell import *
 from units import Unit
 
 class World():
@@ -18,6 +18,11 @@ class World():
                             "Revealed" :"R",
                             "Forest" : "F",
                             "Hidden" : "H"}
+        self.textToClass = {
+            "D" : Dirt,
+            "M" : Mountain,
+            "W" : Water
+        }
         self.number_to_biomes = {1 : "W",
                                 2 : "D",
                                 3 : "D", 
@@ -138,12 +143,14 @@ class World():
     
     def getCellData(self, x, y):
         """Gets the biome and the units or estructures on the cell"""
-        return self.cells[x][y].getBiome(), self.cells[x][y].getUnit()
+        if str(self.cells[x][y]) == "D":
+            return self.cells[x][y].getBiome(), self.cells[x][y].getUnit()
+        else:
+            return self.cells[x][y].getBiome(), None
     
     def addCellAndBiome(self, x, y, biome):
         """Añade un objeto Cell a la lista correspondiente y le establece el bioma"""
-        self.cells[x].append(Cell())
-        self.cells[x][y].set_biome(biome)
+        self.cells[x].append(self.textToClass[biome]())
     
     def assignSize(self, width):
         """Asigna el tamaño del tablero segun el tamaño del mapa"""
