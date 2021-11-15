@@ -218,5 +218,8 @@ class World():
     def clearWorld(self):
         self.cells = []
 
-
+    def restartAllUnitMovement(self):
+        """Restarts the movement of all the units"""
+        for unit in self.unit:
+            unit.restartMovement()
 

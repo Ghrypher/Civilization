@@ -46,6 +46,10 @@ class Controller():
                     if event.key == K_LEFT:
                         camLeft = True
 
+                    #When the enter is pressed 
+                    if event.key == K_RETURN:
+                        self.model.restarAllUnitMovement()
+
                     #When the leters w,a,s,d are pressed
                     if event.key == K_w:
                         self.model.moveUnit(0, -1)
@@ -322,6 +326,7 @@ class Model():
         """Asigns a new unit to a cell"""
         self.world.assignNewUnit(x, y, type)
         self.getAndAssignUnit(x, y)
+        self.actualUnit.restartMovement()
 
     def reassignUnitCell(self, posX, posY, newPosX, newPosY):
         """reassign a unit from one cell to other"""
@@ -330,11 +335,13 @@ class Model():
     def moveUnit(self, x, y):
         """Checks if a unit can move and if so it does"""
         posX, posY = self.actualUnit.getPosition()
-        if self.movementPossible(posX + x, posY + y):
-            self.reassignUnitCell(posX, posY, posX + x, posY + y)
-            self.hideMap()
-            self.revealMap()
-            self.mapNeedsRedraw = True
+        if self.actualUnit.getMovement() > 0:
+            if self.movementPossible(posX + x, posY + y):
+                self.actualUnit.reduceMovement()
+                self.reassignUnitCell(posX, posY, posX + x, posY + y)
+                self.hideMap()
+                self.revealMap()
+                self.mapNeedsRedraw = True
 
     def getAndAssignUnit(self, x, y):
         """Gets the unit of a cell and assign it as the active unit"""
@@ -384,6 +391,10 @@ class Model():
 
     def getPositionUnit(self):
         return self.actualUnit.getPosition()
+
+    def restarAllUnitMovement(self):
+        """Restarts the movement of all the units"""
+        self.world.restartAllUnitMovement()
 
 if __name__ == "__main__":
     game = Controller()

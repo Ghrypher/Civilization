@@ -5,6 +5,10 @@ class Unit():
         self.life = None
         self.dmg = None
         self.visibility = None
+        self.maxMovement = None
+        self.movement = self.maxMovement
+        self.attackPosible = True
+        self.armor = None
         self.type = None
         self.team = None
         self.positionX = None
@@ -37,12 +41,24 @@ class Unit():
                 except:
                     continue
 
+    def reduceMovement(self):
+        """Reduce the movement of the unit by 1"""
+        self.movement -= 1
+
+    def restartMovement(self):
+        """Sets the movement to the max posible"""
+        self.movement = self.maxMovement
+
+    def getMovement(self):
+        return self.movement
+
 class Warrior(Unit):
     
     def __init__(self):
         super().__init__()
         self.type = "WR"
         self.visibility = 3
+        self.maxMovement = 5
         self.life = 5
         self.dmg = 3
         self.armor = 1
@@ -53,8 +69,10 @@ class Founder(Unit):
         super().__init__()
         self.type = "FD"
         self.visibility = 4
+        self.maxMovement = 2
         self.life = 4
         self.dmg = 1
+        self.armor = 0
 
 class Worker(Unit):
 
@@ -62,5 +80,7 @@ class Worker(Unit):
         super().__init__()
         self.type = "WK"
         self.visibility = 3
+        self.maxMovement = 3
         self.life = 3
-        self.dmg = 1
+        self.dmg = 0
+        self.armor = 0
