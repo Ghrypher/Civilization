@@ -1,8 +1,10 @@
-import random, os
+from os import fsdecode
+import random
+from queue import PriorityQueue
 from cell import *
 from units import *
 
-class World():
+class World:
     def __init__(self):
         """ constructor de la clase """
         self.ancho = None
@@ -126,10 +128,6 @@ class World():
         """ genera plantas aleatoriamente """
         plants = self.number_to_plants[random.randrange(1,3)]
         return plants
-    
-    def set_biome(self, x, y, biome):
-        """Añade un objeto Cell a la lista correspondiente y le establece el bioma"""
-        self.cells[x][y].set_biome(biome)
 
     def getBiome(self, x, y):
         """  """
@@ -143,9 +141,15 @@ class World():
         else:
             return self.cells[x][y].getBiome(), None
     
-    def addCellAndBiome(self, x, biome):
+    def addCellAndBiome(self, x, y, biome):
         """Añade un objeto Cell a la lista correspondiente y le establece el bioma"""
-        self.cells[x].append(self.textToClass[biome]())
+        biomeSet = self.textToClass[biome]()
+        biomeSet.setCoordinates(x, y)
+
+        if str(biomeSet) != "D":
+            biomeSet.isBarrier()
+            
+        self.cells[x].append(biomeSet)
     
     def assignSize(self, width):
         """Asigna el tamaño del tablero segun el tamaño del mapa"""
@@ -191,10 +195,12 @@ class World():
         unit = self.textToUnit[type]()
         unit.setPosition(posX, posY)
         self.cells[posX][posY].setUnit(unit)
+        self.cells[posX][posY].isBarrier()
         self.unit.append(unit)
     
     def reassignUnit(self, posX, posY, newPosX, newPosY):
         unit = self.cells[posX][posY].getUnit()
+        self.cells[posX][posY].isNotBarrier()
         self.cells[posX][posY].eraseUnit()
         unit.setPosition(newPosX, newPosY)
         self.cells[newPosX][newPosY].setUnit(unit)
@@ -223,3 +229,76 @@ class World():
         for unit in self.unit:
             unit.restartMovement()
 
+    def updateNeighbors(self):
+        """Update the neighbors of all the cells"""
+        for x in range(len(self.cells)):
+            for y in range(len(self.cells[0])):
+
+                if x < len(self.cells) - 1 and not self.cells[x + 1][y].getBarrier():
+                    self.cells[x][y].addNeighbors(self.cells[x + 1][y])
+                if x > 0 and not self.cells[x - 1][y].getBarrier():
+                    self.cells[x][y].addNeighbors(self.cells[x - 1][y])
+                if y < len(self.cells[0]) - 1 and not self.cells[x][y + 1].getBarrier():
+                    self.cells[x][y].addNeighbors(self.cells[x][y + 1])
+                if y > 0 and not self.cells[x][y - 1].getBarrier():
+                    self.cells[x][y].addNeighbors(self.cells[x][y - 1])
+
+    def h(self, p1, p2):
+        x1, y1 = p1
+        x2, y2 = p2
+        return abs(x1 - x2) + abs(y1 - y2)
+
+    def AStar(self, start, end):
+        """Executes a path finding algorithm to find the best path from one point to other"""
+        count = 0
+        openSet = PriorityQueue()
+        openSet.put((0, count, start))
+        cameFrom = {}
+        gScore = {node: float("inf") for x in self.cells for node in x}
+        gScore[start] = 0
+        fScore = {node: float("inf") for x in self.cells for node in x}
+        fScore[start] = self.h(start.getPosition(), end.getPosition())
+
+        openSetHash = {start}
+
+        while not openSet.empty():
+
+            current = openSet.get()[2]
+            openSetHash.remove(current)
+
+            if current == end:
+                coordinates = []
+                while current in cameFrom:
+                    coordinates.append(current.getPosition())
+                    current = cameFrom[current]
+                return coordinates
+
+            for neighbor in current.getNeighbors():
+                tempGScore = gScore[current] + 1
+                if tempGScore < gScore[neighbor]:
+                    cameFrom[neighbor] = current
+                    gScore[neighbor] = tempGScore
+                    hola = neighbor.getPosition()
+                    adios = end.getPosition()
+                    fScore[neighbor] = tempGScore + self.h(hola, adios)
+                    if neighbor not in openSetHash:
+                        count += 1
+                        openSet.put((fScore[neighbor], count, neighbor))
+                        openSetHash.add(neighbor)
+        
+        return []
+
+    def getAllUnits(self):
+        """Return the list of units in the game"""
+        return self.unit
+
+    def setAllUnitsRoute(self):
+        """Sets all the units route"""
+        for unit in self.unit:
+            if unit.getPositionToMove() != (None, None):
+                if unit.getPosition() != unit.getPositionToMove():
+                    posX, posY = unit.getPosition()
+                    posToMoveX, posToMoveY = unit.getPositionToMove()
+                    unit.setRoute(self.AStar(self.cells[posX][posY], self.cells[posToMoveX][posToMoveY]))
+            else:
+                unit.setRoute([])

@@ -15,6 +15,7 @@ class Unit():
         self.positionY = None
         self.positionToMoveX = None
         self.positionToMoveY = None
+        self.route = []
 
     def __str__(self):
         return self.type
@@ -27,6 +28,23 @@ class Unit():
     def getPosition(self):
         return self.positionX, self.positionY
     
+    def setRoute(self, route):
+        """Sets the route made by the path finding algorithm"""
+        self.route = route
+
+    def getRoute(self):
+        """Return the route of the unit"""
+        return self.route
+
+    def getPositionToMove(self):
+        """Gets the position to move of the unit"""
+        return self.positionToMoveX, self.positionToMoveY
+
+    def setPostionToMove(self, posX, posY):
+        """Sets the position to move in X and Y"""
+        self.positionToMoveX = posX
+        self.positionToMoveY = posY
+
     def revealMap(self, map):
         """Reveal all the cells in range of the unit"""
         for x in range(self.positionX - self.visibility, self.positionX + self.visibility + 1):

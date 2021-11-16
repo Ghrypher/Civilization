@@ -1,20 +1,57 @@
 import random, pygame
 
 class Cell:
-    """ clase Celda almacena barcos o no """
+
 
     def __init__(self):
         """ constructor de la clase """
         self.biome = ""
         self.revealed = False
         self.active = False
+        self.x = None
+        self.y = None
+        self.neighbors = []
+        self.barrier = False
     
     def __str__(self):
         return self.biome
 
+    def __lt__(self, other):
+	    return False
+
+    def setCoordinates(self, x, y):
+        """Sets the row and collum of the cell"""
+        self.x = x
+        self.y = y
+    
+    def getPosition(self):
+        """Gets the position of the cell"""
+        return self.x, self.y
+
+    def getNeighbors(self):
+        return self.neighbors
+
+    def isBarrier(self):
+        self.barrier = True
+
+    def isNotBarrier(self):
+        self.barrier = False
+
+    def getBarrier(self):
+        return self.barrier
+
     def getBiome(self):
         """Gets the biome of the cell"""
         return self.biome
+
+    def addNeighbors(self, neighbor):
+	    self.neighbors.append(neighbor)
+
+    def resetCell(self):
+        self.open = False
+        self.closed = False
+        self.start = False
+        self.end = False
 
     def revealCell(self):
         """Reveals the cell"""

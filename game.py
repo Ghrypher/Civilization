@@ -1,5 +1,4 @@
 import pygame, sys
-from pygame import mouse
 from pygame.locals import *
 """-----------------------------------------------------------------------------"""
 import random, math,os
@@ -48,21 +47,27 @@ class Controller():
 
                     #When the enter is pressed 
                     if event.key == K_RETURN:
-                        self.model.restarAllUnitMovement()
+                        self.model.passTurn()
+                        self.view.mapNeedsRedraw()
 
                     #When the leters w,a,s,d are pressed
                     if event.key == K_w:
                         self.model.moveUnit(0, -1)
+                        self.model.setPositionToMoveUnit(None, None)
                         self.view.mapNeedsRedraw()
                     if event.key == K_s:
                         self.model.moveUnit(0, 1)
+                        self.model.setPositionToMoveUnit(None, None)
                         self.view.mapNeedsRedraw()
                     if event.key == K_a:
                         self.model.moveUnit(-1, 0)
+                        self.model.setPositionToMoveUnit(None, None)
                         self.view.mapNeedsRedraw()
                     if event.key == K_d:
                         self.model.moveUnit(1, 0)
+                        self.model.setPositionToMoveUnit(None, None)
                         self.view.mapNeedsRedraw()
+
                 #When the arrows stopped being pressed
                 if event.type == KEYUP:
                     if event.key == K_UP:
@@ -77,7 +82,12 @@ class Controller():
                 #When the mouse is clicked
                 if event.type == MOUSEBUTTONDOWN:
                     mousePos = pygame.mouse.get_pos()
-                    self.view.getMouseMapPos(mousePos)
+                    posX, posY = self.view.getMouseMapPos(mousePos)
+                    if pygame.mouse.get_pressed()[0]:
+                        self.model.getAndAssignUnit(posX, posY)
+                    if pygame.mouse.get_pressed()[2]:
+                        self.model.setPositionToMoveUnit(posX, posY)
+                        
 
             if camUp:
                 self.view.moveCamera("U")
@@ -94,8 +104,7 @@ class Controller():
         """End the program"""
         pygame.quit()
         sys.exit()
-    
-
+   
 class View():
 
     def __init__(self):
@@ -229,7 +238,7 @@ class View():
         rectX, rectY = self.mapRect.topleft        
         mousePos = tuple(sum(x) for x in zip(mousePos, (abs(rectX), abs(rectY))))
         posX, posY = mousePos
-        self.model.getAndAssignUnit(math.floor(posX/self.tileWidth), math.floor(posY/self.tileHeight))
+        return math.floor(posX/self.tileWidth), math.floor(posY/self.tileHeight)
 
     def updateScreen(self):
         self.screen.fill((0,0,0))
@@ -306,7 +315,9 @@ class Model():
 
         for x in range(len(M_Obj)):
             for y in range(len(M_Obj[0])):
-                self.world.addCellAndBiome(x, M_Obj[x][y])
+                self.world.addCellAndBiome(x, y, M_Obj[x][y])
+        
+        self.world.updateNeighbors()
 
     def getWidthHeight(self):
         """Gets the width and height of the actual map"""
@@ -392,9 +403,47 @@ class Model():
     def getPositionUnit(self):
         return self.actualUnit.getPosition()
 
-    def restarAllUnitMovement(self):
+    def restartAllUnitMovement(self):
         """Restarts the movement of all the units"""
-        self.world.restartAllUnitMovement()
+        self.world.restartAllUnitMovement()   
+
+    def setUnitMovement(self, posX, posY):
+        """Sets the position to move of the unit selected"""
+        self.actualUnit.setPostionToMove(posX, posY)
+
+    def moveUnits(self):
+        """Gets the position and routes of units and moves them"""
+        actualUnit = self.actualUnit
+        units = self.world.getAllUnits()
+        for unit in units:            
+            self.actualUnit = unit
+            routes = unit.getRoute()
+            routesReverted = []
+            for x in range(1, len(routes) + 1):
+                routesReverted.append(routes[-x])
+            routes = routesReverted
+
+            if routes != None:
+                for route in routes:
+                    posX, posY = unit.getPosition()
+                    if self.actualUnit.getMovement() > 0:
+                        posToMoveX, posToMoveY = route
+                        self.moveUnit(posToMoveX - posX, posToMoveY - posY)
+                        if route == self.actualUnit.getPositionToMove():
+                            self.setPositionToMoveUnit(None, None)
+                    else:
+                        break
+        self.actualUnit = actualUnit
+
+    def setPositionToMoveUnit(self, posX, posY):
+        """Sets the position to move of the unit"""            
+        self.actualUnit.setPostionToMove(posX, posY)
+
+    def passTurn(self):
+        """All that happens when the turned passes is here"""
+        self.world.setAllUnitsRoute()
+        self.moveUnits()
+        self.restartAllUnitMovement()
 
 if __name__ == "__main__":
     game = Controller()
