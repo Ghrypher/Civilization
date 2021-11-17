@@ -234,16 +234,17 @@ class World:
         for x in range(len(self.cells)):
             for y in range(len(self.cells[0])):
 
-                if x < len(self.cells) - 1 and not self.cells[x + 1][y].getBarrier():
+                if x < len(self.cells) - 1 and not self.cells[x + 1][y].getBarrier(): #RIGHT
                     self.cells[x][y].addNeighbors(self.cells[x + 1][y])
-                if x > 0 and not self.cells[x - 1][y].getBarrier():
+                if x > 0 and not self.cells[x - 1][y].getBarrier(): #LEFT
                     self.cells[x][y].addNeighbors(self.cells[x - 1][y])
-                if y < len(self.cells[0]) - 1 and not self.cells[x][y + 1].getBarrier():
+                if y < len(self.cells[0]) - 1 and not self.cells[x][y + 1].getBarrier(): #DOWN
                     self.cells[x][y].addNeighbors(self.cells[x][y + 1])
-                if y > 0 and not self.cells[x][y - 1].getBarrier():
+                if y > 0 and not self.cells[x][y - 1].getBarrier(): #UP
                     self.cells[x][y].addNeighbors(self.cells[x][y - 1])
 
     def h(self, p1, p2):
+        """Gets the distance between one cell and other"""
         x1, y1 = p1
         x2, y2 = p2
         return abs(x1 - x2) + abs(y1 - y2)

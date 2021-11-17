@@ -1,4 +1,5 @@
 import pygame, sys
+from pygame import rect
 from pygame.locals import *
 """-----------------------------------------------------------------------------"""
 import random, math,os
@@ -11,12 +12,15 @@ class Controller():
 
     def __init__(self):
         """Loads the variables and execute the methods when the class is created"""
+        pygame.init()
+
         self.view = View()
         self.model = Model()
         self.view.setModel(self.model)
         self.model.randomMap(100, 80)
         self.model.readMap("Maps/random_world.txt")
         self.view.setMapSize()
+        self.model.randomUnitGeneration()
         self.model.randomUnitGeneration()
         self.model.revealMap()
         self.view.drawMap()
@@ -83,9 +87,11 @@ class Controller():
                 if event.type == MOUSEBUTTONDOWN:
                     mousePos = pygame.mouse.get_pos()
                     posX, posY = self.view.getMouseMapPos(mousePos)
-                    if pygame.mouse.get_pressed()[0]:
-                        self.model.getAndAssignUnit(posX, posY)
-                    if pygame.mouse.get_pressed()[2]:
+                    if pygame.mouse.get_pressed()[0]: # Left click
+                        if not self.view.drawUnitActions(mousePos, True):
+                            self.model.cellSelected(posX, posY)
+                            self.view.mapNeedsRedraw()
+                    if pygame.mouse.get_pressed()[2]: # Right click
                         self.model.setPositionToMoveUnit(posX, posY)
                         
 
@@ -109,10 +115,12 @@ class View():
 
     def __init__(self):
         """Loads the variables and execute the methods when the class is created"""
+        pygame.init()
+
         self.model = None
 
         self.screenWidth = 1280 
-        self.screenHeight = 704
+        self.screenHeight = 672
         self.screen = pygame.display.set_mode((self.screenWidth, self.screenHeight)) #Creates the screen where the game will display
 
         #Store the width and height fo the map
@@ -153,6 +161,13 @@ class View():
             "WK" : pygame.image.load("asets/characters/Red_worker.png")
         }
 
+        #Dictionary with the menu of actions of each unit
+        self.unitMenu = {
+            "FD" : self.founderActions
+        }
+
+        self.unit = None
+
         #Sets the limit for the camera to move
         self.maxCamMoveX = None
         self.maxCamMoveY = None
@@ -189,7 +204,23 @@ class View():
                     self.mapSurf.blit(baseTile, tileRect)
                     if unit != None:
                         unitImage = self.textToUnit[str(unit)]
-                        self.mapSurf.blit(unitImage, tileRect)
+                        self.mapSurf.blit(unitImage, tileRect) #Draws the unit on the cell
+                        health, maxHealth = self.model.getUnitHealth(unit)
+                        relationHealthBar = health/maxHealth
+
+                        heightBar = 6
+                        healthBar = pygame.Surface((self.tileWidth, heightBar))
+                        healthBarRect = pygame.Rect(tileRect[0], tileRect[1] + self.tileHeight - heightBar, self.tileWidth, heightBar)
+
+                        colorHealthBar = pygame.Surface(((self.tileWidth - 2) * relationHealthBar, heightBar - 2))
+                        colorHealthBar.fill((255, 0, 0))
+                        colorHealthBarRect = colorHealthBar.get_rect(topleft = (healthBarRect[0] + 1, healthBarRect[1] + 1))
+
+                        self.mapSurf.blit(healthBar, healthBarRect)
+                        self.mapSurf.blit(colorHealthBar, colorHealthBarRect)
+
+
+
                 if visibility == (True, False):
                     baseTile = self.textToMap[" " + biome]
                     tileRect = pygame.Rect(x * self.tileWidth, y * self.tileHeight, self.tileWidth, self.tileHeight)
@@ -243,8 +274,43 @@ class View():
     def updateScreen(self):
         self.screen.fill((0,0,0))
         self.mapRect = self.mapSurf.get_rect(center = (self.screenWidth/2 + self.cameraMoveX, self.screenHeight/2 + self.cameraMoveY))  
-        self.screen.blit(self.mapSurf, self.mapRect)      
+        self.screen.blit(self.mapSurf, self.mapRect)   
+        self.drawUnitActions((0, 0), False)
         pygame.display.update()
+
+    def founderActions(self, mousePos, click):
+        """Draws the button with the possible action of the founder unit"""
+        defendIcon = pygame.image.load("asets/buttons/rest_button.png")
+        iconRect = pygame.Rect(self.screenWidth - self.tileWidth*2, self.screenHeight - self.tileHeight, self.tileWidth, self.tileHeight)
+        self.screen.blit(defendIcon, iconRect)
+        if iconRect.collidepoint(mousePos) and click == True:
+            self.unit = None
+            self.model.setUnitMenu(None)
+            self.model.setAttack(True)
+            return True
+
+        attackIcon = pygame.image.load("asets/buttons/battle_button.png")
+        iconRect = pygame.Rect(self.screenWidth - self.tileWidth*4, self.screenHeight - self.tileHeight, self.tileWidth, self.tileHeight)
+        self.screen.blit(attackIcon, iconRect)
+        if iconRect.collidepoint(mousePos) and click == True:
+            self.unit = None
+            self.model.setUnitMenu(None)
+            self.model.setAttack(True)
+            return True
+
+        foundIcon = pygame.image.load("asets/buttons/found_button.png")
+        iconRect = pygame.Rect(self.screenWidth - self.tileWidth*6, self.screenHeight - self.tileHeight, self.tileWidth, self.tileHeight)
+        self.screen.blit(foundIcon, iconRect)
+        if iconRect.collidepoint(mousePos) and click == True:
+            self.unit = None
+            self.model.setUnitMenu(None)
+            self.model.setAttack(True)
+            return True
+        
+    def drawUnitActions(self, mousePos, click):
+        self.unit = self.model.getUnitMenu()
+        if self.unit != None:
+            return self.unitMenu[self.unit](mousePos, click)
 
 class Model():
 
@@ -258,6 +324,13 @@ class Model():
         self.mapNeedsRedraw = False
 
         self.actualUnit = None
+        self.unitMenu = None
+
+        self.attack = None #Saves is a unit is going to attack
+
+    def setAttack(self, value):
+        """Sets the attack event"""
+        self.attack = value
 
     def randomMap(self, width, height):
         """Generates a txt with a random map"""
@@ -338,6 +411,7 @@ class Model():
         self.world.assignNewUnit(x, y, type)
         self.getAndAssignUnit(x, y)
         self.actualUnit.restartMovement()
+        self.setUnitMenu(str(self.actualUnit))
 
     def reassignUnitCell(self, posX, posY, newPosX, newPosY):
         """reassign a unit from one cell to other"""
@@ -359,6 +433,7 @@ class Model():
         unit = self.world.getUnit(x, y)
         if unit != None:
             self.actualUnit = unit
+            self.setUnitMenu(str(self.actualUnit))
 
     def randomUnitGeneration(self):
         """Selects a random position on the map"""
@@ -415,10 +490,14 @@ class Model():
         """Gets the position and routes of units and moves them"""
         actualUnit = self.actualUnit
         units = self.world.getAllUnits()
-        for unit in units:            
+
+        for unit in units:   
+
             self.actualUnit = unit
             routes = unit.getRoute()
             routesReverted = []
+
+            #Reverts the list
             for x in range(1, len(routes) + 1):
                 routesReverted.append(routes[-x])
             routes = routesReverted
@@ -426,10 +505,10 @@ class Model():
             if routes != None:
                 for route in routes:
                     posX, posY = unit.getPosition()
-                    if self.actualUnit.getMovement() > 0:
+                    if self.actualUnit.getMovement() > 0:                        
                         posToMoveX, posToMoveY = route
                         self.moveUnit(posToMoveX - posX, posToMoveY - posY)
-                        if route == self.actualUnit.getPositionToMove():
+                        if route == self.actualUnit.getPositionToMove(): # Checks if the actual route is the final position
                             self.setPositionToMoveUnit(None, None)
                     else:
                         break
@@ -438,6 +517,38 @@ class Model():
     def setPositionToMoveUnit(self, posX, posY):
         """Sets the position to move of the unit"""            
         self.actualUnit.setPostionToMove(posX, posY)
+
+    def getUnitMenu(self):
+        """Gets the string of the actual unit"""
+        return self.unitMenu
+
+    def setUnitMenu(self, value):
+        """Sets the value of the unitMenu"""
+        self.unitMenu = value
+
+    def getUnitHealth(self, unit):
+        """Gets the health of the unit"""
+        return unit.getHealthData()
+
+    def attackUnit(self, x, y):
+        """Attacks if the cell selected has an enemy unit"""
+        biome, unit = self.getCellData(x, y)
+        if unit != None:
+            if self.actualUnit.getActionPosible():
+                x1, y1 = self.actualUnit.getPosition()
+                x2, y2 = unit.getPosition()
+                if abs(x1 - x2) < 2 and abs(y1 - y2) < 2:
+                    self.actualUnit.meleeAttack(unit)
+        self.attack = False
+
+    def cellSelected(self, x, y):
+        """Executes a method depending if an event is active or not"""
+        if self.attack:
+            self.attackUnit(x, y)
+            self.attack = False
+            self.mapNeedsRedraw = True
+        else:
+            self.getAndAssignUnit(x, y)
 
     def passTurn(self):
         """All that happens when the turned passes is here"""

@@ -2,12 +2,13 @@ class Unit():
 
     def __init__(self):
         """Inicio de la clase, crea las variables de la misma"""
+        self.maxLife = None
         self.life = None
         self.dmg = None
         self.visibility = None
         self.maxMovement = None
         self.movement = self.maxMovement
-        self.attackPosible = True
+        self.actionPosible = True
         self.armor = None
         self.type = None
         self.team = None
@@ -70,6 +71,32 @@ class Unit():
     def getMovement(self):
         return self.movement
 
+    def getHealthData(self):
+        """Returns the health data"""
+        return self.life, self.maxLife
+
+    def setHealth(self, value):
+        """Sets the health of the unit"""
+        self.life = value
+
+    def getActionPosible(self):
+        """Returns if the unit can make an action"""
+        return self.actionPosible
+
+    def reciveAttack(self, dmg):
+        """Reduces the life of the unit based on the damage received"""
+        self.setHealth(self.life - (self.dmg - self.armor))
+
+    def meleeAttack(self, unit):
+        """Attacks melee an enemy unit"""
+        self.actionPosible = False
+        unit.reciveAttack(self.dmg)
+        self.life -= unit.counterAttack() - self.armor
+    
+    def counterAttack(self):
+        """Returns the damage of the unit"""
+        return self.dmg
+
 class Warrior(Unit):
     
     def __init__(self):
@@ -77,6 +104,7 @@ class Warrior(Unit):
         self.type = "WR"
         self.visibility = 3
         self.maxMovement = 5
+        self.maxLife = 5
         self.life = 5
         self.dmg = 3
         self.armor = 1
@@ -88,6 +116,7 @@ class Founder(Unit):
         self.type = "FD"
         self.visibility = 4
         self.maxMovement = 2
+        self.maxLife = 4
         self.life = 4
         self.dmg = 1
         self.armor = 0
@@ -99,6 +128,7 @@ class Worker(Unit):
         self.type = "WK"
         self.visibility = 3
         self.maxMovement = 3
+        self.maxLife = 3
         self.life = 3
         self.dmg = 0
         self.armor = 0
