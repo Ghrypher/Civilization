@@ -88,7 +88,7 @@ class Unit():
 
     def reciveAttack(self, dmg):
         """Reduces the life of the unit based on the damage received"""
-        self.setHealth(self.life - (self.dmg - self.armor))
+        self.setHealth(self.life - (dmg - self.armor))
 
     def meleeAttack(self, unit):
         """Attacks melee an enemy unit"""

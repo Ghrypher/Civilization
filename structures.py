@@ -1,4 +1,4 @@
-class Asentamientos:
+class Structures:
     """ Una calse Asentamientos donde estan todos los edificios"""
 
     def __init__(self):

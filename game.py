@@ -1,5 +1,6 @@
 import pygame, sys
 from pygame import rect
+from pygame import mouse
 from pygame.locals import *
 """-----------------------------------------------------------------------------"""
 import random, math,os
@@ -20,8 +21,7 @@ class Controller():
         self.model.randomMap(100, 80)
         self.model.readMap("Maps/random_world.txt")
         self.view.setMapSize()
-        self.model.randomUnitGeneration()
-        self.model.randomUnitGeneration()
+        self.model.startUnitGeneration()
         self.model.revealMap()
         self.view.drawMap()
         self.view.centerLoadCamera()
@@ -37,7 +37,9 @@ class Controller():
             for event in pygame.event.get():
                 if event.type == pygame.QUIT: #If the user presses the X at the top right
                     self.terminate()
-        
+
+                mousePos = pygame.mouse.get_pos()
+
                 if event.type == KEYDOWN:
                     #When the arrows are pressed
                     if event.key == K_UP:
@@ -85,7 +87,6 @@ class Controller():
 
                 #When the mouse is clicked
                 if event.type == MOUSEBUTTONDOWN:
-                    mousePos = pygame.mouse.get_pos()
                     posX, posY = self.view.getMouseMapPos(mousePos)
                     if pygame.mouse.get_pressed()[0]: # Left click
                         if not self.view.drawUnitActions(mousePos, True):
@@ -104,7 +105,7 @@ class Controller():
             if camLeft:
                 self.view.moveCamera("L")
                 
-            self.view.updateScreen()
+            self.view.updateScreen(mousePos)
 
     def terminate(self):
         """End the program"""
@@ -116,6 +117,8 @@ class View():
     def __init__(self):
         """Loads the variables and execute the methods when the class is created"""
         pygame.init()
+
+        pygame.mouse.set_visible(False)
 
         self.model = None
 
@@ -279,12 +282,21 @@ class View():
         posX, posY = mousePos
         return math.floor(posX/self.tileWidth), math.floor(posY/self.tileHeight)
 
-    def updateScreen(self):
+    def updateScreen(self, mousePos):
         self.screen.fill((0,0,0))
         self.mapRect = self.mapSurf.get_rect(center = (self.screenWidth/2 + self.cameraMoveX, self.screenHeight/2 + self.cameraMoveY))  
         self.screen.blit(self.mapSurf, self.mapRect)   
         self.drawUnitActions((0, 0), False)
+        self.drawCursor(mousePos)
         pygame.display.update()
+
+    def drawCursor(self, mousePos):
+        """Draws a custom cursor and marks the selected cell"""
+        cursor = pygame.image.load("asets/handcursor.png")
+        self.screen.blit(cursor, mousePos)
+        x, y = math.floor(mousePos[0] / 32), math.floor(mousePos[1] / 32)
+        selectedCell = pygame.image.load("asets/characters/selected_cell.png")
+        self.screen.blit(selectedCell, (x*32, y*32))
 
     def founderActions(self, mousePos, click):
         """Draws the button with the possible action of the founder unit"""
@@ -485,14 +497,33 @@ class Model():
             self.actualUnit = unit
             self.setUnitMenu(str(self.actualUnit))
 
-    def randomUnitGeneration(self):
+    def startUnitGeneration(self):
         """Selects a random position on the map"""
         while True:
             posX = random.randrange(0, self.mapWidth)
             posY = random.randrange(0, self.mapHeight)
+            posX1 = None
+            posY1 = None
+            posX2 = None
+            posY2 = None
             if self.movementPossible(posX, posY):
-                break
-        self.assignNewUnitCell(posX, posY, "WK")
+                for x in range(posX - 1, posX + 2):
+                    for y in range(posY - 1, posY + 2):
+                        if self.movementPossible(x, y):
+                            if posX1 == None:
+                                posX1, posY1 = x, y
+                            elif posX2 == None:
+                                posX2, posY2 = x, y
+                                break
+                    if posX1 != None and posX2 != None:
+                        break
+                if posX1 != None and posX2 != None:
+                    break
+
+
+        self.assignNewUnitCell(posX, posY, "FD")
+        self.assignNewUnitCell(posX1, posY1, "EX")
+        self.assignNewUnitCell(posX2, posY2, "WR")
 
     def movementPossible(self, x, y):
         """Checks if it is possible to move to the cell"""
@@ -593,21 +624,23 @@ class Model():
                     if abs(x1 - x2) > 1 and abs(x1 - x2) <= self.actualUnit.getAttackRange() and abs(y1 - y2) > 1 and abs(y1 - y2) <= self.actualUnit.getAttackRange(): 
                         self.actualUnit.setRest(False)
                         self.actualUnit.rangeAttack(unit)
-                        life, maxLife = unit.getHealthData()
+                        life, maxLife = self.actualUnit.getHealthData()
 
-                        if life <= 0: #Checks if the unit died
+                        if life <= 0: #Checks if the unit attacking died
                             self.actualUnit = None
-                            self.world.checkUnitsDeath()
+                    
+                        self.world.checkUnitsDeath()
 
                     elif abs(x1 - x2) <= 1 and abs(y1 - y2) <= 1:
                         self.actualUnit.setRest(False)
                         self.actualUnit.meleeAttack(unit)
-                        life, maxLife = unit.getHealthData()
+                        life, maxLife = self.actualUnit.getHealthData()
 
-                        if life <= 0: #Checks if the unit died
+                        if life <= 0: #Checks if the actual unit died
                             self.actualUnit = None
-                            self.world.checkUnitsDeath()
-
+                        
+                        self.world.checkUnitsDeath()
+        
         self.attack = False
 
     def cellSelected(self, x, y):

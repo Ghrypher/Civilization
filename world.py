@@ -213,7 +213,10 @@ class World:
         self.updateCellNeighbors(newPosX, newPosY)
 
     def getUnit(self, x, y):
-        return self.cells[x][y].getUnit()
+        if str(self.cells[x][y]) == "D":
+            return self.cells[x][y].getUnit()
+        else:
+            return None
 
     def revealMap(self):
         for unit in self.unit:

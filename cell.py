@@ -1,4 +1,3 @@
-import random, pygame
 
 class Cell:
 
@@ -82,6 +81,7 @@ class Dirt(Cell):
         super().__init__() 
         self.biome = "D"
         self.unit = None
+        self.structure = None
 
     def getUnit(self):
         return self.unit
