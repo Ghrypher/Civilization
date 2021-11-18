@@ -44,9 +44,6 @@ class Cell:
         """Gets the biome of the cell"""
         return self.biome
 
-    def addNeighbors(self, neighbor):
-	    self.neighbors.append(neighbor)
-
     def resetCell(self):
         self.open = False
         self.closed = False
@@ -65,6 +62,19 @@ class Cell:
     def hideCell(self):
         """Hide the cell"""
         self.active = False
+
+    def updateNeighbor(self, grid):
+        """Updates the negighbors of the cell"""
+        self.neighbors = []
+        
+        if self.x < len(grid) - 1 and not grid[self.x + 1][self.y].getBarrier(): #RIGHT
+            self.neighbors.append(grid[self.x + 1][self.y])
+        if self.x > 0 and not grid[self.x - 1][self.y].getBarrier(): #LEFT
+            self.neighbors.append(grid[self.x - 1][self.y])
+        if self.y < len(grid[0]) - 1 and not grid[self.x][self.y + 1].getBarrier(): #DOWN
+            self.neighbors.append(grid[self.x][self.y + 1])
+        if self.y > 0 and not grid[self.x][self.y - 1].getBarrier(): #UP
+            self.neighbors.append(grid[self.x][self.y - 1])
 
 class Dirt(Cell):
 

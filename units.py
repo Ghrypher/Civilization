@@ -5,10 +5,12 @@ class Unit():
         self.maxLife = None
         self.life = None
         self.dmg = None
+        self.attackRange = None
         self.visibility = None
         self.maxMovement = None
         self.movement = self.maxMovement
         self.actionPosible = True
+        self.resting = False
         self.armor = None
         self.type = None
         self.team = None
@@ -64,9 +66,10 @@ class Unit():
         """Reduce the movement of the unit by 1"""
         self.movement -= 1
 
-    def restartMovement(self):
+    def restartActions(self):
         """Sets the movement to the max posible"""
         self.movement = self.maxMovement
+        self.actionPosible = True
 
     def getMovement(self):
         return self.movement
@@ -90,12 +93,31 @@ class Unit():
     def meleeAttack(self, unit):
         """Attacks melee an enemy unit"""
         self.actionPosible = False
+        self.rest = False
         unit.reciveAttack(self.dmg)
         self.life -= unit.counterAttack() - self.armor
     
     def counterAttack(self):
         """Returns the damage of the unit"""
         return self.dmg
+
+    def getAttackRange(self):
+        """Returns the attack range of the unit"""
+        return self.attackRange
+
+    def setRest(self, value):
+        """Sets that the unit is resting or not"""
+        self.resting = value
+    
+    def unitResting(self):
+        """Sets that the unit is resting"""
+        self.actionPosible = False
+        self.setRest(True)
+
+    def healUnit(self):
+        """Checks if the unit is resting and if so, heal it"""
+        if self.resting:
+            self.life += 1
 
 class Warrior(Unit):
     
@@ -108,6 +130,7 @@ class Warrior(Unit):
         self.life = 5
         self.dmg = 3
         self.armor = 1
+        self.attackRange = 1
 
 class Founder(Unit):
 
@@ -120,6 +143,7 @@ class Founder(Unit):
         self.life = 4
         self.dmg = 1
         self.armor = 0
+        self.attackRange = 1
 
 class Worker(Unit):
 
@@ -132,3 +156,42 @@ class Worker(Unit):
         self.life = 3
         self.dmg = 0
         self.armor = 0
+
+class Archer(Unit):
+
+    def __init__(self):
+        super().__init__()
+        self.type = "AR"
+        self.visibility = 4
+        self.maxMovement = 3
+        self.maxLife = 4
+        self.life = 4
+        self.dmg = 3
+        self.armor = 0
+        self.attackRange = 3
+
+class Catapult(Unit):
+
+    def __init__(self):
+        super().__init__()
+        self.type = "CP"
+        self.visibility = 2
+        self.maxMovement = 1
+        self.maxLife = 4
+        self.life = 4
+        self.dmg = 2
+        self.armor = 0
+        self.attackRange = 5
+
+class Explorer(Unit):
+
+    def __init__(self):
+        super().__init__()
+        self.type = "EX"
+        self.visibility = 6
+        self.maxMovement = 5
+        self.maxLife = 2
+        self.life = 2
+        self.dmg = 1
+        self.armor = 0
+        self.attackRange = 1

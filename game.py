@@ -163,7 +163,8 @@ class View():
 
         #Dictionary with the menu of actions of each unit
         self.unitMenu = {
-            "FD" : self.founderActions
+            "FD" : self.founderActions,
+            "WR" : self.warriorActions
         }
 
         self.unit = None
@@ -285,8 +286,8 @@ class View():
         self.screen.blit(defendIcon, iconRect)
         if iconRect.collidepoint(mousePos) and click == True:
             self.unit = None
+            self.model.unitRest()
             self.model.setUnitMenu(None)
-            self.model.setAttack(True)
             return True
 
         attackIcon = pygame.image.load("asets/buttons/battle_button.png")
@@ -304,9 +305,31 @@ class View():
         if iconRect.collidepoint(mousePos) and click == True:
             self.unit = None
             self.model.setUnitMenu(None)
+            return True
+
+    def warriorActions(self, mousePos, click):
+        """Draws the buttons with the possible action of the warrior unit"""
+
+        defendIcon = pygame.image.load("asets/buttons/rest_button.png")
+        iconRect = pygame.Rect(self.screenWidth - self.tileWidth*2, self.screenHeight - self.tileHeight, self.tileWidth, self.tileHeight)
+        self.screen.blit(defendIcon, iconRect)
+        if iconRect.collidepoint(mousePos) and click == True:
+            self.unit = None
+            self.model.setUnitMenu(None)
+            return True
+
+        attackIcon = pygame.image.load("asets/buttons/battle_button.png")
+        iconRect = pygame.Rect(self.screenWidth - self.tileWidth*4, self.screenHeight - self.tileHeight, self.tileWidth, self.tileHeight)
+        self.screen.blit(attackIcon, iconRect)
+        if iconRect.collidepoint(mousePos) and click == True:
+            self.unit = None
+            self.model.setUnitMenu(None)
             self.model.setAttack(True)
             return True
-        
+
+    def workerActions(self, mousePos, click):
+        """Draws the buttons of the workers actions"""
+
     def drawUnitActions(self, mousePos, click):
         self.unit = self.model.getUnitMenu()
         if self.unit != None:
@@ -390,7 +413,7 @@ class Model():
             for y in range(len(M_Obj[0])):
                 self.world.addCellAndBiome(x, y, M_Obj[x][y])
         
-        self.world.updateNeighbors()
+        self.world.updateAllNeighbors()
 
     def getWidthHeight(self):
         """Gets the width and height of the actual map"""
@@ -410,7 +433,7 @@ class Model():
         """Asigns a new unit to a cell"""
         self.world.assignNewUnit(x, y, type)
         self.getAndAssignUnit(x, y)
-        self.actualUnit.restartMovement()
+        self.actualUnit.restartActions()
         self.setUnitMenu(str(self.actualUnit))
 
     def reassignUnitCell(self, posX, posY, newPosX, newPosY):
@@ -419,14 +442,16 @@ class Model():
 
     def moveUnit(self, x, y):
         """Checks if a unit can move and if so it does"""
-        posX, posY = self.actualUnit.getPosition()
-        if self.actualUnit.getMovement() > 0:
-            if self.movementPossible(posX + x, posY + y):
-                self.actualUnit.reduceMovement()
-                self.reassignUnitCell(posX, posY, posX + x, posY + y)
-                self.hideMap()
-                self.revealMap()
-                self.mapNeedsRedraw = True
+        if self.actualUnit != None:
+            posX, posY = self.actualUnit.getPosition()
+            if self.actualUnit.getMovement() > 0:
+                if self.movementPossible(posX + x, posY + y):
+                    self.actualUnit.reduceMovement()
+                    self.actualUnit.setRest(False)
+                    self.reassignUnitCell(posX, posY, posX + x, posY + y)
+                    self.hideMap()
+                    self.revealMap()
+                    self.mapNeedsRedraw = True
 
     def getAndAssignUnit(self, x, y):
         """Gets the unit of a cell and assign it as the active unit"""
@@ -478,9 +503,9 @@ class Model():
     def getPositionUnit(self):
         return self.actualUnit.getPosition()
 
-    def restartAllUnitMovement(self):
+    def restartAllUnitActions(self):
         """Restarts the movement of all the units"""
-        self.world.restartAllUnitMovement()   
+        self.world.restartAllUnitActions()   
 
     def setUnitMovement(self, posX, posY):
         """Sets the position to move of the unit selected"""
@@ -534,11 +559,19 @@ class Model():
         """Attacks if the cell selected has an enemy unit"""
         biome, unit = self.getCellData(x, y)
         if unit != None:
-            if self.actualUnit.getActionPosible():
-                x1, y1 = self.actualUnit.getPosition()
-                x2, y2 = unit.getPosition()
-                if abs(x1 - x2) < 2 and abs(y1 - y2) < 2:
-                    self.actualUnit.meleeAttack(unit)
+            if unit != self.actualUnit:
+                if self.actualUnit.getActionPosible():
+                    x1, y1 = self.actualUnit.getPosition()
+                    x2, y2 = unit.getPosition()
+                    if abs(x1 - x2) > 1 and abs(x1 - x2) <= self.actualUnit.getAttackRange() or abs(y1 - y2) > 1 and abs(y1 - y2) <= self.actualUnit.getAttackRange():
+                        pass
+                    elif abs(x1 - x2) == 1 or abs(y1 - y2) == 1:
+                        self.actualUnit.setRest(False)
+                        self.actualUnit.meleeAttack(unit)
+                        life, maxLife = unit.getHealthData()
+                        if life > 0:
+                            posX, posY = unit.getPosition()
+                            self.actualUnit = None
         self.attack = False
 
     def cellSelected(self, x, y):
@@ -550,11 +583,19 @@ class Model():
         else:
             self.getAndAssignUnit(x, y)
 
+    def unitRest(self):
+        """Sets that the unit is resting"""
+        if self.actualUnit.getActionPosible():
+            self.actualUnit.unitResting() 
+
     def passTurn(self):
         """All that happens when the turned passes is here"""
         self.world.setAllUnitsRoute()
         self.moveUnits()
-        self.restartAllUnitMovement()
+        self.world.checkUnitsDeath()
+        self.world.healUnits()
+        self.restartAllUnitActions()
+        self.mapNeedsRedraw = True
 
 if __name__ == "__main__":
     game = Controller()

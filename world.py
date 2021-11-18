@@ -194,16 +194,20 @@ class World:
     def assignNewUnit(self, posX, posY, type):
         unit = self.textToUnit[type]()
         unit.setPosition(posX, posY)
-        self.cells[posX][posY].setUnit(unit)
         self.cells[posX][posY].isBarrier()
+        self.updateCellNeighbors(posX, posY)
+        self.cells[posX][posY].setUnit(unit)
         self.unit.append(unit)
     
     def reassignUnit(self, posX, posY, newPosX, newPosY):
         unit = self.cells[posX][posY].getUnit()
         self.cells[posX][posY].isNotBarrier()
+        self.updateCellNeighbors(posX, posY)
         self.cells[posX][posY].eraseUnit()
         unit.setPosition(newPosX, newPosY)
         self.cells[newPosX][newPosY].setUnit(unit)
+        self.cells[newPosX][newPosY].isBarrier()
+        self.updateCellNeighbors(newPosX, newPosY)
 
     def getUnit(self, x, y):
         return self.cells[x][y].getUnit()
@@ -224,24 +228,23 @@ class World:
     def clearWorld(self):
         self.cells = []
 
-    def restartAllUnitMovement(self):
+    def restartAllUnitActions(self):
         """Restarts the movement of all the units"""
         for unit in self.unit:
-            unit.restartMovement()
+            unit.restartActions()
 
-    def updateNeighbors(self):
+    def updateAllNeighbors(self):
         """Update the neighbors of all the cells"""
         for x in range(len(self.cells)):
             for y in range(len(self.cells[0])):
-
-                if x < len(self.cells) - 1 and not self.cells[x + 1][y].getBarrier(): #RIGHT
-                    self.cells[x][y].addNeighbors(self.cells[x + 1][y])
-                if x > 0 and not self.cells[x - 1][y].getBarrier(): #LEFT
-                    self.cells[x][y].addNeighbors(self.cells[x - 1][y])
-                if y < len(self.cells[0]) - 1 and not self.cells[x][y + 1].getBarrier(): #DOWN
-                    self.cells[x][y].addNeighbors(self.cells[x][y + 1])
-                if y > 0 and not self.cells[x][y - 1].getBarrier(): #UP
-                    self.cells[x][y].addNeighbors(self.cells[x][y - 1])
+                self.cells[x][y].updateNeighbor(self.cells)
+    
+    def updateCellNeighbors(self, x, y):
+        """Update the neighbor of the neighbor cell"""
+        self.cells[x + 1][y].updateNeighbor(self.cells)
+        self.cells[x - 1][y].updateNeighbor(self.cells)
+        self.cells[x][y + 1].updateNeighbor(self.cells)
+        self.cells[x][y - 1].updateNeighbor(self.cells)
 
     def h(self, p1, p2):
         """Gets the distance between one cell and other"""
@@ -292,6 +295,20 @@ class World:
     def getAllUnits(self):
         """Return the list of units in the game"""
         return self.unit
+
+    def checkUnitsDeath(self):
+        """Checks if the units died to erase them"""
+        for unit in self.unit:
+            life, maxLife = unit.getHealthData()
+            if life <= 0:
+                posX, posY = unit.getPosition()
+                self.cells[posX][posY].eraseUnit()
+                self.unit.remove(unit)
+
+    def healUnits(self):
+        """Heals an unit if resting"""
+        for unit in self.unit:
+            unit.healUnit()
 
     def setAllUnitsRoute(self):
         """Sets all the units route"""
