@@ -156,15 +156,22 @@ class View():
         
         #Gets the image of the unit from the string
         self.textToUnit = {
-            "WR" : pygame.image.load("asets/characters/Red_Warrior.png"),
-            "FD" : pygame.image.load("asets/characters/Red_Founder.png"),
-            "WK" : pygame.image.load("asets/characters/Red_worker.png")
+            "WR" : pygame.image.load("asets/characters/red_warrior.png"),
+            "FD" : pygame.image.load("asets/characters/red_founder.png"),
+            "WK" : pygame.image.load("asets/characters/red_worker.png"),
+            "AR" : pygame.image.load("asets/characters/red_archer.png"),
+            "CP" : pygame.image.load("asets/characters/red_catapult.png"),
+            "EX" : pygame.image.load("asets/characters/red_explorer.png")
         }
 
         #Dictionary with the menu of actions of each unit
         self.unitMenu = {
             "FD" : self.founderActions,
-            "WR" : self.warriorActions
+            "WR" : self.commonActions,
+            "WK" : self.workerActions,
+            "AR" : self.commonActions,
+            "CP" : self.commonActions,
+            "EX" : self.commonActions
         }
 
         self.unit = None
@@ -307,7 +314,7 @@ class View():
             self.model.setUnitMenu(None)
             return True
 
-    def warriorActions(self, mousePos, click):
+    def commonActions(self, mousePos, click):
         """Draws the buttons with the possible action of the warrior unit"""
 
         defendIcon = pygame.image.load("asets/buttons/rest_button.png")
@@ -315,6 +322,7 @@ class View():
         self.screen.blit(defendIcon, iconRect)
         if iconRect.collidepoint(mousePos) and click == True:
             self.unit = None
+            self.model.unitRest()
             self.model.setUnitMenu(None)
             return True
 
@@ -329,6 +337,23 @@ class View():
 
     def workerActions(self, mousePos, click):
         """Draws the buttons of the workers actions"""
+
+        defendIcon = pygame.image.load("asets/buttons/rest_button.png")
+        iconRect = pygame.Rect(self.screenWidth - self.tileWidth*2, self.screenHeight - self.tileHeight, self.tileWidth, self.tileHeight)
+        self.screen.blit(defendIcon, iconRect)
+        if iconRect.collidepoint(mousePos) and click == True:
+            self.unit = None
+            self.model.unitRest()
+            self.model.setUnitMenu(None)
+            return True
+        
+        buildIcon = pygame.image.load("asets/buttons/build_button.png")
+        iconRect = pygame.Rect(self.screenWidth - self.tileWidth*4, self.screenHeight - self.tileHeight, self.tileWidth, self.tileHeight)
+        self.screen.blit(buildIcon, iconRect)
+        if iconRect.collidepoint(mousePos) and click == True:
+            self.unit = None
+            self.model.setUnitMenu(None)
+            return True
 
     def drawUnitActions(self, mousePos, click):
         self.unit = self.model.getUnitMenu()
@@ -467,7 +492,7 @@ class Model():
             posY = random.randrange(0, self.mapHeight)
             if self.movementPossible(posX, posY):
                 break
-        self.assignNewUnitCell(posX, posY, "FD")
+        self.assignNewUnitCell(posX, posY, "WK")
 
     def movementPossible(self, x, y):
         """Checks if it is possible to move to the cell"""
@@ -563,15 +588,26 @@ class Model():
                 if self.actualUnit.getActionPosible():
                     x1, y1 = self.actualUnit.getPosition()
                     x2, y2 = unit.getPosition()
-                    if abs(x1 - x2) > 1 and abs(x1 - x2) <= self.actualUnit.getAttackRange() or abs(y1 - y2) > 1 and abs(y1 - y2) <= self.actualUnit.getAttackRange():
-                        pass
-                    elif abs(x1 - x2) == 1 or abs(y1 - y2) == 1:
+
+                    #Checks if the attack is a distance or melee attack
+                    if abs(x1 - x2) > 1 and abs(x1 - x2) <= self.actualUnit.getAttackRange() and abs(y1 - y2) > 1 and abs(y1 - y2) <= self.actualUnit.getAttackRange(): 
+                        self.actualUnit.setRest(False)
+                        self.actualUnit.rangeAttack(unit)
+                        life, maxLife = unit.getHealthData()
+
+                        if life <= 0: #Checks if the unit died
+                            self.actualUnit = None
+                            self.world.checkUnitsDeath()
+
+                    elif abs(x1 - x2) <= 1 and abs(y1 - y2) <= 1:
                         self.actualUnit.setRest(False)
                         self.actualUnit.meleeAttack(unit)
                         life, maxLife = unit.getHealthData()
-                        if life > 0:
-                            posX, posY = unit.getPosition()
+
+                        if life <= 0: #Checks if the unit died
                             self.actualUnit = None
+                            self.world.checkUnitsDeath()
+
         self.attack = False
 
     def cellSelected(self, x, y):
@@ -592,7 +628,6 @@ class Model():
         """All that happens when the turned passes is here"""
         self.world.setAllUnitsRoute()
         self.moveUnits()
-        self.world.checkUnitsDeath()
         self.world.healUnits()
         self.restartAllUnitActions()
         self.mapNeedsRedraw = True

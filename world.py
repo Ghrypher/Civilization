@@ -31,7 +31,10 @@ class World:
         self.textToUnit = {
             "WR" : Warrior,
             "WK" : Worker,
-            "FD" : Founder
+            "FD" : Founder,
+            "AR" : Archer,
+            "CP" : Catapult,
+            "EX" : Explorer
         }
         self.number_to_biomes = {1 : Water,
                                 2 : Dirt,
@@ -240,11 +243,15 @@ class World:
                 self.cells[x][y].updateNeighbor(self.cells)
     
     def updateCellNeighbors(self, x, y):
-        """Update the neighbor of the neighbor cell"""
-        self.cells[x + 1][y].updateNeighbor(self.cells)
-        self.cells[x - 1][y].updateNeighbor(self.cells)
-        self.cells[x][y + 1].updateNeighbor(self.cells)
-        self.cells[x][y - 1].updateNeighbor(self.cells)
+        """Update the neighbor of the neighbor cell"""        
+        if x < len(self.cells) - 1: #RIGHT
+            self.cells[x + 1][y].updateNeighbor(self.cells)
+        if x > 0: #LEFT
+            self.cells[x - 1][y].updateNeighbor(self.cells)
+        if y < len(self.cells[0]) - 1: #DOWN
+            self.cells[x][y + 1].updateNeighbor(self.cells)
+        if y > 0: #UP
+            self.cells[x][y - 1].updateNeighbor(self.cells)
 
     def h(self, p1, p2):
         """Gets the distance between one cell and other"""
@@ -298,12 +305,16 @@ class World:
 
     def checkUnitsDeath(self):
         """Checks if the units died to erase them"""
-        for unit in self.unit:
+        index = 0
+        for x in range(len(self.unit)):
+            unit = self.unit[index]
             life, maxLife = unit.getHealthData()
             if life <= 0:
                 posX, posY = unit.getPosition()
                 self.cells[posX][posY].eraseUnit()
                 self.unit.remove(unit)
+            else:
+                index += 1
 
     def healUnits(self):
         """Heals an unit if resting"""

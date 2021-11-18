@@ -116,7 +116,7 @@ class Unit():
 
     def healUnit(self):
         """Checks if the unit is resting and if so, heal it"""
-        if self.resting:
+        if self.resting and self.maxLife > self.life:
             self.life += 1
 
 class Warrior(Unit):
@@ -125,10 +125,10 @@ class Warrior(Unit):
         super().__init__()
         self.type = "WR"
         self.visibility = 3
-        self.maxMovement = 5
+        self.maxMovement = 4
         self.maxLife = 5
         self.life = 5
-        self.dmg = 3
+        self.dmg = 4
         self.armor = 1
         self.attackRange = 1
 
@@ -170,6 +170,16 @@ class Archer(Unit):
         self.armor = 0
         self.attackRange = 3
 
+    def counterAttack(self):
+        """Returns the damage of the unit"""
+        return 0
+
+    def rangeAttack(self, unit):
+        """Attacks from distances other unit"""
+        self.actionPosible = False
+        self.rest = False
+        unit.reciveAttack(self.dmg)
+
 class Catapult(Unit):
 
     def __init__(self):
@@ -179,9 +189,19 @@ class Catapult(Unit):
         self.maxMovement = 1
         self.maxLife = 4
         self.life = 4
-        self.dmg = 2
+        self.dmg = 3
         self.armor = 0
-        self.attackRange = 5
+        self.attackRange = 6
+    
+    def counterAttack(self):
+        """Returns the damage of the unit"""
+        return 0
+
+    def rangeAttack(self, unit):
+        """Attacks from distances other unit"""
+        self.actionPosible = False
+        self.rest = False
+        unit.reciveAttack(self.dmg)
 
 class Explorer(Unit):
 
@@ -189,7 +209,7 @@ class Explorer(Unit):
         super().__init__()
         self.type = "EX"
         self.visibility = 6
-        self.maxMovement = 5
+        self.maxMovement = 6
         self.maxLife = 2
         self.life = 2
         self.dmg = 1
