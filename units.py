@@ -14,6 +14,10 @@ class Unit():
         self.armor = None
         self.type = None
         self.team = None
+        self.goldCost = None
+        self.silverCost = None
+        self.foodCost = None
+        self.timeCreation = None
         self.positionX = None
         self.positionY = None
         self.positionToMoveX = None
@@ -119,6 +123,10 @@ class Unit():
         if self.resting and self.maxLife > self.life:
             self.life += 1
 
+    def getCreationData(self):
+        """Gets all the information for the creation of the unit"""
+        return self.goldCost, self.silverCost, self.timeCreation, self.foodCost
+
 class Warrior(Unit):
     
     def __init__(self):
@@ -131,6 +139,10 @@ class Warrior(Unit):
         self.dmg = 4
         self.armor = 1
         self.attackRange = 1
+        self.goldCost = 20
+        self.silverCost = 10
+        self.timeCreation = 3
+        self.foodCost = 3
 
 class Founder(Unit):
 
@@ -144,6 +156,11 @@ class Founder(Unit):
         self.dmg = 1
         self.armor = 0
         self.attackRange = 1
+        self.goldCost = 50
+        self.silverCost = 20
+        self.timeCreation = 5
+        self.foodCost = 1
+        
 
 class Worker(Unit):
 
@@ -156,6 +173,10 @@ class Worker(Unit):
         self.life = 3
         self.dmg = 0
         self.armor = 0
+        self.goldCost = 10
+        self.silverCost = 5
+        self.timeCreation = 2
+        self.foodCost = 1
 
 class Archer(Unit):
 
@@ -169,6 +190,10 @@ class Archer(Unit):
         self.dmg = 3
         self.armor = 0
         self.attackRange = 3
+        self.goldCost = 15
+        self.silverCost = 5
+        self.timeCreation = 3
+        self.foodCost = 2
 
     def counterAttack(self):
         """Returns the damage of the unit"""
@@ -192,6 +217,10 @@ class Catapult(Unit):
         self.dmg = 3
         self.armor = 0
         self.attackRange = 6
+        self.goldCost = 30
+        self.silverCost = 15
+        self.timeCreation = 5
+        self.foodCost = 4
     
     def counterAttack(self):
         """Returns the damage of the unit"""
@@ -215,3 +244,7 @@ class Explorer(Unit):
         self.dmg = 1
         self.armor = 0
         self.attackRange = 1
+        self.goldCost = 10
+        self.silverCost = 0
+        self.timeCreation = 1
+        self.foodCost = 2

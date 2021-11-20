@@ -91,7 +91,7 @@ class Controller():
                     if pygame.mouse.get_pressed()[0]: # Left click
                         if not self.view.drawUnitActions(mousePos, True):
                             self.model.cellSelected(posX, posY)
-                            self.view.mapNeedsRedraw()
+                        self.view.mapNeedsRedraw()
                     if pygame.mouse.get_pressed()[2]: # Right click
                         self.model.setPositionToMoveUnit(posX, posY)
                         
@@ -123,7 +123,7 @@ class View():
         self.model = None
 
         self.screenWidth = 1280 
-        self.screenHeight = 672
+        self.screenHeight = 704
         self.screen = pygame.display.set_mode((self.screenWidth, self.screenHeight)) #Creates the screen where the game will display
 
         #Store the width and height fo the map
@@ -164,7 +164,8 @@ class View():
             "WK" : pygame.image.load("asets/characters/red_worker.png"),
             "AR" : pygame.image.load("asets/characters/red_archer.png"),
             "CP" : pygame.image.load("asets/characters/red_catapult.png"),
-            "EX" : pygame.image.load("asets/characters/red_explorer.png")
+            "EX" : pygame.image.load("asets/characters/red_explorer.png"),
+            "CT" : pygame.image.load("asets/buildings/red_capital.png")
         }
 
         #Dictionary with the menu of actions of each unit
@@ -174,10 +175,12 @@ class View():
             "WK" : self.workerActions,
             "AR" : self.commonActions,
             "CP" : self.commonActions,
-            "EX" : self.commonActions
+            "EX" : self.commonActions,
+            "CT" : self.cityOptions
         }
 
         self.unit = None
+        self.city = None
 
         #Sets the limit for the camera to move
         self.maxCamMoveX = None
@@ -188,6 +191,9 @@ class View():
         self.cameraMoveY = 0    
 
         self.cameraVelocity = 5 #Sets the velocity of the camera movement    
+
+        #Stores the direction of the font for the letter
+        self.font = "asets/font/enchanted_land.otf"
 
     def setModel(self, model):
         """Sets the same model that uses the controller"""
@@ -294,9 +300,6 @@ class View():
         """Draws a custom cursor and marks the selected cell"""
         cursor = pygame.image.load("asets/handcursor.png")
         self.screen.blit(cursor, mousePos)
-        x, y = math.floor(mousePos[0] / 32), math.floor(mousePos[1] / 32)
-        selectedCell = pygame.image.load("asets/characters/selected_cell.png")
-        self.screen.blit(selectedCell, (x*32, y*32))
 
     def founderActions(self, mousePos, click):
         """Draws the button with the possible action of the founder unit"""
@@ -323,6 +326,7 @@ class View():
         self.screen.blit(foundIcon, iconRect)
         if iconRect.collidepoint(mousePos) and click == True:
             self.unit = None
+            self.model.foundCity()
             self.model.setUnitMenu(None)
             return True
 
@@ -367,10 +371,73 @@ class View():
             self.model.setUnitMenu(None)
             return True
 
+    def cityOptions(self, mousePos, click):
+        """Shows the options of the city"""
+
+        #Draws backgroung of the city menu
+        background = pygame.image.load("asets/woodBackground.jpg")
+        backgroundRect = background.get_rect()
+        backgroundSurf = pygame.Surface((backgroundRect[2], backgroundRect[3]))
+        backgroundSurf.blit(background, (0,0))
+        backgroundRect[0] += self.screenWidth - backgroundRect[2]
+
+        unitsDict = self.model.getAllUnitsAndCosts()
+
+        itemMenu = pygame.image.load("asets/woodOptions.jpg")
+        itemMenuRect = itemMenu.get_rect()
+        itemMenuRect[1] += 20 #Leaves a margin at the top
+        itemMenuRect.centerx = backgroundRect[2] / 2 # Centers the options
+
+        #For each posible unit, it creates an item
+        for key in unitsDict.keys():
+            #Creates a Surface and draws a background for a new item
+            itemMenuSurf = pygame.Surface((itemMenuRect[2], itemMenuRect[3]))
+            itemMenuSurf.blit(itemMenu, (0,0))
+
+            unitImage = self.textToUnit[key] #Gets the image of the unit
+            unitImageRect = unitImage.get_rect()
+
+            #Sets the position and draws the image of the unit
+            unitImageRect.topleft = ((itemMenuRect[3] - unitImageRect[3]) / 2, (itemMenuRect[3] - unitImageRect[3]) / 2)
+            itemMenuSurf.blit(unitImage, unitImageRect)
+
+            unitData = unitsDict[key]
+            gold, silver, turns, food = unitData
+
+            #Draws the resources needed of each one to create the unit
+            #GOLD
+            goldText = pygame.font.Font(self.font, 25).render("gold: " + str(gold), True, (255,255,255))
+            goldTextRect = goldText.get_rect(center = (itemMenuRect[2] / 3, itemMenuRect[3] / 3))
+            itemMenuSurf.blit(goldText, goldTextRect)
+
+            #SILVER
+            silverText = pygame.font.Font(self.font, 25).render("silver: " + str(silver), True, (255,255,255))
+            silverTextRect = silverText.get_rect(center = (itemMenuRect[2] / 3, itemMenuRect[3] / 3 * 2))
+            itemMenuSurf.blit(silverText, silverTextRect)
+
+            #TURNS
+            turnsText = pygame.font.Font(self.font, 25).render("turns: " + str(turns), True, (255,255,255))
+            turnsTextRect = turnsText.get_rect(center = (itemMenuRect[2] / 3 * 2, itemMenuRect[3] / 3))
+            itemMenuSurf.blit(turnsText, turnsTextRect)
+
+            #FOOD
+            foodText = pygame.font.Font(self.font, 25).render("food: " + str(food) + " p/t", True, (255,255,255))
+            foodTextRect = foodText.get_rect(center = (itemMenuRect[2] / 3 * 2, itemMenuRect[3] / 3 * 2))
+            itemMenuSurf.blit(foodText, foodTextRect)
+
+            backgroundSurf.blit(itemMenuSurf, itemMenuRect)
+            itemMenuRect[1] += 100
+
+        self.screen.blit(backgroundSurf, backgroundRect)
+
     def drawUnitActions(self, mousePos, click):
         self.unit = self.model.getUnitMenu()
+        self.city = self.model.getCityMenu()
+        if self.city != None:
+            return self.unitMenu[self.city](mousePos, click)
         if self.unit != None:
             return self.unitMenu[self.unit](mousePos, click)
+        
 
 class Model():
 
@@ -385,6 +452,9 @@ class Model():
 
         self.actualUnit = None
         self.unitMenu = None
+
+        self.actualCity = None
+        self.cityMenu = None
 
         self.attack = None #Saves is a unit is going to attack
 
@@ -467,11 +537,17 @@ class Model():
         return self.world.getCellData(x, y)
 
     def assignNewUnitCell(self, x, y, type):
-        """Asigns a new unit to a cell"""
+        """Assigns a new unit to a cell"""
         self.world.assignNewUnit(x, y, type)
         self.getAndAssignUnit(x, y)
         self.actualUnit.restartActions()
         self.setUnitMenu(str(self.actualUnit))
+
+    def assignNewCityCell(self, x, y, type):
+        """Assigns a new city to a cell"""
+        self.world.assignNewStructure(x, y, type)
+        self.getAndAssignUnit(x, y)
+        self.setCityMenu(str(self.actualCity))
 
     def reassignUnitCell(self, posX, posY, newPosX, newPosY):
         """reassign a unit from one cell to other"""
@@ -494,8 +570,13 @@ class Model():
         """Gets the unit of a cell and assign it as the active unit"""
         unit = self.world.getUnit(x, y)
         if unit != None:
-            self.actualUnit = unit
-            self.setUnitMenu(str(self.actualUnit))
+            try:
+                unit.getRoute()
+                self.actualUnit = unit
+                self.setUnitMenu(str(self.actualUnit))
+            except:
+                self.actualCity = unit
+                self.setCityMenu(str(self.actualCity))
 
     def startUnitGeneration(self):
         """Selects a random position on the map"""
@@ -596,16 +677,25 @@ class Model():
         self.actualUnit = actualUnit
 
     def setPositionToMoveUnit(self, posX, posY):
-        """Sets the position to move of the unit"""            
-        self.actualUnit.setPostionToMove(posX, posY)
+        """Sets the position to move of the unit"""
+        if self.actualUnit != None:            
+            self.actualUnit.setPostionToMove(posX, posY)
 
     def getUnitMenu(self):
         """Gets the string of the actual unit"""
         return self.unitMenu
 
+    def getCityMenu(self):
+        """Gets the string of the actual unit"""
+        return self.cityMenu
+
     def setUnitMenu(self, value):
         """Sets the value of the unitMenu"""
         self.unitMenu = value
+
+    def setCityMenu(self, value):
+        """Sets the value of the cityMenu"""
+        self.cityMenu = value
 
     def getUnitHealth(self, unit):
         """Gets the health of the unit"""
@@ -656,6 +746,18 @@ class Model():
         """Sets that the unit is resting"""
         if self.actualUnit.getActionPosible():
             self.actualUnit.unitResting() 
+
+    def foundCity(self):
+        """Erase the founder unit and creates a city"""
+        self.world.removeUnit(self.actualUnit)
+        posX, posY = self.actualUnit.getPosition()
+        self.actualUnit = None
+        self.assignNewCityCell(posX, posY, "CT")
+        self.mapNeedsRedraw = True
+
+    def getAllUnitsAndCosts(self):
+        """Get all posible units to create in the game and returns them with its respective cost of creation"""
+        return self.world.getAllUnitsInformation()
 
     def passTurn(self):
         """All that happens when the turned passes is here"""

@@ -3,6 +3,7 @@ import random
 from queue import PriorityQueue
 from cell import *
 from units import *
+from structures import *
 
 class World:
     def __init__(self):
@@ -10,6 +11,7 @@ class World:
         self.ancho = None
         self.alto = None
         self.unit = []
+        self.structures = []
         self.cells = []
         self.map_to_text = {"Barrier" : "B",
                             "Dirt" : "D",
@@ -34,7 +36,10 @@ class World:
             "FD" : Founder,
             "AR" : Archer,
             "CP" : Catapult,
-            "EX" : Explorer
+            "EX" : Explorer,
+        }
+        self.textToStructure = {
+            "CT" : City
         }
         self.number_to_biomes = {1 : Water,
                                 2 : Dirt,
@@ -202,6 +207,12 @@ class World:
         self.cells[posX][posY].setUnit(unit)
         self.unit.append(unit)
     
+    def assignNewStructure(self, posX, posY, type):
+        structure = self.textToStructure[type]()
+        structure.setPosition(posX, posY)
+        self.cells[posX][posY].setUnit(structure)
+        self.structures.append(structure)
+    
     def reassignUnit(self, posX, posY, newPosX, newPosY):
         unit = self.cells[posX][posY].getUnit()
         self.cells[posX][posY].isNotBarrier()
@@ -221,6 +232,8 @@ class World:
     def revealMap(self):
         for unit in self.unit:
             unit.revealMap(self.cells)
+        for structure in self.structures:
+            structure.revealMap(self.cells)
     
     def getCellVisibility(self, x, y):
         return self.cells[x][y].getVisibility()
@@ -323,6 +336,20 @@ class World:
         """Heals an unit if resting"""
         for unit in self.unit:
             unit.healUnit()
+
+    def removeUnit(self, unit):
+        """Removes a unit from the list"""
+        self.unit.remove(unit)
+
+    def getAllUnitsInformation(self):
+        """Gets the units and the cost of each one"""
+        unitsDict = {}
+        for unit in self.textToUnit.values():
+            unit = unit()
+            unitsDict[str(unit)] = unit.getCreationData()
+        
+        return unitsDict
+
 
     def setAllUnitsRoute(self):
         """Sets all the units route"""
