@@ -388,6 +388,10 @@ class View():
         itemMenuRect[1] += 20 #Leaves a margin at the top
         itemMenuRect.centerx = backgroundRect[2] / 2 # Centers the options
 
+        posX, posY = mousePos
+        posX -= backgroundRect[0]
+        mousePos = (posX, posY)
+
         #For each posible unit, it creates an item
         for key in unitsDict.keys():
             #Creates a Surface and draws a background for a new item
@@ -427,6 +431,27 @@ class View():
 
             backgroundSurf.blit(itemMenuSurf, itemMenuRect)
             itemMenuRect[1] += 100
+
+        #Creates a surface and draws a button
+        buttonImg = pygame.image.load("asets/cancel_button.jpg")
+
+        buttonRect = buttonImg.get_rect()
+        buttonRect.topleft = ((backgroundRect[2] - buttonRect[2]) / 2, itemMenuRect[1])
+
+        #Checks if the cancel button is pressed
+        if buttonRect.collidepoint(mousePos) == True and click == True:
+            self.model.setCityMenu(None)
+            return True
+
+        buttonSurf = pygame.Surface((buttonRect[2], buttonRect[3]))
+        buttonSurf.blit(buttonImg, (0,0))
+
+        #Drawss the text that goes on the button
+        buttonText = pygame.font.Font(self.font, 40).render("Cancel", True, (255,255,255))
+        buttonTextRect = buttonText.get_rect(center = (buttonRect[2] / 2, buttonRect[3] / 2))
+        buttonSurf.blit(buttonText, buttonTextRect)
+
+        backgroundSurf.blit(buttonSurf, buttonRect)
 
         self.screen.blit(backgroundSurf, backgroundRect)
 
@@ -591,11 +616,12 @@ class Model():
                 for x in range(posX - 1, posX + 2):
                     for y in range(posY - 1, posY + 2):
                         if self.movementPossible(x, y):
-                            if posX1 == None:
-                                posX1, posY1 = x, y
-                            elif posX2 == None:
-                                posX2, posY2 = x, y
-                                break
+                            if (posX, posY) != (x, y):
+                                if posX1 == None:
+                                    posX1, posY1 = x, y
+                                elif posX2 == None:
+                                    posX2, posY2 = x, y
+                                    break
                     if posX1 != None and posX2 != None:
                         break
                 if posX1 != None and posX2 != None:
