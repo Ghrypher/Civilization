@@ -319,8 +319,8 @@ class World:
         """Return the list of units in the game"""
         return self.unit
 
-    def checkUnitsDeath(self):
-        """Checks if the units died to erase them"""
+    def checkDeaths(self):
+        """Checks if the units or structures died to erase them"""
         index = 0
         for x in range(len(self.unit)):
             unit = self.unit[index]
@@ -332,6 +332,17 @@ class World:
             else:
                 index += 1
 
+        index = 0
+        for y in range(len(self.structures)):
+            structure = self.structures[index]
+            life, maxLife = structure.getHealthData()
+            if life <= 0:
+                posX, posY = structure.getPosition()
+                self.cells[posX][posY].eraseUnit()
+                self.structures.remove(structure)
+            else:
+                index += 1
+    
     def healUnits(self):
         """Heals an unit if resting"""
         for unit in self.unit:
@@ -350,6 +361,30 @@ class World:
         
         return unitsDict
 
+    def checkProductionFinished(self):
+        """Checks if the production of a unit has finished"""
+        for city in self.structures:
+            if str(city) == "CT":
+                city.reduceTime() #Reduce the time production by 1
+                posX, posY = city.getPosition() #Gets the position of the city
+                unitX, unitY = None, None
+
+                #Checks if there is space arround the city to spawn an unit
+                for x in range(posX - 2, posX + 2):
+                    for y in range(posY - 2, posY + 2):
+                        if x >= 0 and x < len(self.cells) and y >= 0 and y < len(self.cells[0]):
+                            biome, unit = self.getCellData(x, y)
+                            if biome == "D" and unit == None:
+                                if unitX == None:
+                                    unitX, unitY = x, y
+
+                #If there is space then checks if an unit finished producing
+                if unitX != None:
+                    unit = city.productionFinished()
+                    if unit != None:
+                        city.assignNewUnit()
+                        self.assignNewUnit(unitX, unitY, unit)
+                        self.revealMap()
 
     def setAllUnitsRoute(self):
         """Sets all the units route"""

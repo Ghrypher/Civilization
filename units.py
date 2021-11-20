@@ -92,14 +92,16 @@ class Unit():
 
     def reciveAttack(self, dmg):
         """Reduces the life of the unit based on the damage received"""
-        self.setHealth(self.life - (dmg - self.armor))
+        if dmg - self.armor >= 0:
+            self.setHealth(self.life - (dmg - self.armor))
 
     def meleeAttack(self, unit):
         """Attacks melee an enemy unit"""
         self.actionPosible = False
         self.rest = False
         unit.reciveAttack(self.dmg)
-        self.life -= unit.counterAttack() - self.armor
+        if unit.counterAttack() - self.armor >= 0:
+            self.life -= unit.counterAttack() - self.armor
     
     def counterAttack(self):
         """Returns the damage of the unit"""

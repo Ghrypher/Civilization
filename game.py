@@ -408,6 +408,9 @@ class View():
             unitData = unitsDict[key]
             gold, silver, turns, food = unitData
 
+            if itemMenuRect.collidepoint(mousePos):
+                self.model.assignUnitCreation(key, turns)
+
             #Draws the resources needed of each one to create the unit
             #GOLD
             goldText = pygame.font.Font(self.font, 25).render("gold: " + str(gold), True, (255,255,255))
@@ -745,7 +748,7 @@ class Model():
                         if life <= 0: #Checks if the unit attacking died
                             self.actualUnit = None
                     
-                        self.world.checkUnitsDeath()
+                        self.world.checkDeaths()
 
                     elif abs(x1 - x2) <= 1 and abs(y1 - y2) <= 1:
                         self.actualUnit.setRest(False)
@@ -755,7 +758,7 @@ class Model():
                         if life <= 0: #Checks if the actual unit died
                             self.actualUnit = None
                         
-                        self.world.checkUnitsDeath()
+                        self.world.checkDeaths()
         
         self.attack = False
 
@@ -785,8 +788,14 @@ class Model():
         """Get all posible units to create in the game and returns them with its respective cost of creation"""
         return self.world.getAllUnitsInformation()
 
+    def assignUnitCreation(self, unit, time):
+        """Tells the city to create an unit"""
+        self.actualCity.addUnitProduction(unit, time)
+        self.actualCity.assignNewUnit()
+
     def passTurn(self):
         """All that happens when the turned passes is here"""
+        self.world.checkProductionFinished()
         self.world.setAllUnitsRoute()
         self.moveUnits()
         self.world.healUnits()

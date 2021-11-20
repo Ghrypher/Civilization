@@ -31,6 +31,13 @@ class Structures:
         """Gets the position of the structure"""
         return self.x, self.y
 
+    def reciveAttack(self, dmg):
+        """Reduces the life of the unit based on the damage received"""
+        self.life -= dmg
+
+    def counterAttack(self):
+        return 0
+
     def revealMap(self, map):
         """Reveal all the cells in range of the unit"""
         for x in range(self.x - self.visibility, self.x + self.visibility + 1):
@@ -50,12 +57,43 @@ class City(Structures):
     def __init__(self):
         super().__init__()
         self.maxLife = 30
-        self.life = 30
+        self.life = 2
         self.type = "CT"
         self.production = []
+        self.timeProduction = []
+        self.actualUnit = None
+        self.actualTime = None
         self.visibility = 6
+    
+    def addUnitProduction(self, unit, time):
+        """Adds an unit to the production of it"""
+        self.production.append(unit)
+        self.timeProduction.append(time)
+    
+    def productionFinished(self):
+        """Checks if an unit finished producing and returns it"""
+        if self.actualTime != None:
+            if self.actualTime <= 0:
+                unit = self.actualUnit
+                self.actualUnit = None
+                self.actualTime = None
+                return unit
+            else:
+                return None
+    
+    def reduceTime(self):
+        """Reduce the time needed for the unit to be created"""
+        if self.actualTime != None:
+            if self.actualTime > 0:
+                self.actualTime -= 1
 
-    def reciveAttack(self, dmg):
-        """Reduces the life of the unit based on the damage received"""
-        self.life -= dmg
+    def assignNewUnit(self):
+        """When a unit finishes from producing, a new one is assigned"""
+        if self.actualUnit == None:
+            if self.production != [] and self.timeProduction != []:
+                self.actualUnit = self.production[0]
+                self.production.pop(0)
+                self.actualTime = self.timeProduction[0]
+                self.timeProduction.pop(0)          
+
 
