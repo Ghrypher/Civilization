@@ -9,6 +9,7 @@ class Cell:
         self.active = False
         self.x = None
         self.y = None
+        self.unit = None
         self.neighbors = []
         self.barrier = False
     
@@ -75,14 +76,6 @@ class Cell:
         if self.y > 0 and not grid[self.x][self.y - 1].getBarrier(): #UP
             self.neighbors.append(grid[self.x][self.y - 1])
 
-class Dirt(Cell):
-
-    def __init__(self):
-        super().__init__() 
-        self.biome = "D"
-        self.unit = None
-        self.structure = None
-
     def getUnit(self):
         return self.unit
 
@@ -91,6 +84,12 @@ class Dirt(Cell):
     
     def eraseUnit(self):
         self.unit = None
+
+class Dirt(Cell):
+
+    def __init__(self):
+        super().__init__() 
+        self.biome = "D"
 
 class Mountain(Cell):
 

@@ -4,6 +4,7 @@ from queue import PriorityQueue
 from cell import *
 from units import *
 from structures import *
+from resources import Resources
 
 class World:
     def __init__(self):
@@ -13,6 +14,7 @@ class World:
         self.unit = []
         self.structures = []
         self.cells = []
+        self.resources = []
         self.map_to_text = {"Barrier" : "B",
                             "Dirt" : "D",
                             "Water" : "W",
@@ -50,6 +52,7 @@ class World:
                                 3 : "Flower"}
 
     def setWorldSize(self, ancho, alto):
+        """Sets the width and height of the world"""
         self.ancho = ancho
         self.alto = alto                 
 
@@ -132,22 +135,14 @@ class World:
         """Elimina todo el tablero para poder crear uno nuevo"""
         self.cells = []
     
-    def plants_random(self):
-        """ genera plantas aleatoriamente """
-        plants = self.number_to_plants[random.randrange(1,3)]
-        return plants
-
     def getBiome(self, x, y):
-        """  """
+        """Gets the biome of the cell"""
         biome = self.cells[x][y].getBiome()
         return biome
     
     def getCellData(self, x, y):
         """Gets the biome and the units or estructures on the cell"""
-        if str(self.cells[x][y]) == "D":
-            return self.cells[x][y].getBiome(), self.cells[x][y].getUnit()
-        else:
-            return self.cells[x][y].getBiome(), None
+        return self.cells[x][y].getBiome(), self.cells[x][y].getUnit()
     
     def addCellAndBiome(self, x, y, biome):
         """Añade un objeto Cell a la lista correspondiente y le establece el bioma"""
@@ -179,63 +174,56 @@ class World:
         f.write("\n")
         f.write("\n")
         f.write("; starting the level:")
-
-    def checkUnit(self, posX, posY):
-        """  """
-        for x in range(len(self.Unit)):
-            pos = self.Unit[x].getPosition()
-            if pos == (posX, posY):
-                index = self.Unit[x].getIndex()
-                return index
-        
-    def addUnit(self, posX, posY, index, type, team):
-        self.Unit.append(Unit(type, team))
-        self.Unit[index].setPosition(posX, posY)
-
-    def erase_Units(self):
-        self.Unit = []
     
     def getWidthHeight(self):
         """Gets the width and the height of the actual map"""
         return len(self.cells), len(self.cells[0])
     
-    def assignNewUnit(self, posX, posY, type):
+    def assignNewUnit(self, posX, posY, type, resource):
+        """Creates a new unit and assigns it to a cell"""
         unit = self.textToUnit[type]()
-        unit.setPosition(posX, posY)
-        self.cells[posX][posY].isBarrier()
+        unit.setResources(resource) #Sets the resources to consume food
+        unit.setPosition(posX, posY) #Sets the position
+        self.cells[posX][posY].isBarrier() #Tells that the cell is a barrier
         self.updateCellNeighbors(posX, posY)
-        self.cells[posX][posY].setUnit(unit)
+        self.cells[posX][posY].setUnit(unit) #Assign the unit to the cell
         self.unit.append(unit)
     
-    def assignNewStructure(self, posX, posY, type):
+    def assignNewStructure(self, posX, posY, type, resources):
+        """Creates a new structure and assigns it to a cell"""
         structure = self.textToStructure[type]()
-        structure.setPosition(posX, posY)
-        self.cells[posX][posY].setUnit(structure)
+        structure.setPosition(posX, posY) #Sets the position
+        structure.setResources(resources) 
+        self.cells[posX][posY].setUnit(structure) #Assign the structure to the cell
         self.structures.append(structure)
     
     def reassignUnit(self, posX, posY, newPosX, newPosY):
-        unit = self.cells[posX][posY].getUnit()
+        """Removes a unit from one cell and assigns it to a new cell"""
+        unit = self.cells[posX][posY].getUnit() #Gets the unit
         self.cells[posX][posY].isNotBarrier()
         self.updateCellNeighbors(posX, posY)
-        self.cells[posX][posY].eraseUnit()
+        self.cells[posX][posY].eraseUnit() #Remove the unit from the cell where it was
         unit.setPosition(newPosX, newPosY)
-        self.cells[newPosX][newPosY].setUnit(unit)
+        self.cells[newPosX][newPosY].setUnit(unit) #Assigns it to the new cell
         self.cells[newPosX][newPosY].isBarrier()
         self.updateCellNeighbors(newPosX, newPosY)
 
     def getUnit(self, x, y):
+        """Gets the unit of a cell"""
         if str(self.cells[x][y]) == "D":
             return self.cells[x][y].getUnit()
         else:
             return None
 
     def revealMap(self):
+        """For each unit reveal the map"""
         for unit in self.unit:
             unit.revealMap(self.cells)
         for structure in self.structures:
             structure.revealMap(self.cells)
     
     def getCellVisibility(self, x, y):
+        """Gets the visibility of the cell"""
         return self.cells[x][y].getVisibility()
 
     def hideAllCells(self):
@@ -245,6 +233,7 @@ class World:
                 self.cells[x][y].hideCell()
 
     def clearWorld(self):
+        """Clears the world"""
         self.cells = []
 
     def restartAllUnitActions(self):
@@ -370,8 +359,8 @@ class World:
                 unitX, unitY = None, None
 
                 #Checks if there is space arround the city to spawn an unit
-                for x in range(posX - 2, posX + 2):
-                    for y in range(posY - 2, posY + 2):
+                for x in range(posX - 2, posX + 3):
+                    for y in range(posY - 2, posY + 3):
                         if x >= 0 and x < len(self.cells) and y >= 0 and y < len(self.cells[0]):
                             biome, unit = self.getCellData(x, y)
                             if biome == "D" and unit == None:
@@ -383,8 +372,23 @@ class World:
                     unit = city.productionFinished()
                     if unit != None:
                         city.assignNewUnit()
-                        self.assignNewUnit(unitX, unitY, unit)
+                        self.assignNewUnit(unitX, unitY, unit, city.getResources())
                         self.revealMap()
+
+    def modifyResources(self):
+        """Adds resources from the structures and reduce them from the units"""
+        for structure in self.structures:
+            structure.addResources() #Adds resources generated by the structure
+
+        for unit in self.unit:
+            unit.consumeFood() #Unit consumes food to live
+        
+    def killAllUnits(self):
+        """Kills all the units"""
+        for x in range(len(self.unit)):
+            posX, posY = self.unit[0].getPosition()
+            self.cells[posX][posY].eraseUnit()
+            self.unit.remove(self.unit[0])
 
     def setAllUnitsRoute(self):
         """Sets all the units route"""

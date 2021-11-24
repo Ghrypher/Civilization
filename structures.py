@@ -9,10 +9,15 @@ class Structures:
         self.x = None
         self.y = None
         self.visibility = None
+        self.resources = None
     
     def __str__(self):
         return self.type
     
+    def setResources(self, resources):
+        """Assign the resources of the structure"""
+        self.resources = resources
+
     def getRepaired(self):
         """Repairs the structure, healing it"""
         self.life += 3
@@ -52,12 +57,15 @@ class Structures:
                 except:
                     continue
 
+    def addResources(self):
+        """Adds resources depending of the type of structure"""
+
 class City(Structures):
 
     def __init__(self):
         super().__init__()
         self.maxLife = 30
-        self.life = 2
+        self.life = 30
         self.type = "CT"
         self.production = []
         self.timeProduction = []
@@ -96,4 +104,11 @@ class City(Structures):
                 self.actualTime = self.timeProduction[0]
                 self.timeProduction.pop(0)          
 
+    def addResources(self):
+        self.resources.modifyGold(15)
+        self.resources.modifySilver(8)
+        self.resources.modifyFood(10)
 
+    def getResources(self):
+        """Gets the resources of the city"""
+        return self.resources

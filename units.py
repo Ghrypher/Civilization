@@ -18,6 +18,7 @@ class Unit():
         self.silverCost = None
         self.foodCost = None
         self.timeCreation = None
+        self.resources = None
         self.positionX = None
         self.positionY = None
         self.positionToMoveX = None
@@ -26,6 +27,10 @@ class Unit():
 
     def __str__(self):
         return self.type
+
+    def setResources(self, resource):
+        """Assigns the resources to the unit"""
+        self.resources = resource
 
     def setPosition(self, posX, posY):
         """Asign the position of the unit"""
@@ -128,6 +133,10 @@ class Unit():
     def getCreationData(self):
         """Gets all the information for the creation of the unit"""
         return self.goldCost, self.silverCost, self.timeCreation, self.foodCost
+
+    def consumeFood(self):
+        """Reduces the food of the resources"""
+        self.resources.modifyFood(-self.foodCost)
 
 class Warrior(Unit):
     

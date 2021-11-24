@@ -5,6 +5,7 @@ from pygame.locals import *
 """-----------------------------------------------------------------------------"""
 import random, math,os
 from world import World
+from resources import Resources
 """-----------------------------------------------------------------------------"""
 import pygame
 from pygame.locals import *
@@ -293,6 +294,7 @@ class View():
         self.mapRect = self.mapSurf.get_rect(center = (self.screenWidth/2 + self.cameraMoveX, self.screenHeight/2 + self.cameraMoveY))  
         self.screen.blit(self.mapSurf, self.mapRect)   
         self.drawUnitActions((0, 0), False)
+        self.drawActualResources()
         self.drawCursor(mousePos)
         pygame.display.update()
 
@@ -409,7 +411,7 @@ class View():
             gold, silver, turns, food = unitData
 
             if itemMenuRect.collidepoint(mousePos):
-                self.model.assignUnitCreation(key, turns)
+                self.model.assignUnitCreation(key, turns, gold, silver)
 
             #Draws the resources needed of each one to create the unit
             #GOLD
@@ -466,6 +468,24 @@ class View():
         if self.unit != None:
             return self.unitMenu[self.unit](mousePos, click)
         
+    def drawActualResources(self):
+        """Draws at the top left of the screen the remain resources"""
+        gold, silver, wood, food = self.model.getResources()
+
+        resources = {
+            "Gold: " : gold,
+            "Silver: " : silver,
+            "Wood: " : wood,
+            "Food: " : food
+        }
+
+        screenX = 0
+
+        for key in resources.keys():
+            text = pygame.font.Font(self.font, 17).render(key + str(resources[key]), True, (255,255,255))
+            textRect = text.get_rect()
+            self.screen.blit(text, (screenX, 0))
+            screenX += textRect[2] + 10
 
 class Model():
 
@@ -485,6 +505,8 @@ class Model():
         self.cityMenu = None
 
         self.attack = None #Saves is a unit is going to attack
+
+        self.resources = Resources()
 
     def setAttack(self, value):
         """Sets the attack event"""
@@ -566,14 +588,14 @@ class Model():
 
     def assignNewUnitCell(self, x, y, type):
         """Assigns a new unit to a cell"""
-        self.world.assignNewUnit(x, y, type)
+        self.world.assignNewUnit(x, y, type, self.resources)
         self.getAndAssignUnit(x, y)
         self.actualUnit.restartActions()
         self.setUnitMenu(str(self.actualUnit))
 
     def assignNewCityCell(self, x, y, type):
         """Assigns a new city to a cell"""
-        self.world.assignNewStructure(x, y, type)
+        self.world.assignNewStructure(x, y, type, self.resources)
         self.getAndAssignUnit(x, y)
         self.setCityMenu(str(self.actualCity))
 
@@ -782,25 +804,45 @@ class Model():
         posX, posY = self.actualUnit.getPosition()
         self.actualUnit = None
         self.assignNewCityCell(posX, posY, "CT")
+        self.world.revealMap()
         self.mapNeedsRedraw = True
 
     def getAllUnitsAndCosts(self):
         """Get all posible units to create in the game and returns them with its respective cost of creation"""
         return self.world.getAllUnitsInformation()
 
-    def assignUnitCreation(self, unit, time):
+    def assignUnitCreation(self, unit, time, gold, silver):
         """Tells the city to create an unit"""
-        self.actualCity.addUnitProduction(unit, time)
-        self.actualCity.assignNewUnit()
+        if self.resources.getGold() >= gold:
+            if self.resources.getSilver() >= silver:
+                self.resources.modifyGold(-gold)
+                self.resources.modifySilver(-silver)
+                self.actualCity.addUnitProduction(unit, time)
+                self.actualCity.assignNewUnit()
 
     def passTurn(self):
-        """All that happens when the turned passes is here"""
+        """All that happens when the turn passes is here"""
         self.world.checkProductionFinished()
+        self.world.modifyResources()
+        if self.resources.getFood() == 0:
+            if self.resources.getHunger() == 5:
+                self.actualUnit = None
+                self.world.killAllUnits()
+                self.resources.removeCounters()
+                self.hideMap()
+                self.revealMap()
+            self.resources.addCounter()
+        else:
+            self.resources.removeCounters()
         self.world.setAllUnitsRoute()
         self.moveUnits()
         self.world.healUnits()
         self.restartAllUnitActions()
         self.mapNeedsRedraw = True
+
+    def getResources(self):
+        """Gets all the resources"""
+        return self.resources.getGold(), self.resources.getSilver(), self.resources.getWood(), self.resources.getFood()
 
 if __name__ == "__main__":
     game = Controller()
