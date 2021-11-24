@@ -391,6 +391,11 @@ class World:
             self.cells[posX][posY].eraseUnit()
             self.unit.remove(self.unit[0])
 
+    def getStructureCost(self, type):
+        """Gets the costo of construction of the structure and returns it"""
+        structure = self.textToStructure[type]()
+        return structure.getConstructionCost()
+
     def setAllUnitsRoute(self):
         """Sets all the units route"""
         for unit in self.unit:

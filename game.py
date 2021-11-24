@@ -822,10 +822,14 @@ class Model():
                     except:
                         pass
                 elif str(biome) != "D" and str(biome) != "M":
-                    self.assignNewCityCell(x, y, self.biomeToStructure[str(biome)])
-                    self.actualUnit.setActionPosible(False)
-                    self.hideMap()
-                    self.revealMap()
+                    gold, wood = self.world.getStructureCost(self.biomeToStructure[str(biome)])
+                    if self.resources.getGold() >= gold and self.resources.getWood() >= wood:
+                        self.resources.modifyGold(-gold)
+                        self.resources.modifyWood(-wood)
+                        self.assignNewCityCell(x, y, self.biomeToStructure[str(biome)])
+                        self.actualUnit.setActionPosible(False)
+                        self.hideMap()
+                        self.revealMap()
 
     def cellSelected(self, x, y):
         """Executes a method depending if an event is active or not"""

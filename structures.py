@@ -6,6 +6,8 @@ class Structures:
         self.maxLife = None
         self.life = None
         self.type = ""
+        self.goldCost = None
+        self.woodCost = None
         self.x = None
         self.y = None
         self.visibility = None
@@ -64,6 +66,10 @@ class Structures:
         """Gets the resources of the city"""
         return self.resources
 
+    def getConstructionCost(self):
+        """Returns the resources needed to construct it"""
+        return self.goldCost, self.woodCost
+
 class City(Structures):
 
     def __init__(self):
@@ -120,6 +126,8 @@ class Port(Structures):
         self.maxLife = 30
         self.life = 30
         self.type = "PT"
+        self.goldCost = 20
+        self.woodCost = 40
         self.visibility = 4
 
     def addResources(self):
@@ -132,6 +140,8 @@ class Sawmill(Structures):
         self.maxLife = 30
         self.life = 30
         self.type = "SM"
+        self.goldCost = 60
+        self.woodCost = 0
         self.visibility = 4
 
     def addResources(self):
@@ -144,6 +154,8 @@ class IronMine(Structures):
         self.maxLife = 30
         self.life = 30
         self.type = "IM"
+        self.goldCost = 10
+        self.woodCost = 50
         self.visibility = 4
 
     def addResources(self):
@@ -156,6 +168,8 @@ class GoldMine(Structures):
         self.maxLife = 30
         self.life = 30
         self.type = "GM"
+        self.goldCost = 10
+        self.woodCost = 50
         self.visibility = 4
 
     def addResources(self):
