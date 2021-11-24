@@ -138,6 +138,10 @@ class Unit():
         """Reduces the food of the resources"""
         self.resources.modifyFood(-self.foodCost)
 
+    def setActionPosible(self, value):
+        """Sets if the unit can make an action"""
+        self.actionPosible = value
+
 class Warrior(Unit):
     
     def __init__(self):

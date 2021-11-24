@@ -20,7 +20,7 @@ class Structures:
 
     def getRepaired(self):
         """Repairs the structure, healing it"""
-        self.life += 3
+        self.life += 4
         if self.maxLife < self.life:
             self.life = self.maxLife
     
@@ -59,6 +59,10 @@ class Structures:
 
     def addResources(self):
         """Adds resources depending of the type of structure"""
+
+    def getResources(self):
+        """Gets the resources of the city"""
+        return self.resources
 
 class City(Structures):
 
@@ -109,6 +113,50 @@ class City(Structures):
         self.resources.modifySilver(8)
         self.resources.modifyFood(10)
 
-    def getResources(self):
-        """Gets the resources of the city"""
-        return self.resources
+class Port(Structures):
+
+    def __init__(self):
+        super().__init__()
+        self.maxLife = 30
+        self.life = 30
+        self.type = "PT"
+        self.visibility = 4
+
+    def addResources(self):
+        self.resources.modifyFood(7)
+    
+class Sawmill(Structures):
+
+    def __init__(self):
+        super().__init__()
+        self.maxLife = 30
+        self.life = 30
+        self.type = "SM"
+        self.visibility = 4
+
+    def addResources(self):
+        self.resources.modifyWood(10)
+    
+class IronMine(Structures):
+
+    def __init__(self):
+        super().__init__()
+        self.maxLife = 30
+        self.life = 30
+        self.type = "IM"
+        self.visibility = 4
+
+    def addResources(self):
+        self.resources.modifySilver(5)
+
+class GoldMine(Structures):
+
+    def __init__(self):
+        super().__init__()
+        self.maxLife = 30
+        self.life = 30
+        self.type = "GM"
+        self.visibility = 4
+
+    def addResources(self):
+        self.resources.modifyGold(10)

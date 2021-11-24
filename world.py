@@ -41,7 +41,11 @@ class World:
             "EX" : Explorer,
         }
         self.textToStructure = {
-            "CT" : City
+            "CT" : City,
+            "PT" : Port,
+            "SM" : Sawmill,
+            "IM" : IronMine,
+            "GM" : GoldMine
         }
         self.number_to_biomes = {1 : Water,
                                 2 : Dirt,
@@ -210,10 +214,7 @@ class World:
 
     def getUnit(self, x, y):
         """Gets the unit of a cell"""
-        if str(self.cells[x][y]) == "D":
-            return self.cells[x][y].getUnit()
-        else:
-            return None
+        return self.cells[x][y].getUnit()
 
     def revealMap(self):
         """For each unit reveal the map"""

@@ -166,7 +166,11 @@ class View():
             "AR" : pygame.image.load("asets/characters/red_archer.png"),
             "CP" : pygame.image.load("asets/characters/red_catapult.png"),
             "EX" : pygame.image.load("asets/characters/red_explorer.png"),
-            "CT" : pygame.image.load("asets/buildings/red_capital.png")
+            "CT" : pygame.image.load("asets/buildings/red_capital.png"),
+            "PT" : pygame.image.load("asets/floor/mountain.png"),
+            "SM" : pygame.image.load("asets/floor/mountain.png"),
+            "GM" : pygame.image.load("asets/floor/mountain.png"),
+            "IM" : pygame.image.load("asets/floor/mountain.png")
         }
 
         #Dictionary with the menu of actions of each unit
@@ -177,7 +181,11 @@ class View():
             "AR" : self.commonActions,
             "CP" : self.commonActions,
             "EX" : self.commonActions,
-            "CT" : self.cityOptions
+            "CT" : self.cityOptions,
+            "PT" : self.structuresOptions,
+            "SM" : self.structuresOptions,
+            "GM" : self.structuresOptions,
+            "IM" : self.structuresOptions
         }
 
         self.unit = None
@@ -370,6 +378,7 @@ class View():
         self.screen.blit(buildIcon, iconRect)
         if iconRect.collidepoint(mousePos) and click == True:
             self.unit = None
+            self.model.setConstruct(True)
             self.model.setUnitMenu(None)
             return True
 
@@ -460,6 +469,10 @@ class View():
 
         self.screen.blit(backgroundSurf, backgroundRect)
 
+    def structuresOptions(self, mousePos, click):
+        """It literaly do nothing, used for other structures apart from the city which not display anithing"""
+        self.model.setCityMenu(None)
+
     def drawUnitActions(self, mousePos, click):
         self.unit = self.model.getUnitMenu()
         self.city = self.model.getCityMenu()
@@ -505,12 +518,24 @@ class Model():
         self.cityMenu = None
 
         self.attack = None #Saves is a unit is going to attack
+        self.construct = None #Saces if a worker is going to construct
 
         self.resources = Resources()
+
+        self.biomeToStructure = {
+            "W" : "PT",
+            "F" : "SM",
+            "G" : "GM",
+            "I" : "IM"
+        }
 
     def setAttack(self, value):
         """Sets the attack event"""
         self.attack = value
+
+    def setConstruct(self, value):
+        """change the value if the worker is constructing or not"""
+        self.construct = value
 
     def randomMap(self, width, height):
         """Generates a txt with a random map"""
@@ -784,11 +809,33 @@ class Model():
         
         self.attack = False
 
+    def constructOrRepair(self, x, y):
+        """Constructs or repair a building from a cell"""
+        if self.actualUnit.getActionPosible():
+            biome, unit = self.getCellData(x, y)
+            x1, y1 = self.actualUnit.getPosition()
+            if abs(x - x1) <= 1 and abs(y - y1) <= 1:
+                if unit != None:
+                    try:
+                        unit.getRepaired() #If it is a structure, it will repair it 
+                        self.actualUnit.setActionPosible(False)                   
+                    except:
+                        pass
+                elif str(biome) != "D" and str(biome) != "M":
+                    self.assignNewCityCell(x, y, self.biomeToStructure[str(biome)])
+                    self.actualUnit.setActionPosible(False)
+                    self.hideMap()
+                    self.revealMap()
+
     def cellSelected(self, x, y):
         """Executes a method depending if an event is active or not"""
         if self.attack:
             self.attackUnit(x, y)
             self.attack = False
+            self.mapNeedsRedraw = True
+        elif self.construct:
+            self.constructOrRepair(x, y)
+            self.construct = False
             self.mapNeedsRedraw = True
         else:
             self.getAndAssignUnit(x, y)
