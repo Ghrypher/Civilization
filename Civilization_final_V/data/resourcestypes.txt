@@ -1,5 +1,0 @@
-comida
-oro
-madera
-piedra
-metal
