@@ -118,8 +118,8 @@ class World:
                         self.cells[Y].insert(x, Forest())
                     continue
 
-        self.document_txt("Maps/random_world.txt")
-        f = open("Maps/random_world.txt", "a+")
+        self.document_txt("maps/random_world.txt")
+        f = open("maps/random_world.txt", "a+")
         for y in range(self.alto):
             f.write("\n")
             for x in range(self.ancho):
@@ -128,7 +128,7 @@ class World:
 
     def save_game(self, map):
         print("game saved")
-        self.document_txt("Maps/save.txt")
+        self.document_txt("maps/save.txt")
         f = open("maps/save.txt", "a+")
         for y in range(len(map[0])):
             f.write("\n")
