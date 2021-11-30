@@ -502,7 +502,7 @@ class View():
                         healthBarRect = pygame.Rect(tileRect[0], tileRect[1] + self.tileHeight - heightBar, self.tileWidth, heightBar)
 
                         colorHealthBar = pygame.Surface(((self.tileWidth - 2) * relationHealthBar, heightBar - 2))
-                        colorHealthBar.fill((255, 0, 0))
+                        colorHealthBar.fill((0, 90, 0))
                         colorHealthBarRect = colorHealthBar.get_rect(topleft = (healthBarRect[0] + 1, healthBarRect[1] + 1))
 
                         self.mapSurf.blit(healthBar, healthBarRect)
@@ -535,15 +535,18 @@ class View():
             self.cameraMoveX -= self.cameraVelocity
 
     def centerLoadCamera(self):
-        posX, posY = self.model.getPositionUnit()
-        if posX < self.mapWidth/2:
+        """Centers the camera on the unit generated at the start of the game"""
+        posX, posY = self.model.getPositionUnit() #Gets the position of the unit
+        if posX < self.mapWidth/2: #LEFT 
             self.cameraMoveX += abs(posX - self.mapWidth/2) * self.tileWidth
-        else:
+        else: #RIGHT
             self.cameraMoveX -= abs(posX - self.mapWidth/2) * self.tileWidth
-        if posY < self.mapHeight/2:
+        if posY < self.mapHeight/2: #UP
             self.cameraMoveY += abs(posY - self.mapHeight/2) * self.tileHeight
-        else:
+        else: #DOWN
             self.cameraMoveY -= abs(posY - self.mapHeight/2) * self.tileHeight
+
+        #Checks if the camera is out of the limits and adjust it
         if self.cameraMoveY > self.maxCamMoveY:
             self.cameraMoveY = self.maxCamMoveY
         elif self.cameraMoveY < -self.maxCamMoveY:
@@ -756,6 +759,9 @@ class View():
         }
 
         screenX = 0
+
+        background = pygame.image.load("asets/background_resources.png")
+        self.screen.blit(background, (0, 0))
 
         for key in resources.keys():
             text = pygame.font.Font(self.font, 17).render(key + str(resources[key]), True, (255,255,255))
