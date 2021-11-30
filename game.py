@@ -780,34 +780,35 @@ class Model():
     def attackUnit(self, x, y):
         """Attacks if the cell selected has an enemy unit"""
         biome, unit = self.getCellData(x, y)
-        if unit != None:
-            if unit != self.actualUnit:
-                if self.actualUnit.getActionPosible():
-                    x1, y1 = self.actualUnit.getPosition()
-                    x2, y2 = unit.getPosition()
+        if self.actualUnit != None:
+            if unit != None:
+                if unit != self.actualUnit:
+                    if self.actualUnit.getActionPosible():
+                        x1, y1 = self.actualUnit.getPosition()
+                        x2, y2 = unit.getPosition()
 
-                    #Checks if the attack is a distance or melee attack
-                    if abs(x1 - x2) > 1 and abs(x1 - x2) <= self.actualUnit.getAttackRange() and abs(y1 - y2) > 1 and abs(y1 - y2) <= self.actualUnit.getAttackRange(): 
-                        self.actualUnit.setRest(False)
-                        self.actualUnit.rangeAttack(unit)
-                        life, maxLife = self.actualUnit.getHealthData()
+                        #Checks if the attack is a distance or melee attack
+                        if abs(x1 - x2) > 1 and abs(x1 - x2) <= self.actualUnit.getAttackRange() and abs(y1 - y2) > 1 and abs(y1 - y2) <= self.actualUnit.getAttackRange(): 
+                            self.actualUnit.setRest(False)
+                            self.actualUnit.rangeAttack(unit)
+                            life, maxLife = self.actualUnit.getHealthData()
 
-                        if life <= 0: #Checks if the unit attacking died
-                            self.actualUnit = None
-                    
-                        self.world.checkDeaths()
-
-                    elif abs(x1 - x2) <= 1 and abs(y1 - y2) <= 1:
-                        self.actualUnit.setRest(False)
-                        self.actualUnit.meleeAttack(unit)
-                        life, maxLife = self.actualUnit.getHealthData()
-
-                        if life <= 0: #Checks if the actual unit died
-                            self.actualUnit = None
+                            if life <= 0: #Checks if the unit attacking died
+                                self.actualUnit = None
                         
-                        self.world.checkDeaths()
-        
-        self.attack = False
+                            self.world.checkDeaths()
+
+                        elif abs(x1 - x2) <= 1 and abs(y1 - y2) <= 1:
+                            self.actualUnit.setRest(False)
+                            self.actualUnit.meleeAttack(unit)
+                            life, maxLife = self.actualUnit.getHealthData()
+
+                            if life <= 0: #Checks if the actual unit died
+                                self.actualUnit = None
+                            
+                            self.world.checkDeaths()
+            
+            self.attack = False
 
     def constructOrRepair(self, x, y):
         """Constructs or repair a building from a cell"""
@@ -846,8 +847,9 @@ class Model():
 
     def unitRest(self):
         """Sets that the unit is resting"""
-        if self.actualUnit.getActionPosible():
-            self.actualUnit.unitResting() 
+        if self.actualUnit != None:
+            if self.actualUnit.getActionPosible():
+                self.actualUnit.unitResting() 
 
     def foundCity(self):
         """Erase the founder unit and creates a city"""
