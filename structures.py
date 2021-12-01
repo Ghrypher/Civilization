@@ -3,8 +3,8 @@ class Structures:
 
     def __init__(self):
         """ constructor de la clase """
-        self.maxLife = 15
-        self.life = 15
+        self.maxLife = None
+        self.life = None
         self.type = ""
         self.goldCost = None
         self.woodCost = None
@@ -123,6 +123,8 @@ class Port(Structures):
 
     def __init__(self):
         super().__init__()
+        self.maxLife = 30
+        self.life = 30
         self.type = "PT"
         self.goldCost = 20
         self.woodCost = 40
@@ -135,6 +137,8 @@ class Sawmill(Structures):
 
     def __init__(self):
         super().__init__()
+        self.maxLife = 30
+        self.life = 30
         self.type = "SM"
         self.goldCost = 60
         self.woodCost = 0
@@ -147,6 +151,8 @@ class IronMine(Structures):
 
     def __init__(self):
         super().__init__()
+        self.maxLife = 30
+        self.life = 30
         self.type = "IM"
         self.goldCost = 10
         self.woodCost = 50
@@ -159,6 +165,8 @@ class GoldMine(Structures):
 
     def __init__(self):
         super().__init__()
+        self.maxLife = 30
+        self.life = 30
         self.type = "GM"
         self.goldCost = 10
         self.woodCost = 50

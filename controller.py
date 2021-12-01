@@ -19,11 +19,14 @@ class Controller():
             for event in pygame.event.get():
                 if event.type == QUIT: # If the X pressed then finish the program
                     self.terminate()
+                if event.type == pygame.VIDEORESIZE:
+                    scale = (event.w,event.h)
+                    self.view.setRescaling(scale)
                 if event.type == MOUSEBUTTONDOWN: # Checks if the mouse was pressed
                     mousePressed = True
                 if event.type == KEYDOWN: # Records the keys pressed
                     if event.key == K_ESCAPE:
-                        self.view.goBack()                        
+                        self.view.goBack()            
 
             mousePos = pygame.mouse.get_pos() #Gets the position in pixels of the mouse    
             map = self.view.checkCollition(mousePos, mousePressed)

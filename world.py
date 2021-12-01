@@ -4,6 +4,7 @@ from queue import PriorityQueue
 from cell import *
 from units import *
 from structures import *
+from resources import Resources
 
 class World:
     def __init__(self):
@@ -13,7 +14,8 @@ class World:
         self.unit = []
         self.structures = []
         self.cells = []
-        self.mapToText = {"Barrier" : "B",
+        self.resources = []
+        self.map_to_text = {"Barrier" : "B",
                             "Dirt" : "D",
                             "Water" : "W",
                             "Mountain" :"M",
@@ -123,6 +125,19 @@ class World:
             for x in range(self.ancho):
                 tile = str(self.cells[y][x])
                 f.write(tile)
+
+    def save_game(self, map):
+        print("game saved")
+        self.document_txt("maps/save.txt")
+        f = open("maps/save.txt", "a+")
+        for y in range(len(map[0])):
+            f.write("\n")
+            for x in range(len(map)):
+                f.write(self.getBiome(x, y))
+    
+    def limpiar_tablero(self):
+        """Elimina todo el tablero para poder crear uno nuevo"""
+        self.cells = []
     
     def getBiome(self, x, y):
         """Gets the biome of the cell"""
